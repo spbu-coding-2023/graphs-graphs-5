@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import model.Graph
+import view.BlackAndWhite70
 
 
 class MainScreenViewModel<V>(graph: Graph<V>, private val representationStrategy: RepresentationStrategy) {
@@ -16,8 +17,7 @@ class MainScreenViewModel<V>(graph: Graph<V>, private val representationStrategy
     fun resetGraphView() {
         representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
         graphViewModel.vertices.forEach{ v ->
-            /* change color when applying view and theme */
-            v.color = Color.Black
+            v.color = BlackAndWhite70
             v.radius = 20.dp
         }
     }

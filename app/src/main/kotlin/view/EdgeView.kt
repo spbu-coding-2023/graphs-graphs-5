@@ -49,8 +49,7 @@ fun <V> EdgeView(
             }
             drawPath(
                 path = path,
-                /* change color when applying view and theme */
-                color = Color.Black,
+                color = BlackAndWhite10,
                 style = Stroke(width = 0.8.dp.toPx())
             )
         } else {

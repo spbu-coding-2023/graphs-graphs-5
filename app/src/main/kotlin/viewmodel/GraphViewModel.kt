@@ -1,9 +1,9 @@
 package viewmodel
 
 import androidx.compose.runtime.State
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import model.Graph
+import view.BlackAndWhite70
 
 class GraphViewModel<V>(
     private val graph: Graph<V>,
@@ -11,8 +11,7 @@ class GraphViewModel<V>(
     showEdgesLabels: State<Boolean>,
 ) {
     private val _vertices = graph.vertices.associateWith { v ->
-        /* change color when applying view and theme */
-        VertexViewModel(0.dp, 0.dp, Color.Black, v, showVerticesLabels)
+        VertexViewModel(0.dp, 0.dp, BlackAndWhite70, v, showVerticesLabels)
     }
     private val _edges = graph.edges.associateWith { e ->
         val fst = _vertices[e.source]
