@@ -99,7 +99,7 @@ open class DirectedGraph<V> : Graph<V> {
         return ehc
     }
 
-    override fun getRankingList(): List<Pair<Vertex<V>, Double>> {
+    override fun getRankingListOfVertices(): List<Pair<Vertex<V>, Double>> {
         val rankingList = mutableListOf<Pair<Vertex<V>, Double>>()
         vertices.forEach {
             rankingList.add(Pair(it, (calculateEHC(it))))

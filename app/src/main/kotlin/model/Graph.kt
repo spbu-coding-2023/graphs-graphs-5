@@ -11,5 +11,5 @@ interface Graph<V> {
     fun edges(source: Vertex<V>): ArrayList<Edge<V>>
     fun weight(source: Vertex<V>, destination: Vertex<V>): Double?
     /* this method is needed for identifying key vertices and further mapping with viewmodel */
-    fun getRankingList(): List<Pair<Vertex<V>, Double>>
+    fun getRankingListOfVertices(): List<Pair<Vertex<V>, Double>>
 }
