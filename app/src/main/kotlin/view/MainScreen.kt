@@ -59,8 +59,10 @@ fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: Ma
                     showVerticesLabels(viewModel)
                     showEdgesLabels(viewModel)
                     resetGraphView(viewModel)
+                    var algoNum by remember { mutableStateOf(0)}
+                    var message by remember { mutableStateOf("") }
                     Button(
-                        onClick = { },
+                        onClick = { message = viewModel.run(algoNum) },
                         enabled = true,
                         colors = ButtonDefaults.outlinedButtonColors(
                             backgroundColor = MaterialTheme.colorScheme.secondary
@@ -71,7 +73,7 @@ fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: Ma
                             text = "Run", color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
-                /* add menu */
+                    algoNum = menu()
                 }
                 Surface(
                     modifier = Modifier.weight(1f),
@@ -143,4 +145,82 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
             color = MaterialTheme.colorScheme.onSecondary
         )
     }
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun menu(): Int {
+    var algoNum by remember { mutableStateOf(0)}
+    val list = listOf(
+        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
+        "Bridges", "Min path (Deijkstra)", "Min path (Ford-Bellman)"
+    )
+    /* by remember : if the variable changes, the parts of code where it's used change view accordingly */
+    var selectedText by remember {
+        mutableStateOf("Pick an algo")
+    }
+    var isExpanded by remember {
+        mutableStateOf(false)
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 4.dp),
+        horizontalAlignment = Alignment.Start
+    ) {
+        androidx.compose.material3.ExposedDropdownMenuBox(
+            expanded = isExpanded,
+            onExpandedChange = { isExpanded = !isExpanded },
+            modifier = Modifier.background(MaterialTheme.colorScheme.surface)
+        ) {
+            OutlinedTextField(
+                value = selectedText,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded) },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    textColor = MaterialTheme.colorScheme.onSurface,
+                    focusedBorderColor = MaterialTheme.colorScheme.outline,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                ),
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = { isExpanded = false }
+            ) {
+                list.forEachIndexed { index, text ->
+                    androidx.compose.material3.DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = text,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        onClick = {
+                            algoNum = index
+                            selectedText = list[index]
+                            isExpanded = false
+                        },
+                        contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                    )
+                }
+                Divider(
+                    color = MaterialTheme.colorScheme.outline
+                )
+                Text(
+                    modifier = Modifier.padding(8.dp),
+                    text = when {
+                        (selectedText == "Pick an algo") -> "Currently selected: none"
+                        else -> "Currently selected: $selectedText"
+                    },
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+    }
+    return algoNum
 }

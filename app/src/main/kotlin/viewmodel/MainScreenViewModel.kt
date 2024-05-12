@@ -21,4 +21,20 @@ class MainScreenViewModel<V>(graph: Graph<V>, private val representationStrategy
             v.radius = 20.dp
         }
     }
+    fun run(num: Int): String {
+        var message = ""
+        if(graphViewModel.isDirected) print("yep") else print("nope")
+        when {
+            num == 1 -> highlightKeyVertices()
+            else -> {
+                resetGraphView()
+            }
+        }
+        return message
+    }
+
+    private fun highlightKeyVertices() {
+        TODO("Not yet implemented")
+    }
+
 }
