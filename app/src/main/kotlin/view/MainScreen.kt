@@ -50,7 +50,12 @@ fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: Ma
                     style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.width(16.dp))
-                /* add switcher for themes */
+                ThemeSwitcher(
+                    darkTheme = darkTheme,
+                    size = 45.dp,
+                    padding = 5.dp,
+                    onClick = onThemeUpdated
+                )
             }
             Row(
             ) {
@@ -223,4 +228,73 @@ fun menu(): Int {
         }
     }
     return algoNum
+}
+
+@Composable
+fun ThemeSwitcher(
+    darkTheme: Boolean = false,
+    size: Dp = 150.dp,
+    iconSize: Dp = size / 3,
+    padding: Dp = 10.dp,
+    borderWidth: Dp = 2.dp,
+    parentShape: Shape = CircleShape,
+    toggleShape: Shape = CircleShape,
+    animationSpec: AnimationSpec<Dp> = tween(durationMillis = 300),
+    onClick: () -> Unit
+) {
+    val offset by animateDpAsState(
+        targetValue = if (darkTheme) 0.dp else size,
+        animationSpec = animationSpec
+    )
+    Box(modifier = Modifier
+        .width(size * 2)
+        .height(size)
+        .clip(shape = parentShape)
+        .clickable { onClick() }
+        .background(MaterialTheme.colorScheme.secondaryContainer)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(size)
+                .offset(x = offset)
+                .padding(all = padding)
+                .clip(shape = toggleShape)
+                .background(MaterialTheme.colorScheme.primary)
+        ) {}
+        Row(
+            modifier = Modifier
+                .border(
+                    border = BorderStroke(
+                        width = borderWidth,
+                        color = MaterialTheme.colorScheme.primary
+                    ),
+                    shape = parentShape
+                )
+        ) {
+            Box(
+                modifier = Modifier.size(size),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.Icon(
+                    modifier = Modifier.size(iconSize),
+                    imageVector = Icons.Default.HeartBroken,
+                    contentDescription = null,
+                    tint = if (darkTheme) MaterialTheme.colorScheme.secondaryContainer
+                    else MaterialTheme.colorScheme.primary
+                )
+            }
+            Box(
+                modifier = Modifier.size(size),
+                contentAlignment = Alignment.Center
+            ) {
+                androidx.compose.material3.Icon(
+                    modifier = Modifier.size(iconSize),
+                    imageVector = Icons.Default.Favorite,
+                    contentDescription = null,
+                    tint = if (darkTheme) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.secondaryContainer
+                )
+            }
+        }
+    }
 }

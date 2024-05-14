@@ -26,5 +26,11 @@ class GraphViewModel<V>(
         get() = _edges.values
     val isDirected: Boolean
         get() = graph.isDirected
-    /* add binding to ehc algorithm */
+    /* for keyVertices */
+    val _rankingListOfVertices = graph.getRankingListOfVertices().associateWith {
+        Pair(VertexViewModel(0.dp, 0.dp, BlackAndWhite70, it.first, showVerticesLabels), it.second)
+    }
+    val rankingListOfVertices: Collection<Pair<VertexViewModel<V>, Double>>
+        get() = _rankingListOfVertices.values
+    /* end */
 }

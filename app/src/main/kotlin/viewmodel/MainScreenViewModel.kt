@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import model.Graph
-import view.BlackAndWhite70
+import view.*
 
 
 class MainScreenViewModel<V>(graph: Graph<V>, private val representationStrategy: RepresentationStrategy) {
@@ -23,7 +23,6 @@ class MainScreenViewModel<V>(graph: Graph<V>, private val representationStrategy
     }
     fun run(num: Int): String {
         var message = ""
-        if(graphViewModel.isDirected) print("yep") else print("nope")
         when {
             num == 1 -> highlightKeyVertices()
             else -> {
@@ -34,7 +33,32 @@ class MainScreenViewModel<V>(graph: Graph<V>, private val representationStrategy
     }
 
     private fun highlightKeyVertices() {
-        TODO("Not yet implemented")
+        val rankingList = mutableListOf<Double>()
+        graphViewModel.rankingListOfVertices.forEach{ v ->
+            val vertexRank = v.second
+            rankingList.add(vertexRank)
+        }
+        val maxRank = rankingList.max()
+        var i = 0
+        graphViewModel.vertices.forEach{ v ->
+            val relativeRank = rankingList[i]/maxRank
+            val radius = when {
+                relativeRank > 0.8 -> 36
+                relativeRank > 0.6 -> 32
+                relativeRank > 0.4 -> 26
+                relativeRank > 0.2 -> 20
+                else -> 14
+            }
+            v.radius = radius.dp
+            val color = when {
+                relativeRank > 0.8 -> BlackAndWhite20
+                relativeRank > 0.6 -> BlackAndWhite35
+                relativeRank > 0.4 -> BlackAndWhite50
+                relativeRank > 0.2 -> BlackAndWhite65
+                else -> BlackAndWhite80
+            }
+            v.color = color
+            i++
+        }
     }
-
 }
