@@ -12,4 +12,5 @@ interface Graph<V> {
     fun weight(source: Vertex<V>, destination: Vertex<V>): Double?
     /* this method is needed for identifying key vertices and further mapping with viewmodel */
     fun getRankingListOfVertices(): List<Pair<Vertex<V>, Double>>
+    fun findStrongComponents(): MutableList<List<Vertex<V>>>
 }
