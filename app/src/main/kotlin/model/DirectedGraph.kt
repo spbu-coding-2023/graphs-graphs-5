@@ -107,7 +107,4 @@ open class DirectedGraph<V> : Graph<V> {
         return rankingList
     }
 
-    override fun findStrongComponents(): MutableList<List<Vertex<V>>> {
-        return findStrongComponents(this)
-    }
 }
