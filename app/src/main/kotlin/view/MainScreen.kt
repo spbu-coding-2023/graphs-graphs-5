@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import kotlinx.coroutines.launch
-import viewmodel.MainScreenViewModel
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.HeartBroken
@@ -29,9 +28,84 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.*
+import model.GraphType
+import viewmodel.CircularPlacementStrategy
+import viewmodel.DGScreenViewModel
+import viewmodel.MainScreenViewModel
+import viewmodel.UGScreenViewModel
+
+//@Composable
+//fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: MainScreenViewModel<V>) {
+//    val snackbarHostState = remember { SnackbarHostState() }
+//    val scope = rememberCoroutineScope()
+//    Scaffold(
+//        /* add snackbar for some messages */
+//    ) {
+//        Column(
+//            modifier = Modifier.fillMaxSize().padding(16.dp)
+//        ) {
+//            Row(
+//                modifier = Modifier.fillMaxWidth().height(50.dp)
+//            ) {
+//                Text(
+//                    text = "",
+//                    modifier = Modifier.weight(1f),
+//                    color = MaterialTheme.colorScheme.onSurface,
+//                    style = MaterialTheme.typography.bodyLarge
+//                )
+//                Spacer(modifier = Modifier.width(16.dp))
+//                ThemeSwitcher(
+//                    darkTheme = darkTheme,
+//                    size = 45.dp,
+//                    padding = 5.dp,
+//                    onClick = onThemeUpdated
+//                )
+//            }
+//            Row(
+//            ) {
+//                Column(modifier = Modifier.width(300.dp)) {
+//                    Spacer(modifier = Modifier.padding(8.dp))
+//                    showVerticesLabels(viewModel)
+//                    showEdgesLabels(viewModel)
+//                    resetGraphView(viewModel)
+//                    var algoNum by remember { mutableStateOf(0)}
+//                    var message by remember { mutableStateOf("") }
+//                    Button(
+//                        onClick = { message = viewModel.run(algoNum) },
+//                        enabled = true,
+//                        colors = ButtonDefaults.outlinedButtonColors(
+//                            backgroundColor = MaterialTheme.colorScheme.secondary
+//                        ),
+//                        modifier = Modifier.padding(4.dp)
+//                    ) {
+//                        Text(
+//                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
+//                        )
+//                    }
+//                    algoNum = menu()
+//                }
+//                Surface(
+//                    modifier = Modifier.weight(1f),
+//                    color = MaterialTheme.colorScheme.surface
+//                    ) {
+//                    GraphView(viewModel.graphViewModel)
+//                }
+//            }
+//
+//        }
+//    }
+//}
+//@Composable
+//fun <V> MainScreenFactory(graphType: GraphType) {
+//    when (graphType) {
+//        GraphType.DIRECTED -> DGMainScreen(darkTheme = darkTheme,
+//            onThemeUpdated = { darkTheme = !darkTheme },
+//            DGScreenViewModel(graph, CircularPlacementStrategy())
+//    }
+//}
 
 @Composable
-fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: MainScreenViewModel<V>) {
+fun <V> DGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: DGScreenViewModel<V>) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     Scaffold(
@@ -83,8 +157,70 @@ fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: Ma
                 Surface(
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.surface
+                ) {
+                    DirectedGraphView(viewModel.graphViewModel)
+                }
+            }
+
+        }
+    }
+}
+
+@Composable
+fun <V> UGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: UGScreenViewModel<V>) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        /* add snackbar for some messages */
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().height(50.dp)
+            ) {
+                Text(
+                    text = "",
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                ThemeSwitcher(
+                    darkTheme = darkTheme,
+                    size = 45.dp,
+                    padding = 5.dp,
+                    onClick = onThemeUpdated
+                )
+            }
+            Row(
+            ) {
+                Column(modifier = Modifier.width(300.dp)) {
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    showVerticesLabels(viewModel)
+                    showEdgesLabels(viewModel)
+                    resetGraphView(viewModel)
+                    var algoNum by remember { mutableStateOf(0)}
+                    var message by remember { mutableStateOf("") }
+                    Button(
+                        onClick = { message = viewModel.run(algoNum) },
+                        enabled = true,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.padding(4.dp)
                     ) {
-                    GraphView(viewModel.graphViewModel)
+                        Text(
+                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                    algoNum = menu()
+                }
+                Surface(
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.surface
+                ) {
+                    UndirectedGraphView(viewModel.graphViewModel)
                 }
             }
 
