@@ -18,8 +18,4 @@ open class CommonAlgoritnmsImpl<V>: CommonAlgoritnms<V> {
     override fun findPathWithDijkstra(graph: Graph<V>): ArrayDeque<Int>? {
         TODO("Not yet implemented")
     }
-
-    override fun findPathWithFordBellman(graph: Graph<V>): ArrayDeque<Int>? {
-        TODO("Not yet implemented")
-    }
 }

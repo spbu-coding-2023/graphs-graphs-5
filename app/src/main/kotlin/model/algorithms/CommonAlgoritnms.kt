@@ -10,6 +10,4 @@ interface CommonAlgoritnms<V> {
     fun getCycles(graph: Graph<V>): MutableList<MutableList<Int>>?
 
     fun findPathWithDijkstra(graph: Graph<V>): ArrayDeque<Int>?
-
-    fun findPathWithFordBellman(graph: Graph<V>): ArrayDeque<Int>?
 }
