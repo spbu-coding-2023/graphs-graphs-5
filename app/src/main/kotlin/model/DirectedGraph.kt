@@ -24,11 +24,11 @@ open class DirectedGraph<V> : Graph<V> {
         return vertex
     }
 
-    override fun addEdge(source: Vertex<V>, destination: Vertex<V>, weight: Double?) {
+    override fun addEdge(source: Vertex<V>, destination: Vertex<V>, weight: Double) {
         addDirectedEdge(source, destination, weight)
     }
 
-    fun addDirectedEdge(source: Vertex<V>, destination: Vertex<V>, weight: Double?) {
+    fun addDirectedEdge(source: Vertex<V>, destination: Vertex<V>, weight: Double) {
         val edge = Edge(_edges.count(), source, destination, weight)
         _edges[_edges.count()] = edge
         adjacencies[source]?.add(edge)
