@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import viewmodel.GraphViewModel
 
 @Composable
-fun <V> GraphView(
+fun <V> DirectedGraphView(
     viewModel: GraphViewModel<V>,
 ) {
     Box(
@@ -19,7 +19,23 @@ fun <V> GraphView(
             VertexView(v)
         }
         viewModel.edges.forEach { e ->
-            EdgeView(e)
+            DirectedEdgeView(e)
+        }
+    }
+}
+
+@Composable
+fun <V> UndirectedGraphView(
+    viewModel: GraphViewModel<V>,
+) {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(24.dp)
+    ) {
+        viewModel.vertices.forEach { v ->
+            VertexView(v)
+        }
+        viewModel.edges.forEach { e ->
+            UndirectedEdgeView(e)
         }
     }
 }
