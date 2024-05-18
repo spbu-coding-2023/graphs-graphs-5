@@ -22,10 +22,16 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
     implementation(compose.materialIconsExtended)
+//    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
 //    implementation("io.coil-kt:coil-compose:2.2.2")
 //    implementation("com.google.accompanist:accompanist-flowlayout:0.24.8-beta")
 //    implementation("io.coil-kt:coil")
     //implementation(androidx.compose.material3:material3:1.0.0-alpha02)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 compose.desktop {
