@@ -1,10 +1,11 @@
 package model
 
-import kotlin.math.pow
-
 open class DirectedGraph<V> : Graph<V> {
     private val _vertices = hashMapOf<Int, Vertex<V>>()
     private val _edges = hashMapOf<Int, Edge<V>>()
+
+    override val graphType: GraphType
+        get() = GraphType.DIRECTED
 
     override val vertices: Collection<Vertex<V>>
         get() = _vertices.values

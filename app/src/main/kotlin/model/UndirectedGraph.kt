@@ -7,4 +7,6 @@ class UndirectedGraph<V> : DirectedGraph<V>(), Graph<V> {
     }
     override val isDirected: Boolean
         get() = false
+    override val graphType: GraphType
+        get() = GraphType.UNDIRECTED
 }
