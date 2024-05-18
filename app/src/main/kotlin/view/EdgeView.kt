@@ -30,24 +30,27 @@ fun <V> DirectedEdgeView(
             viewModel.v.x.toPx() + viewModel.v.radius.toPx(),
             viewModel.v.y.toPx() + viewModel.v.radius.toPx(),
         )
-        val arrowheadSize = 15f
-        val angleRadians = PI / 6
+        val arrowSize = 15f // Size of the arrowhead
+        val angle = atan2(end.y - start.y, end.x - start.x)
+        val alpha = PI / 6
+        val midX = (start.x + end.x) / 2
+        val midY = (start.y + end.y) / 2
+        val arrowPoint1X = midX - arrowSize * cos(angle + alpha)
+        val arrowPoint1Y = midY - arrowSize * sin(angle + alpha)
+        val arrowPoint2X = midX - arrowSize * cos(angle - alpha)
+        val arrowPoint2Y = midY - arrowSize * sin(angle - alpha)
         val path = Path().apply {
             moveTo(start.x, start.y)
             lineTo(end.x, end.y)
-            val angle = atan2(end.y - start.y, end.x - start.x)
-            val x1 = end.x - arrowheadSize * cos(angle - angleRadians)
-            val y1 = end.y - arrowheadSize * sin(angle - angleRadians)
-            val x2 = end.x - arrowheadSize * cos(angle + angleRadians)
-            val y2 = end.y - arrowheadSize * sin(angle + angleRadians)
-            lineTo(x1.toFloat(), y1.toFloat())
-            moveTo(end.x, end.y)
-            lineTo(x2.toFloat(), y2.toFloat())
+            moveTo(midX, midY)
+            lineTo(arrowPoint1X.toFloat(), arrowPoint1Y.toFloat())
+            moveTo(midX, midY)
+            lineTo(arrowPoint2X.toFloat(), arrowPoint2Y.toFloat())
         }
         drawPath(
             path = path,
-            color = BlackAndWhite10,
-            style = Stroke(width = 0.8.dp.toPx())
+            color = BlackAndWhite20,
+            style = Stroke(width = 1.3.dp.toPx())
         )
     }
 }
@@ -68,7 +71,8 @@ fun <V> UndirectedEdgeView(
                 viewModel.v.x.toPx() + viewModel.v.radius.toPx(),
                 viewModel.v.y.toPx() + viewModel.v.radius.toPx(),
             ),
-            color = BlackAndWhite10,
+            color = BlackAndWhite20,
+            strokeWidth = 1.3.dp.toPx()
         )
 
     }
