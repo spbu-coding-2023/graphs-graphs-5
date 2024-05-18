@@ -15,11 +15,11 @@ fun <V> DirectedGraphView(
     Box(
         modifier = Modifier.fillMaxSize().padding(24.dp)
     ) {
-        viewModel.vertices.forEach { v ->
-            VertexView(v)
-        }
         viewModel.edges.forEach { e ->
             DirectedEdgeView(e)
+        }
+        viewModel.vertices.forEach { v ->
+            VertexView(v)
         }
     }
 }
@@ -31,11 +31,11 @@ fun <V> UndirectedGraphView(
     Box(
         modifier = Modifier.fillMaxSize().padding(24.dp)
     ) {
-        viewModel.vertices.forEach { v ->
-            VertexView(v)
-        }
         viewModel.edges.forEach { e ->
             UndirectedEdgeView(e)
+        }
+        viewModel.vertices.forEach { v ->
+            VertexView(v)
         }
     }
 }
