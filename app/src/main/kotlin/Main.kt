@@ -7,14 +7,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import model.DirectedGraph
-import model.Graph
+import view.DGMainScreen
 import view.MainScreen
 import view.Material3AppTheme
 import viewmodel.CircularPlacementStrategy
+import viewmodel.DGScreenViewModel
 import viewmodel.MainScreenViewModel
 import java.awt.Dimension
 
-val graph : Graph<Int> = DirectedGraph<Int>().apply {
+val graph = DirectedGraph<Int>().apply {
     val zero = addVertex(0)
     val one = addVertex(1)
     val two = addVertex(2)
@@ -22,11 +23,11 @@ val graph : Graph<Int> = DirectedGraph<Int>().apply {
     val four = addVertex(4)
     val five = addVertex(5)
 
-    addEdge(two, zero, null)
+    addEdge(two, zero)
     addEdge(zero, one)
     addEdge(one, two)
     addEdge(one, three)
-    addEdge(four, three)
+//    addEdge(four, three)
     addEdge(three, four)
     addEdge(four, five)
 }
@@ -35,10 +36,10 @@ val graph : Graph<Int> = DirectedGraph<Int>().apply {
 fun App() {
     var darkTheme by remember { mutableStateOf(false) }
     Material3AppTheme(darkTheme = darkTheme) {
-        MainScreen(
+        DGMainScreen(
             darkTheme = darkTheme,
             onThemeUpdated = { darkTheme = !darkTheme },
-            MainScreenViewModel(graph, CircularPlacementStrategy()
+            DGScreenViewModel(graph, CircularPlacementStrategy()
             )
         )
     }
