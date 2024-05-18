@@ -3,15 +3,16 @@ package viewmodel
 import androidx.compose.runtime.State
 import androidx.compose.ui.unit.dp
 import model.Graph
+import view.BlackAndWhite60
 import view.BlackAndWhite70
 
 class GraphViewModel<V>(
     private val graph: Graph<V>,
     showVerticesLabels: State<Boolean>,
-    showEdgesLabels: State<Boolean>,
+    showEdgesLabels: State<Boolean>
 ) {
     private val _vertices = graph.vertices.associateWith { v ->
-        VertexViewModel(0.dp, 0.dp, BlackAndWhite70, v, showVerticesLabels)
+        VertexViewModel(0.dp, 0.dp, BlackAndWhite60, v, showVerticesLabels)
     }
     private val _edges = graph.edges.associateWith { e ->
         val fst = _vertices[e.source]
@@ -26,11 +27,4 @@ class GraphViewModel<V>(
         get() = _edges.values
     val isDirected: Boolean
         get() = graph.isDirected
-    /* for keyVertices */
-    val _rankingListOfVertices = graph.getRankingListOfVertices().associateWith {
-        Pair(VertexViewModel(0.dp, 0.dp, BlackAndWhite70, it.first, showVerticesLabels), it.second)
-    }
-    val rankingListOfVertices: Collection<Pair<VertexViewModel<V>, Double>>
-        get() = _rankingListOfVertices.values
-    /* end */
 }
