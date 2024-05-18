@@ -2,7 +2,7 @@ package model.algorithms
 
 import model.*
 
-class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgoritnmsImpl<V>() {
+class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
     override fun findStrongComponents(graph: DirectedGraph<V>): MutableList<List<Vertex<V>>> {
         val visited = BooleanArray(graph.vertices.size)
         val listOfOrder = mutableListOf<Vertex<V>>()
