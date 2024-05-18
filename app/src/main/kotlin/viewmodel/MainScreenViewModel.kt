@@ -13,8 +13,8 @@ import model.algorithms.CommonAlgorithms
 import model.algorithms.CommonAlgorithmsImpl
 import view.*
 
-abstract class MainScreenViewModel<V>(
-    open val graph: Graph<V>,
+open class MainScreenViewModel<V>(
+    val graph: Graph<V>,
     private val representationStrategy: RepresentationStrategy
 ) {
     val showVerticesLabels = mutableStateOf(false)
@@ -26,7 +26,7 @@ abstract class MainScreenViewModel<V>(
     fun resetGraphView() {
         representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
         graphViewModel.vertices.forEach{ v ->
-            v.color = BlackAndWhite70
+            v.color = BlackAndWhite60
             v.radius = 20.dp
         }
     }
@@ -98,12 +98,13 @@ abstract class MainScreenViewModel<V>(
 //}
 
 class DGScreenViewModel<V>(
-    override val graph: DirectedGraph<V>,
+    graph: DirectedGraph<V>,
     representationStrategy: RepresentationStrategy
 ) : MainScreenViewModel<V>(graph, representationStrategy) {
     override val algorithms = DirectedGraphAlgorithmsImpl<V>()
+    val graph2 = graph
     private fun findStrongComponents() {
-        val componentsList = algorithms.findStrongComponents(graph)
+        val componentsList = algorithms.findStrongComponents(graph2)
 
     }
 }
