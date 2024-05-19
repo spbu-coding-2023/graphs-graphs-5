@@ -2,9 +2,23 @@ package model.algorithms
 
 import model.Graph
 import model.Vertex
+import model.Edge
 import kotlin.math.pow
 
 open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
+
+    override fun createAdjacencyMatrix(graph: Graph<V>): Array<DoubleArray> {
+        val adjacencyMatrix = Array(graph.vertices.count()) { DoubleArray(graph.vertices.count()) { 0.0 } }
+        val edges = graph.edges.toTypedArray()
+        for (i in 0 until graph.edges.count()) {
+            val source = edges[i].source.index
+            val destination = edges[i].destination.index
+            val weight = edges[i].weight
+            adjacencyMatrix[source][destination] = weight
+        }
+        return adjacencyMatrix
+    }
+
     override fun getClusters(graph: Graph<V>): List<List<Int>> {
         TODO("Not yet implemented")
     }
@@ -68,10 +82,134 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
         return ehc
     }
 
-    override fun getCycles(graph: Graph<V>): MutableList<MutableList<Int>>? {
-        TODO("Not yet implemented")
+    override fun getCycles(graph: Graph<V>, source: Vertex<V>): MutableList<MutableList<Int>>? {
+        val adjMap: MutableMap<Int, MutableList<Int>> = HashMap()
+
+        for (edge in graph.edges) {
+            if (adjMap[edge.source.index] == null) {
+                adjMap[edge.source.index] = mutableListOf()
+            }
+            adjMap[edge.source.index]?.add(edge.destination.index)
+        }
+
+        val cycles = mutableListOf<MutableList<Int>>()
+        val color = IntArray(graph.vertices.size)
+        val ancestorList = IntArray(graph.vertices.size)
+        var result = detectCyclesViaDFS(source.index, source.index, color, ancestorList, cycles, adjMap)
+        if (result != null) {
+            result = deleteOverlappingCycles(result)
+        }
+        //println("result is $result")
+        return result
     }
-    override fun findPathWithDijkstra(graph: Graph<V>): ArrayDeque<Int>? {
-        TODO("Not yet implemented")
+
+    private fun detectCyclesViaDFS(
+        curVertex: Int,
+        curParent: Int,
+        color: IntArray,
+        ancestorList: IntArray,
+        cycles: MutableList<MutableList<Int>>,
+        adjMap: MutableMap<Int, MutableList<Int>>) : MutableList<MutableList<Int>>? {
+
+        if (color[curVertex] == 2) {
+            return null
+        }
+
+        if (color[curVertex] == 1) {
+            val detectedCycle = mutableListOf<Int>()
+            var vertexToAdd = curParent
+            detectedCycle.add(vertexToAdd)
+
+            while (vertexToAdd != curVertex) {
+                vertexToAdd = ancestorList[vertexToAdd]
+                detectedCycle.add(vertexToAdd)
+            }
+            cycles.add(detectedCycle)
+            return null
+        }
+
+        ancestorList[curVertex] = curParent
+        color[curVertex] = 1
+
+        val neighborList = adjMap[curVertex]
+        if (neighborList != null) {
+            val size = neighborList.size
+            for (v in 0 until size) {
+                val nextVer = neighborList[v]
+                if (nextVer == ancestorList[curVertex]) {
+                    continue
+                }
+                detectCyclesViaDFS(nextVer, curVertex, color, ancestorList, cycles, adjMap)
+            }
+            color[curVertex] = 2
+        }
+        return cycles
+    }
+
+    private fun deleteOverlappingCycles(result: MutableList<MutableList<Int>>): MutableList<MutableList<Int>> {
+        val size = result.size
+        val cyclesToRemove = mutableListOf<Int>()
+        for (i in 0 until size) {
+            for (j in 0 until size) {
+                if (i != j) {
+                    if (result[i].containsAll(result[j])) {
+                        cyclesToRemove.add(j)
+                    }
+                }
+            }
+        }
+        cyclesToRemove.sortDescending()
+        for (index in cyclesToRemove) {
+            result.removeAt(index)
+        }
+        return result
+    }
+
+    override fun findPathWithDijkstra(graph: Graph<V>, source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?> {
+        createAdjacencyMatrix(graph)
+        val length = graph.vertices.size
+        val distances = MutableList(length) { Double.MAX_VALUE }
+        val prevNode = MutableList(length) { Int.MAX_VALUE }
+        distances[source.index] = 0.0
+        val distinctVert = graph.vertices.asSequence().map { it.index }.toMutableList()
+
+
+        while (distinctVert.isNotEmpty()) {
+            val consideredVer = distinctVert.minByOrNull { distances[it] ?: 0.0 }
+            distinctVert.remove(consideredVer)
+            if (consideredVer == null) {
+                break
+            }
+
+            //dk оставлять ли, если это раскомментить, то пути будут считаться только до указанной вершины. дает прирост во времени, но остальной список будет неправильный
+            //if (consideredVer == sink.index) { break }
+
+            //найти все ребра, исходящие из рассматриваемой вершины
+            val outgoingEdges = graph.edges.filter { it.source.index == consideredVer }
+            outgoingEdges.forEach {edge ->
+                val consideredDestination = edge.destination
+                val alternativePath = (distances[consideredVer] ?: 0.0) + (edge.weight ?: throw IllegalArgumentException("edge should have weight"))
+                if (alternativePath < (distances[consideredDestination.index] ?: 0.0)) {
+                    distances[consideredDestination.index] = alternativePath
+                    prevNode[consideredDestination.index] = consideredVer
+                }
+            }
+        }
+
+        if (prevNode[sink.index] == Int.MAX_VALUE) {
+            //println("vertices are not connected")
+            return Pair(null, null)
+        }
+
+        val verSequence = ArrayDeque<Int>()
+        verSequence.addFirst(sink.index)
+        var backtrace = sink.index
+        //var pathLength = 0.0
+        while (backtrace != source.index) {
+            verSequence.addFirst(prevNode[backtrace])
+            backtrace = prevNode[backtrace]
+        }
+        //println("sequence is $verSequence, length is ${distances[sink.index]}")
+        return Pair(verSequence, distances[sink.index])
     }
 }
