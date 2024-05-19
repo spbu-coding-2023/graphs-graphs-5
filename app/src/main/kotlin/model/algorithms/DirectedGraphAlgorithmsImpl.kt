@@ -3,7 +3,7 @@ package model.algorithms
 import model.*
 
 class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
-    override fun findStrongComponents(graph: DirectedGraph<V>): MutableList<List<Vertex<V>>> {
+    override fun findStrongComponents(graph: Graph<V>): MutableList<List<Vertex<V>>> {
         val visited = BooleanArray(graph.vertices.size)
         val listOfOrder = mutableListOf<Vertex<V>>()
         graph.vertices.forEach { v ->
@@ -19,7 +19,7 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         }
         return componentsList
     }
-    override fun findPathWithFordBellman(source: Vertex<V>, destination: Vertex<V>, graph: DirectedGraph<V>): MutableList<Vertex<V>>? {
+    override fun findPathWithFordBellman(source: Vertex<V>, destination: Vertex<V>, graph: Graph<V>): MutableList<Vertex<V>>? {
         val distance = DoubleArray(graph.vertices.size)
         /* whose predecessor and who is predecessor */
         val predecessor = mutableListOf<Vertex<V>>()
