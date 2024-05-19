@@ -41,7 +41,7 @@ class VertexViewModel<V>(
             _radius.value = value
         }
     val label
-        get() = vertex.data.toString()
+        get() = vertex.index.toString()
     val labelVisible
         get() = _labelVisible.value
     fun onDrag(offset: Offset) {
