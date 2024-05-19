@@ -84,7 +84,51 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
     override fun getCycles(graph: Graph<V>): MutableList<MutableList<Int>>? {
         TODO("Not yet implemented")
     }
-    override fun findPathWithDijkstra(graph: Graph<V>): ArrayDeque<Int>? {
-        TODO("Not yet implemented")
+    override fun findPathWithDijkstra(graph: Graph<V>, source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?> {
+        createAdjacencyMatrix(graph)
+        val length = graph.vertices.size
+        val distances = MutableList(length) { Double.MAX_VALUE }
+        val prevNode = MutableList(length) { Int.MAX_VALUE }
+        distances[source.index] = 0.0
+        val distinctVert = graph.vertices.asSequence().map { it.index }.toMutableList()
+
+
+        while (distinctVert.isNotEmpty()) {
+            val consideredVer = distinctVert.minByOrNull { distances[it] ?: 0.0 }
+            distinctVert.remove(consideredVer)
+            if (consideredVer == null) {
+                break
+            }
+
+            //dk оставлять ли, если это раскомментить, то пути будут считаться только до указанной вершины. дает прирост во времени, но остальной список будет неправильный
+            //if (consideredVer == sink.index) { break }
+
+            //найти все ребра, исходящие из рассматриваемой вершины
+            val outgoingEdges = graph.edges.filter { it.source.index == consideredVer }
+            outgoingEdges.forEach {edge ->
+                val consideredDestination = edge.destination
+                val alternativePath = (distances[consideredVer] ?: 0.0) + (edge.weight ?: throw IllegalArgumentException("edge should have weight"))
+                if (alternativePath < (distances[consideredDestination.index] ?: 0.0)) {
+                    distances[consideredDestination.index] = alternativePath
+                    prevNode[consideredDestination.index] = consideredVer
+                }
+            }
+        }
+
+        if (prevNode[sink.index] == Int.MAX_VALUE) {
+            //println("vertices are not connected")
+            return Pair(null, null)
+        }
+
+        val verSequence = ArrayDeque<Int>()
+        verSequence.addFirst(sink.index)
+        var backtrace = sink.index
+        //var pathLength = 0.0
+        while (backtrace != source.index) {
+            verSequence.addFirst(prevNode[backtrace])
+            backtrace = prevNode[backtrace]
+        }
+        //println("sequence is $verSequence, length is ${distances[sink.index]}")
+        return Pair(verSequence, distances[sink.index])
     }
 }
