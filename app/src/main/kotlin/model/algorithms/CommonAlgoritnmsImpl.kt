@@ -5,6 +5,19 @@ import model.Vertex
 import kotlin.math.pow
 
 open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
+
+    override fun createAdjacencyMatrix(graph: Graph<V>): Array<DoubleArray> {
+        val adjacencyMatrix = Array(graph.vertices.count()) { DoubleArray(graph.vertices.count()) { 0.0 } }
+        val edges = graph.edges.toTypedArray()
+        for (i in 0 until graph.edges.count()) {
+            val source = edges[i].source.index
+            val destination = edges[i].destination.index
+            val weight = edges[i].weight
+            adjacencyMatrix[source][destination] = weight
+        }
+        return adjacencyMatrix
+    }
+
     override fun getClusters(graph: Graph<V>): List<List<Int>> {
         TODO("Not yet implemented")
     }
