@@ -41,7 +41,8 @@ import viewmodel.UGScreenViewModel
 //}
 
 @Composable
-fun <V> DGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: DGScreenViewModel<V>) {
+fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>) {
+    Material3AppTheme(theme = theme.value){
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -77,10 +78,9 @@ fun <V> DGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: 
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 ThemeSwitcher(
-                    darkTheme = darkTheme,
+                    theme,
                     size = 45.dp,
-                    padding = 5.dp,
-                    onClick = onThemeUpdated
+                    padding = 5.dp
                 )
             }
             Row {
@@ -145,19 +145,18 @@ fun <V> DGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: 
                     )
                 }
                 Surface(
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.surface
+                    modifier = Modifier.weight(1f)
                 ) {
                     DirectedGraphView(viewModel.graphViewModel)
                 }
             }
         }
     }
-}
+}}
 
 @Composable
-fun <V> UGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: UGScreenViewModel<V>) {
-    val snackbarHostState = remember { SnackbarHostState() }
+fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>, ) {
+    Material3AppTheme(theme = theme.value){val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     var menuInputState by remember { mutableStateOf(menuInput()) }
@@ -190,10 +189,9 @@ fun <V> UGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: 
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 ThemeSwitcher(
-                    darkTheme = darkTheme,
+                    theme,
                     size = 45.dp,
-                    padding = 5.dp,
-                    onClick = onThemeUpdated
+                    padding = 5.dp
                 )
             }
             Row(
@@ -251,7 +249,6 @@ fun <V> UGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: 
                 }
                 Surface(
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.surface
                 ) {
                     UndirectedGraphView(viewModel.graphViewModel)
                 }
@@ -259,7 +256,7 @@ fun <V> UGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: 
 
         }
     }
-}
+}}
 @Composable
 fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
     Row(
@@ -557,25 +554,30 @@ fun menu(): menuInput {
 
 @Composable
 fun ThemeSwitcher(
-    darkTheme: Boolean = false,
+    theme: MutableState<Theme>,
     size: Dp = 150.dp,
     iconSize: Dp = size / 3,
     padding: Dp = 10.dp,
     borderWidth: Dp = 2.dp,
     parentShape: Shape = CircleShape,
     toggleShape: Shape = CircleShape,
-    animationSpec: AnimationSpec<Dp> = tween(durationMillis = 300),
-    onClick: () -> Unit
+    animationSpec: AnimationSpec<Dp> = tween(durationMillis = 300)
 ) {
     val offset by animateDpAsState(
-        targetValue = if (darkTheme) 0.dp else size,
+        targetValue = if (theme.value == Theme.SPECIAL) 0.dp else size,
         animationSpec = animationSpec
     )
     Box(modifier = Modifier
         .width(size * 2)
         .height(size)
         .clip(shape = parentShape)
-        .clickable { onClick() }
+        .clickable(enabled = true) {
+            if (theme.value == Theme.SPECIAL) {
+                theme.value = Theme.CLASSIC
+            } else {
+                theme.value = Theme.SPECIAL
+            }
+        }
         .background(MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Box(
@@ -604,7 +606,7 @@ fun ThemeSwitcher(
                     modifier = Modifier.size(iconSize),
                     imageVector = Icons.Default.HeartBroken,
                     contentDescription = null,
-                    tint = if (darkTheme) MaterialTheme.colorScheme.secondaryContainer
+                    tint = if (theme.value == Theme.SPECIAL) MaterialTheme.colorScheme.secondaryContainer
                     else MaterialTheme.colorScheme.primary
                 )
             }
@@ -616,7 +618,7 @@ fun ThemeSwitcher(
                     modifier = Modifier.size(iconSize),
                     imageVector = Icons.Default.Favorite,
                     contentDescription = null,
-                    tint = if (darkTheme) MaterialTheme.colorScheme.primary
+                    tint = if (theme.value == Theme.SPECIAL) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.secondaryContainer
                 )
             }
