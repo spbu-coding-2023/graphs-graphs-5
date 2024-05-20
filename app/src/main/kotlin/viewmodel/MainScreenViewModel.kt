@@ -1,12 +1,15 @@
 package viewmodel
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import model.*
 import model.algorithms.DirectedGraphAlgorithmsImpl
 import model.algorithms.UndirectedGraphAlgorithmsImpl
 import model.algorithms.CommonAlgorithms
+import model.UndirectedGraph
+import model.DirectedGraph
+import model.Graph
+import model.Vertex
 import model.algorithms.CommonAlgorithmsImpl
 import view.*
 
@@ -66,12 +69,20 @@ abstract class MainScreenViewModel<V>(
         TODO()
     }
 
-    private fun highlightCycles() {
-        TODO()
+    fun highlightCycles(source: Vertex<V>): MutableList<MutableList<Int>>? {
+        val cycles = algorithms.getCycles(graph, source)
+        return cycles
     }
 
-    private fun highlightPath() {
-        TODO()
+    fun highlightPathDijkstra(source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?> {
+        val path = algorithms.findPathWithDijkstra(graph, source, sink)
+        return path
+    }
+
+    //take out from view model later
+    fun createAdjMatrix(): Array<DoubleArray> {
+        val matrix = algorithms.createAdjacencyMatrix(graph)
+        return matrix
     }
 }
 
