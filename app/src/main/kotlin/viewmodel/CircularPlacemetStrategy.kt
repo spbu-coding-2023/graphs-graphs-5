@@ -1,7 +1,7 @@
 package viewmodel
 
 import androidx.compose.ui.unit.dp
-import view.BlackAndWhite70
+import view.BlackAndWhite60
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
@@ -19,7 +19,7 @@ class CircularPlacementStrategy : RepresentationStrategy {
         var point = Pair(center.first, center.second - min(width, height) / 2)
         first.x = point.first.dp
         first.y = point.second.dp
-        first.color = BlackAndWhite70
+        first.color = BlackAndWhite60
         sorted
             .drop(1)
             .onEach {
