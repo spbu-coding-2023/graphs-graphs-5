@@ -7,12 +7,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import model.DirectedGraph
-import view.DGMainScreen
-import view.MainScreen
-import view.Material3AppTheme
-import viewmodel.CircularPlacementStrategy
-import viewmodel.DGScreenViewModel
-import viewmodel.MainScreenViewModel
+import model.Graph
+import model.GraphType
+import model.UndirectedGraph
+import view.*
+import viewmodel.*
 import java.awt.Dimension
 
 val graph = DirectedGraph<Int>().apply {
@@ -27,21 +26,29 @@ val graph = DirectedGraph<Int>().apply {
     addEdge(zero, one)
     addEdge(one, two)
     addEdge(one, three)
-//    addEdge(four, three)
     addEdge(three, four)
     addEdge(four, five)
 }
 @Composable
 @Preview
 fun App() {
-    var darkTheme by remember { mutableStateOf(false) }
-    Material3AppTheme(darkTheme = darkTheme) {
-        DGMainScreen(
-            darkTheme = darkTheme,
-            onThemeUpdated = { darkTheme = !darkTheme },
-            DGScreenViewModel(graph, CircularPlacementStrategy()
-            )
-        )
+    ScreenFactory.createView(graph)
+}
+
+object ScreenFactory {
+    @Composable
+    fun <V> createView(graph: Graph<V>) {
+        val theme = mutableStateOf(Theme.CLASSIC)
+        when (graph.graphType) {
+            GraphType.DIRECTED ->
+                DGMainScreen(
+                    DGScreenViewModel(graph, CircularPlacementStrategy()), theme
+                )
+            else ->
+                UGMainScreen(
+                    UGScreenViewModel(graph, CircularPlacementStrategy()), theme
+                )
+        }
     }
 }
 

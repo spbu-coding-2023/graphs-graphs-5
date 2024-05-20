@@ -28,6 +28,9 @@ open class MainScreenViewModel<V>(
             v.radius = 20.dp
         }
     }
+    open fun getListOfAlgorithms(): List<String> {
+        return listOf("Graph Clustering", "Key vertices", "Cycles", "Min path (Dijkstra)")
+    }
     protected open val algorithms = CommonAlgorithmsImpl<V>()
     private fun highlightKeyVertices() {
         val rankingList = mutableListOf<Double>()
@@ -91,36 +94,31 @@ open class MainScreenViewModel<V>(
     }
 }
 
-//class ViewModelFactory<V>(
-//    val graph: Graph<V>,
-//    val representationStrategy: RepresentationStrategy
-//) {
-////    val graphType = graph.graphType
-//    fun createViewModel(graphType: GraphType) : MainScreenViewModel<V> {
-//        return when (graphType) {
-//            GraphType.DIRECTED -> DGScreenViewModel(graph, representationStrategy)
-//            else -> UGScreenViewModel(graph, representationStrategy)
-//        }
-//    }
-//}
-
 class DGScreenViewModel<V>(
-    graph: DirectedGraph<V>,
+    graph: Graph<V>,
     representationStrategy: RepresentationStrategy
 ) : MainScreenViewModel<V>(graph, representationStrategy) {
     override val algorithms = DirectedGraphAlgorithmsImpl<V>()
     val graph2 = graph
     private fun findStrongComponents() {
         val componentsList = algorithms.findStrongComponents(graph2)
-
     }
+    override fun getListOfAlgorithms(): List<String> {
+        return listOf("Graph Clustering", "Key vertices", "Cycles", "Strong Components",
+            "Min path (Dijkstra)", "Min path (Ford-Bellman)")
+    }
+
 }
 
 class UGScreenViewModel<V>(
-    graph: UndirectedGraph<V>,
+    graph: Graph<V>,
     representationStrategy: RepresentationStrategy
 ) : MainScreenViewModel<V>(graph, representationStrategy) {
     override val algorithms = UndirectedGraphAlgorithmsImpl<V>()
+    override fun getListOfAlgorithms(): List<String> {
+        return listOf("Graph Clustering", "Key vertices", "Cycles", "Min tree", "Bridges",
+            "Min path (Dijkstra)")
+    }
     private fun findBridges() {
         TODO()
     }
@@ -130,47 +128,15 @@ class UGScreenViewModel<V>(
     }
 }
 
-fun main() {
-    val graph = UndirectedGraph<Int>()
-
-    val  Alabama = graph.addVertex(1)
-    val  Arizona = graph.addVertex(2)
-    val  California = graph.addVertex(3)
-    val  Connecticut = graph.addVertex(4)
-    val  Florida = graph.addVertex(5)
-    val  Hawaii = graph.addVertex(6)
-    val  Illinois = graph.addVertex(7)
-    val  Iowa = graph.addVertex(8)
-
-    val edge1 = graph.addEdge(Alabama, Arizona) //1 2
-    val edge2 = graph.addEdge(Alabama, California) //1 3
-    val edge3 = graph.addEdge(Alabama, Connecticut) //1 4
-    val edge4 = graph.addEdge(Arizona, California) //2 3
-    val edge5 = graph.addEdge(Arizona, Connecticut) //2 4
-    val edge6 = graph.addEdge(California, Connecticut) //3 4
-    val edge7 = graph.addEdge(Connecticut, Florida) //4 5
-
-    val edge8 = graph.addEdge(Hawaii, Illinois)
-    val edge9 = graph.addEdge(Hawaii, Iowa)
-    val edge10 = graph.addEdge(Iowa, Illinois)
-
-    val VM = UGScreenViewModel(graph, CircularPlacementStrategy())
-//    val adjM = VM.createAdjMatrix()
-//    for (i in adjM.indices) {
-//        for (j in adjM[i].indices) {
-//            print(" ${adjM[i][j]} |")
+//object ScreenVM {
+//    fun <V> createView(graph: Graph<V>): MainScreenViewModel<V> {
+//        return when (graph.graphType) {
+//            GraphType.DIRECTED ->
+//                DGScreenViewModel(graph, CircularPlacementStrategy())
+//            else -> UGScreenViewModel(graph, CircularPlacementStrategy())
 //        }
 //    }
-
-    //val path = VM.highlightPath(Alabama, Alabama)
-    //println(path)
-
-    val cycles = VM.highlightCycles(Hawaii)
-    println(cycles)
-
-
-}
-
+//}
 
 //class MainScreenViewModel<V>(graph: Graph<V>, private val representationStrategy: RepresentationStrategy) {
 //    val showVerticesLabels = mutableStateOf(false)
