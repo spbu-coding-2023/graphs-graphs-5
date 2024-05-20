@@ -31,8 +31,8 @@ import viewmodel.MainScreenViewModel
 import viewmodel.UGScreenViewModel
 
 @Composable
-fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: MainScreenViewModel<V>) {
-    val snackbarHostState = remember { SnackbarHostState() }
+fun <V> MainScreen(viewModel: MainScreenViewModel<V>, theme: MutableState<Theme>) {
+    Material3AppTheme(theme = theme.value) { val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     Scaffold(
         /* add snackbar for some messages */
@@ -51,10 +51,9 @@ fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: Ma
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 ThemeSwitcher(
-                    darkTheme = darkTheme,
+                    theme,
                     size = 45.dp,
-                    padding = 5.dp,
-                    onClick = onThemeUpdated
+                    padding = 5.dp
                 )
             }
             Row(
@@ -78,7 +77,7 @@ fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: Ma
                             text = "Run", color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
-                    algoNum = menu()
+                    algoNum = menu(viewModel.getListOfAlgorithms())
                 }
                 Surface(
                     modifier = Modifier.weight(1f),
@@ -90,139 +89,133 @@ fun <V> MainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: Ma
 
         }
     }
-}
-//@Composable
-//fun <V> MainScreenFactory(graphType: GraphType) {
-//    when (graphType) {
-//        GraphType.DIRECTED -> DGMainScreen(darkTheme = darkTheme,
-//            onThemeUpdated = { darkTheme = !darkTheme },
-//            DGScreenViewModel(graph, CircularPlacementStrategy())
-//    }
-//}
+}}
 
 @Composable
-fun <V> DGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: DGScreenViewModel<V>) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    Scaffold(
-        /* add snackbar for some messages */
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+fun <V> DGMainScreen(viewModel: MainScreenViewModel<V>, theme: MutableState<Theme>) {
+    Material3AppTheme(theme = theme.value) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        Scaffold(
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            /* add snackbar for some messages */
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().height(50.dp)
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp)
             ) {
-                Text(
-                    text = "",
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                ThemeSwitcher(
-                    darkTheme = darkTheme,
-                    size = 45.dp,
-                    padding = 5.dp,
-                    onClick = onThemeUpdated
-                )
-            }
-            Row(
-            ) {
-                Column(modifier = Modifier.width(300.dp)) {
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    showVerticesLabels(viewModel)
-                    showEdgesLabels(viewModel)
-                    resetGraphView(viewModel)
-                    var algoNum by remember { mutableStateOf(0)}
-                    var message by remember { mutableStateOf("") }
-                    Button(
-                        onClick = { message = viewModel.run(algoNum) },
-                        enabled = true,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            backgroundColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        Text(
-                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                    algoNum = menu()
-                }
-                Surface(
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.surface
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
                 ) {
-                    DirectedGraphView(viewModel.graphViewModel)
+                    Text(
+                        text = "",
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    ThemeSwitcher(
+                        theme,
+                        size = 45.dp,
+                        padding = 5.dp
+                    )
+                }
+                Row(
+                ) {
+                    Column(modifier = Modifier.width(300.dp)) {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        showVerticesLabels(viewModel)
+                        showEdgesLabels(viewModel)
+                        resetGraphView(viewModel)
+                        var algoNum by remember { mutableStateOf(0) }
+                        var message by remember { mutableStateOf("") }
+                        Button(
+                            onClick = { message = viewModel.run(algoNum) },
+                            enabled = true,
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                backgroundColor = MaterialTheme.colorScheme.secondary
+                            ),
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text(
+                                text = "Run", color = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+                        algoNum = menu(viewModel.getListOfAlgorithms())
+                    }
+                    Surface(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        DirectedGraphView(viewModel.graphViewModel)
+                    }
                 }
             }
-
         }
     }
 }
 
 @Composable
-fun <V> UGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: UGScreenViewModel<V>) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    Scaffold(
-        /* add snackbar for some messages */
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
+fun <V> UGMainScreen(viewModel: MainScreenViewModel<V>, theme: MutableState<Theme>) {
+    Material3AppTheme(theme = theme.value) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
+        Scaffold(
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            /* add snackbar for some messages */
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().height(50.dp)
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp)
             ) {
-                Text(
-                    text = "",
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                ThemeSwitcher(
-                    darkTheme = darkTheme,
-                    size = 45.dp,
-                    padding = 5.dp,
-                    onClick = onThemeUpdated
-                )
-            }
-            Row(
-            ) {
-                Column(modifier = Modifier.width(300.dp)) {
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    showVerticesLabels(viewModel)
-                    showEdgesLabels(viewModel)
-                    resetGraphView(viewModel)
-                    var algoNum by remember { mutableStateOf(0)}
-                    var message by remember { mutableStateOf("") }
-                    Button(
-                        onClick = { message = viewModel.run(algoNum) },
-                        enabled = true,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            backgroundColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        Text(
-                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                    algoNum = menu()
-                }
-                Surface(
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.surface
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
                 ) {
-                    UndirectedGraphView(viewModel.graphViewModel)
+                    Text(
+                        text = "",
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    ThemeSwitcher(
+                        theme,
+                        size = 45.dp,
+                        padding = 5.dp
+                    )
                 }
-            }
+                Row(
+                ) {
+                    Column(modifier = Modifier.width(300.dp)) {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        showVerticesLabels(viewModel)
+                        showEdgesLabels(viewModel)
+                        resetGraphView(viewModel)
+                        var algoNum by remember { mutableStateOf(0) }
+                        var message by remember { mutableStateOf("") }
+                        Button(
+                            onClick = { message = viewModel.run(algoNum) },
+                            enabled = true,
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                backgroundColor = MaterialTheme.colorScheme.secondary
+                            ),
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text(
+                                text = "Run", color = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+                        algoNum = menu(viewModel.getListOfAlgorithms())
+                    }
+                    Surface(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        UndirectedGraphView(viewModel.graphViewModel)
+                    }
+                }
 
+            }
         }
     }
 }
+
 @Composable
 fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
     Row(
@@ -287,12 +280,12 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun menu(): Int {
+fun menu(list: List<String>): Int {
     var algoNum by remember { mutableStateOf(0)}
-    val list = listOf(
-        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
-        "Bridges", "Min path (Deijkstra)", "Min path (Ford-Bellman)"
-    )
+//    val list = listOf(
+//        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
+//        "Bridges", "Min path (Deijkstra)", "Min path (Ford-Bellman)"
+//    )
     /* by remember : if the variable changes, the parts of code where it's used change view accordingly */
     var selectedText by remember {
         mutableStateOf("Pick an algo")
@@ -364,25 +357,30 @@ fun menu(): Int {
 
 @Composable
 fun ThemeSwitcher(
-    darkTheme: Boolean = false,
+    theme: MutableState<Theme>,
     size: Dp = 150.dp,
     iconSize: Dp = size / 3,
     padding: Dp = 10.dp,
     borderWidth: Dp = 2.dp,
     parentShape: Shape = CircleShape,
     toggleShape: Shape = CircleShape,
-    animationSpec: AnimationSpec<Dp> = tween(durationMillis = 300),
-    onClick: () -> Unit
+    animationSpec: AnimationSpec<Dp> = tween(durationMillis = 300)
 ) {
     val offset by animateDpAsState(
-        targetValue = if (darkTheme) 0.dp else size,
+        targetValue = if (theme.value == Theme.SPECIAL) 0.dp else size,
         animationSpec = animationSpec
     )
     Box(modifier = Modifier
         .width(size * 2)
         .height(size)
         .clip(shape = parentShape)
-        .clickable { onClick() }
+        .clickable(enabled = true) {
+            if (theme.value == Theme.SPECIAL) {
+                theme.value = Theme.CLASSIC
+            } else {
+                theme.value = Theme.SPECIAL
+            }
+        }
         .background(MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Box(
@@ -411,7 +409,7 @@ fun ThemeSwitcher(
                     modifier = Modifier.size(iconSize),
                     imageVector = Icons.Default.HeartBroken,
                     contentDescription = null,
-                    tint = if (darkTheme) MaterialTheme.colorScheme.secondaryContainer
+                    tint = if (theme.value == Theme.SPECIAL) MaterialTheme.colorScheme.secondaryContainer
                     else MaterialTheme.colorScheme.primary
                 )
             }
@@ -423,7 +421,7 @@ fun ThemeSwitcher(
                     modifier = Modifier.size(iconSize),
                     imageVector = Icons.Default.Favorite,
                     contentDescription = null,
-                    tint = if (darkTheme) MaterialTheme.colorScheme.primary
+                    tint = if (theme.value == Theme.SPECIAL) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.secondaryContainer
                 )
             }

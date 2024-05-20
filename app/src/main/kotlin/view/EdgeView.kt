@@ -53,6 +53,16 @@ fun <V> DirectedEdgeView(
             style = Stroke(width = 1.3.dp.toPx())
         )
     }
+    if (viewModel.labelVisible) {
+        Text(
+            modifier = Modifier
+                .offset(
+                    viewModel.u.x + (viewModel.v.x - viewModel.u.x) / 2,
+                    viewModel.u.y + (viewModel.v.y - viewModel.u.y) / 2
+                ),
+            text = viewModel.label,
+        )
+    }
 }
 
 @Composable
