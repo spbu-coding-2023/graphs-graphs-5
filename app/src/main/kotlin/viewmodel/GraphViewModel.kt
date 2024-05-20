@@ -3,6 +3,7 @@ package viewmodel
 import androidx.compose.runtime.State
 import androidx.compose.ui.unit.dp
 import model.Graph
+import view.BlackAndWhite30
 import view.BlackAndWhite60
 import view.BlackAndWhite70
 
@@ -19,7 +20,7 @@ class GraphViewModel<V>(
             ?: throw IllegalStateException("VertexView for ${e.source} not found")
         val snd = _vertices[e.destination]
             ?: throw IllegalStateException("VertexView for ${e.destination} not found")
-        EdgeViewModel(fst, snd, e, showEdgesLabels, isDirected)
+        EdgeViewModel(fst, snd, e, showEdgesLabels, isDirected, BlackAndWhite30)
     }
     val vertices: Collection<VertexViewModel<V>>
         get() = _vertices.values

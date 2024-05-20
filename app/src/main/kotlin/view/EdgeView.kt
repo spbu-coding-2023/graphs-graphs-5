@@ -49,7 +49,7 @@ fun <V> DirectedEdgeView(
         }
         drawPath(
             path = path,
-            color = BlackAndWhite20,
+            color = viewModel.color,
             style = Stroke(width = 1.3.dp.toPx())
         )
     }
@@ -81,7 +81,7 @@ fun <V> UndirectedEdgeView(
                 viewModel.v.x.toPx() + viewModel.v.radius.toPx(),
                 viewModel.v.y.toPx() + viewModel.v.radius.toPx(),
             ),
-            color = BlackAndWhite20,
+            color = viewModel.color,
             strokeWidth = 1.3.dp.toPx()
         )
 
