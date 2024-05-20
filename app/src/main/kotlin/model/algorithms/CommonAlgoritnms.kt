@@ -13,4 +13,6 @@ interface CommonAlgorithms<V> {
     fun getCycles(graph: Graph<V>, source: Vertex<V>): MutableList<MutableList<Int>>?
 
     fun findPathWithDijkstra(graph: Graph<V>, source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?>
+
+    fun findVertexByIndex(index: Int, graph: Graph<V>): Vertex<V>?
 }
