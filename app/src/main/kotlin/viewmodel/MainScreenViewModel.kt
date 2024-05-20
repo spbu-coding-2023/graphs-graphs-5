@@ -1,15 +1,13 @@
 package viewmodel
 
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import model.algorithms.DirectedGraphAlgorithmsImpl
 import model.algorithms.UndirectedGraphAlgorithmsImpl
 import model.UndirectedGraph
 import model.DirectedGraph
 import model.Graph
-import model.GraphType
-import model.algorithms.CommonAlgorithms
+import model.Vertex
 import model.algorithms.CommonAlgorithmsImpl
 import view.*
 
@@ -61,6 +59,7 @@ open class MainScreenViewModel<V>(
         }
     }
     fun run(num: Int): String {
+        println("num is $num")
         var message = ""
         when {
             num == 1 -> highlightKeyVertices()
@@ -75,12 +74,20 @@ open class MainScreenViewModel<V>(
         TODO()
     }
 
-    private fun highlightCycles() {
-        TODO()
+    fun highlightCycles(source: Vertex<V>): MutableList<MutableList<Int>>? {
+        val cycles = algorithms.getCycles(graph, source)
+        return cycles
     }
 
-    private fun highlightPath() {
-        TODO()
+    fun highlightPathDijkstra(source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?> {
+        val path = algorithms.findPathWithDijkstra(graph, source, sink)
+        return path
+    }
+
+    //take out from view model later
+    fun createAdjMatrix(): Array<DoubleArray> {
+        val matrix = algorithms.createAdjacencyMatrix(graph)
+        return matrix
     }
 }
 
@@ -121,6 +128,47 @@ class UGScreenViewModel<V>(
     private fun findCore() {
         TODO()
     }
+}
+
+fun main() {
+    val graph = UndirectedGraph<Int>()
+
+    val  Alabama = graph.addVertex(1)
+    val  Arizona = graph.addVertex(2)
+    val  California = graph.addVertex(3)
+    val  Connecticut = graph.addVertex(4)
+    val  Florida = graph.addVertex(5)
+    val  Hawaii = graph.addVertex(6)
+    val  Illinois = graph.addVertex(7)
+    val  Iowa = graph.addVertex(8)
+
+    val edge1 = graph.addEdge(Alabama, Arizona) //1 2
+    val edge2 = graph.addEdge(Alabama, California) //1 3
+    val edge3 = graph.addEdge(Alabama, Connecticut) //1 4
+    val edge4 = graph.addEdge(Arizona, California) //2 3
+    val edge5 = graph.addEdge(Arizona, Connecticut) //2 4
+    val edge6 = graph.addEdge(California, Connecticut) //3 4
+    val edge7 = graph.addEdge(Connecticut, Florida) //4 5
+
+    val edge8 = graph.addEdge(Hawaii, Illinois)
+    val edge9 = graph.addEdge(Hawaii, Iowa)
+    val edge10 = graph.addEdge(Iowa, Illinois)
+
+    val VM = UGScreenViewModel(graph, CircularPlacementStrategy())
+//    val adjM = VM.createAdjMatrix()
+//    for (i in adjM.indices) {
+//        for (j in adjM[i].indices) {
+//            print(" ${adjM[i][j]} |")
+//        }
+//    }
+
+    //val path = VM.highlightPath(Alabama, Alabama)
+    //println(path)
+
+    val cycles = VM.highlightCycles(Hawaii)
+    println(cycles)
+
+
 }
 
 
