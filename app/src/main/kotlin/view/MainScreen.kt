@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
 import viewmodel.DGScreenViewModel
 import viewmodel.MainScreenViewModel
+import viewmodel.UGScreenViewModel
 
 //@Composable
 //fun <V> MainScreenFactory(graphType: GraphType) {
@@ -120,6 +121,7 @@ fun <V> DGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: 
                                         "Dismiss",
                                         duration = SnackbarDuration.Short
                                     )
+                                    showSnackbar = false
                                 }
 
                             }
@@ -153,67 +155,111 @@ fun <V> DGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: 
     }
 }
 
-//@Composable
-//fun <V> UGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: UGScreenViewModel<V>) {
-//    val snackbarHostState = remember { SnackbarHostState() }
-//    val scope = rememberCoroutineScope()
-//    Scaffold(
-//        /* add snackbar for some messages */
-//    ) {
-//        Column(
-//            modifier = Modifier.fillMaxSize().padding(16.dp)
-//        ) {
-//            Row(
-//                modifier = Modifier.fillMaxWidth().height(50.dp)
-//            ) {
-//                Text(
-//                    text = "",
-//                    modifier = Modifier.weight(1f),
-//                    color = MaterialTheme.colorScheme.onSurface,
-//                    style = MaterialTheme.typography.bodyLarge
-//                )
-//                Spacer(modifier = Modifier.width(16.dp))
-//                ThemeSwitcher(
-//                    darkTheme = darkTheme,
-//                    size = 45.dp,
-//                    padding = 5.dp,
-//                    onClick = onThemeUpdated
-//                )
-//            }
-//            Row(
-//            ) {
-//                Column(modifier = Modifier.width(300.dp)) {
-//                    Spacer(modifier = Modifier.padding(8.dp))
-//                    showVerticesLabels(viewModel)
-//                    showEdgesLabels(viewModel)
-//                    resetGraphView(viewModel)
-//                    var algoNum by remember { mutableStateOf(0)}
-//                    var message by remember { mutableStateOf("") }
-//                    Button(
-//                        onClick = { message = viewModel.run(algoNum) },
-//                        enabled = true,
-//                        colors = ButtonDefaults.outlinedButtonColors(
-//                            backgroundColor = MaterialTheme.colorScheme.secondary
-//                        ),
-//                        modifier = Modifier.padding(4.dp)
-//                    ) {
-//                        Text(
-//                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
-//                        )
-//                    }
-//                    algoNum = menu()
-//                }
-//                Surface(
-//                    modifier = Modifier.weight(1f),
-//                    color = MaterialTheme.colorScheme.surface
-//                ) {
-//                    UndirectedGraphView(viewModel.graphViewModel)
-//                }
-//            }
-//
-//        }
-//    }
-//}
+@Composable
+fun <V> UGMainScreen(darkTheme: Boolean, onThemeUpdated: () -> Unit, viewModel: UGScreenViewModel<V>) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    var menuInputState by remember { mutableStateOf(menuInput()) }
+    Scaffold(
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        snackbarHost = { SnackbarHost(
+            hostState = snackbarHostState,
+//            modifier = Modifier.padding(16.dp)
+        ) { snackbarData ->
+            Snackbar(
+                snackbarData = snackbarData,
+                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
+                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
+                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
+            )
+        }
+        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().height(50.dp)
+            ) {
+                Text(
+                    text = "",
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                ThemeSwitcher(
+                    darkTheme = darkTheme,
+                    size = 45.dp,
+                    padding = 5.dp,
+                    onClick = onThemeUpdated
+                )
+            }
+            Row(
+            ) {
+                Column(modifier = Modifier.width(300.dp)) {
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    showVerticesLabels(viewModel)
+                    showEdgesLabels(viewModel)
+                    resetGraphView(viewModel)
+
+                    var showSnackbar by remember { mutableStateOf(false) }
+                    var message by remember { mutableStateOf("") }
+                    Button(
+                        onClick = {
+                            when (menuInputState.algoNum) {
+                                2 -> {
+                                    if (menuInputState.inputValueOneVertex != "") {
+                                        message = viewModel.run(menuInputState.algoNum)
+                                    }
+                                    else {
+                                        showSnackbar = true
+                                    }
+                                }
+                                //add another types
+                                else -> message = viewModel.run(menuInputState.algoNum)
+                            }
+                            scope.launch {
+                                if (showSnackbar) {
+                                    snackbarHostState.showSnackbar(
+                                        "No required parameter for chosen algo was passed. Please enter parameter",
+                                        "Dismiss",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    showSnackbar = false
+                                }
+
+                            }
+                        },
+                        enabled = true,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text(
+                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                    val newState = menu()
+                    menuInputState = menuInputState.copy(algoNum = newState.algoNum,
+                        inputValueOneVertex = newState.inputValueOneVertex,
+                        inputStartTwoVer = newState.inputStartTwoVer,
+                        inputEndTwoVer = newState.inputEndTwoVer
+                    )
+                }
+                Surface(
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.surface
+                ) {
+                    UndirectedGraphView(viewModel.graphViewModel)
+                }
+            }
+
+        }
+    }
+}
 @Composable
 fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
     Row(
