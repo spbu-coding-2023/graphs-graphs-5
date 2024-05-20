@@ -31,15 +31,6 @@ import viewmodel.DGScreenViewModel
 import viewmodel.MainScreenViewModel
 import viewmodel.UGScreenViewModel
 
-//@Composable
-//fun <V> MainScreenFactory(graphType: GraphType) {
-//    when (graphType) {
-//        GraphType.DIRECTED -> DGMainScreen(darkTheme = darkTheme,
-//            onThemeUpdated = { darkTheme = !darkTheme },
-//            DGScreenViewModel(graph, CircularPlacementStrategy())
-//    }
-//}
-
 @Composable
 fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>) {
     Material3AppTheme(theme = theme.value){
@@ -98,26 +89,30 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             when (menuInputState.algoNum) {
                                 2 -> {
                                     if (menuInputState.inputValueOneVertex != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
+                                        showSnackbar = message.isNotEmpty()
                                     }
                                     else {
                                         showSnackbar = true
+                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
                                     }
                                 }
-                                6, 7 -> {
+                                6, 5 -> {
                                     if (menuInputState.inputStartTwoVer != "" && menuInputState.inputEndTwoVer != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
+                                        showSnackbar = message.isNotEmpty()
                                     }
                                     else {
                                         showSnackbar = true
+                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
                                     }
                                 }
-                                else -> message = viewModel.run(menuInputState.algoNum)
+                                else -> message = viewModel.run(menuInputState)
                             }
                             scope.launch {
                                 if (showSnackbar) {
                                     snackbarHostState.showSnackbar(
-                                        "No required parameter for chosen algo was passed. Please enter parameter",
+                                        message,
                                         "Dismiss",
                                         duration = SnackbarDuration.Short
                                     )
@@ -137,7 +132,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             text = "Run", color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
-                    val newState = menu()
+                    val newState = menu(viewModel.getListOfAlgorithms())
                     menuInputState = menuInputState.copy(algoNum = newState.algoNum,
                         inputValueOneVertex = newState.inputValueOneVertex,
                         inputStartTwoVer = newState.inputStartTwoVer,
@@ -209,14 +204,14 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                             when (menuInputState.algoNum) {
                                 2 -> {
                                     if (menuInputState.inputValueOneVertex != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
                                     }
                                     else {
                                         showSnackbar = true
                                     }
                                 }
                                 //add another types
-                                else -> message = viewModel.run(menuInputState.algoNum)
+                                else -> message = viewModel.run(menuInputState)
                             }
                             scope.launch {
                                 if (showSnackbar) {
@@ -240,7 +235,7 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                             text = "Run", color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
-                    val newState = menu()
+                    val newState = menu(viewModel.getListOfAlgorithms())
                     menuInputState = menuInputState.copy(algoNum = newState.algoNum,
                         inputValueOneVertex = newState.inputValueOneVertex,
                         inputStartTwoVer = newState.inputStartTwoVer,
@@ -321,7 +316,7 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun menu(): menuInput {
+fun menu(list: List<String>): menuInput {
 
     var showOneVertexSelection by remember { mutableStateOf(false) }
     var showTwoVertexSelection by remember { mutableStateOf(false) }
@@ -332,10 +327,10 @@ fun menu(): menuInput {
     var menuInputState by remember { mutableStateOf(menuInput()) }
 
     //var algoNum by remember { mutableStateOf(0)}
-    val list = listOf(
-        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
-        "Bridges", "Min path (Dijkstra)", "Min path (Ford-Bellman)"
-    )
+//    val list = listOf(
+//        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
+//        "Bridges", "Min path (Dijkstra)", "Min path (Ford-Bellman)"
+//    )
     /* by remember : if the variable changes, the parts of code where it's used change view accordingly */
     var selectedText by remember {
         mutableStateOf("Pick an algo")
@@ -382,7 +377,7 @@ fun menu(): menuInput {
                         onClick = {
                             menuInputState.algoNum = index
                             showOneVertexSelection = menuInputState.algoNum == 2
-                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 7
+                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 5
                             selectedText = list[index]
                             isExpanded = false
                         },
