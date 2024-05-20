@@ -12,7 +12,7 @@ class VertexViewModel<V>(
     x: Dp = 0.dp,
     y: Dp = 0.dp,
     color: Color,
-    private val vertex: Vertex<V>,
+    val vertex: Vertex<V>,
     private val _labelVisible: State<Boolean>,
     radius: Dp = 20.dp,
 ) {
