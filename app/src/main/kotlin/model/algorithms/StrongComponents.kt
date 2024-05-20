@@ -4,21 +4,20 @@ import model.DirectedGraph
 import model.Graph
 import model.Vertex
 
-fun <V> assignComponent(
+fun <V> assignComponentNum(
     v: Vertex<V>,
-    component: MutableList<Vertex<V>>,
-    componentsList: MutableList<List<Vertex<V>>>,
+    componentNum: Int,
+    componentsList: MutableList<Pair<Vertex<V>, Int>>,
     assigned: BooleanArray,
     graph: Graph<V>
 ) {
     if (!assigned[v.index]) {
         assigned[v.index] = true
-        component.add(v)
-        graph.edges(v).forEach { e ->
-            assignComponent(e.destination, component, componentsList, assigned, graph)
+        componentsList.add(Pair(v, componentNum))
+        graph.edges(v).forEach {
+            assignComponentNum(it.destination, componentNum, componentsList, assigned,  graph)
         }
     }
-    if (!componentsList.contains(component) && component.isNotEmpty()) componentsList.add(component)
 }
 
 fun <V> dfs(v: Vertex<V>, listOfOrder: MutableList<Vertex<V>>, visited: BooleanArray, graph: Graph<V>) {
