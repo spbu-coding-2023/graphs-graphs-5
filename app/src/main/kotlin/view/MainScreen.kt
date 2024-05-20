@@ -26,16 +26,154 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.*
+import kotlinx.coroutines.launch
 import viewmodel.DGScreenViewModel
 import viewmodel.MainScreenViewModel
 import viewmodel.UGScreenViewModel
 
+//@Composable
+//fun <V> MainScreenFactory(graphType: GraphType) {
+//    when (graphType) {
+//        GraphType.DIRECTED -> DGMainScreen(darkTheme = darkTheme,
+//            onThemeUpdated = { darkTheme = !darkTheme },
+//            DGScreenViewModel(graph, CircularPlacementStrategy())
+//    }
+//}
+
 @Composable
-fun <V> MainScreen(viewModel: MainScreenViewModel<V>, theme: MutableState<Theme>) {
-    Material3AppTheme(theme = theme.value) { val snackbarHostState = remember { SnackbarHostState() }
+fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>) {
+    Material3AppTheme(theme = theme.value){
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    var menuInputState by remember { mutableStateOf(menuInput()) }
+
     Scaffold(
-        /* add snackbar for some messages */
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        snackbarHost = { SnackbarHost(
+            hostState = snackbarHostState,
+//            modifier = Modifier.padding(16.dp)
+        ) { snackbarData ->
+            Snackbar(
+                snackbarData = snackbarData,
+                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
+                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
+                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
+            )
+        }
+        }
+
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().height(50.dp)
+            ) {
+                Text(
+                    text = "",
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                ThemeSwitcher(
+                    theme,
+                    size = 45.dp,
+                    padding = 5.dp
+                )
+            }
+            Row {
+                Column(modifier = Modifier.width(300.dp)) {
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    showVerticesLabels(viewModel)
+                    showEdgesLabels(viewModel)
+                    resetGraphView(viewModel)
+
+                    var showSnackbar by remember { mutableStateOf(false) }
+                    var message by remember { mutableStateOf("") }
+                    Button(
+                        onClick = {
+                            //message = viewModel.run(menuInputState.algoNum)
+                            when (menuInputState.algoNum) {
+                                2 -> {
+                                    if (menuInputState.inputValueOneVertex != "") {
+                                        message = viewModel.run(menuInputState.algoNum)
+                                    }
+                                    else {
+                                        showSnackbar = true
+                                    }
+                                }
+                                6, 7 -> {
+                                    if (menuInputState.inputStartTwoVer != "" && menuInputState.inputEndTwoVer != "") {
+                                        message = viewModel.run(menuInputState.algoNum)
+                                    }
+                                    else {
+                                        showSnackbar = true
+                                    }
+                                }
+                                else -> message = viewModel.run(menuInputState.algoNum)
+                            }
+                            scope.launch {
+                                if (showSnackbar) {
+                                    snackbarHostState.showSnackbar(
+                                        "No required parameter for chosen algo was passed. Please enter parameter",
+                                        "Dismiss",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    showSnackbar = false
+                                }
+
+                            }
+
+                        },
+                        enabled = true,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colorScheme.secondary
+                        ),
+                        modifier = Modifier.padding(4.dp)
+                    ) {
+                        Text(
+                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
+                        )
+                    }
+                    val newState = menu()
+                    menuInputState = menuInputState.copy(algoNum = newState.algoNum,
+                        inputValueOneVertex = newState.inputValueOneVertex,
+                        inputStartTwoVer = newState.inputStartTwoVer,
+                        inputEndTwoVer = newState.inputEndTwoVer
+                    )
+                }
+                Surface(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    DirectedGraphView(viewModel.graphViewModel)
+                }
+            }
+        }
+    }
+}}
+
+@Composable
+fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>, ) {
+    Material3AppTheme(theme = theme.value){val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    var menuInputState by remember { mutableStateOf(menuInput()) }
+    Scaffold(
+        backgroundColor = MaterialTheme.colorScheme.surface,
+        snackbarHost = { SnackbarHost(
+            hostState = snackbarHostState,
+//            modifier = Modifier.padding(16.dp)
+        ) { snackbarData ->
+            Snackbar(
+                snackbarData = snackbarData,
+                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
+                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
+                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
+            )
+        }
+        }
     ) {
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp)
@@ -63,10 +201,35 @@ fun <V> MainScreen(viewModel: MainScreenViewModel<V>, theme: MutableState<Theme>
                     showVerticesLabels(viewModel)
                     showEdgesLabels(viewModel)
                     resetGraphView(viewModel)
-                    var algoNum by remember { mutableStateOf(0)}
+
+                    var showSnackbar by remember { mutableStateOf(false) }
                     var message by remember { mutableStateOf("") }
                     Button(
-                        onClick = { message = viewModel.run(algoNum) },
+                        onClick = {
+                            when (menuInputState.algoNum) {
+                                2 -> {
+                                    if (menuInputState.inputValueOneVertex != "") {
+                                        message = viewModel.run(menuInputState.algoNum)
+                                    }
+                                    else {
+                                        showSnackbar = true
+                                    }
+                                }
+                                //add another types
+                                else -> message = viewModel.run(menuInputState.algoNum)
+                            }
+                            scope.launch {
+                                if (showSnackbar) {
+                                    snackbarHostState.showSnackbar(
+                                        "No required parameter for chosen algo was passed. Please enter parameter",
+                                        "Dismiss",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                    showSnackbar = false
+                                }
+
+                            }
+                        },
                         enabled = true,
                         colors = ButtonDefaults.outlinedButtonColors(
                             backgroundColor = MaterialTheme.colorScheme.secondary
@@ -77,145 +240,23 @@ fun <V> MainScreen(viewModel: MainScreenViewModel<V>, theme: MutableState<Theme>
                             text = "Run", color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
-                    algoNum = menu(viewModel.getListOfAlgorithms())
+                    val newState = menu()
+                    menuInputState = menuInputState.copy(algoNum = newState.algoNum,
+                        inputValueOneVertex = newState.inputValueOneVertex,
+                        inputStartTwoVer = newState.inputStartTwoVer,
+                        inputEndTwoVer = newState.inputEndTwoVer
+                    )
                 }
                 Surface(
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.surface
-                    ) {
-                    DirectedGraphView(viewModel.graphViewModel)
+                ) {
+                    UndirectedGraphView(viewModel.graphViewModel)
                 }
             }
 
         }
     }
 }}
-
-@Composable
-fun <V> DGMainScreen(viewModel: MainScreenViewModel<V>, theme: MutableState<Theme>) {
-    Material3AppTheme(theme = theme.value) {
-        val snackbarHostState = remember { SnackbarHostState() }
-        val scope = rememberCoroutineScope()
-        Scaffold(
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            /* add snackbar for some messages */
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(50.dp)
-                ) {
-                    Text(
-                        text = "",
-                        modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    ThemeSwitcher(
-                        theme,
-                        size = 45.dp,
-                        padding = 5.dp
-                    )
-                }
-                Row(
-                ) {
-                    Column(modifier = Modifier.width(300.dp)) {
-                        Spacer(modifier = Modifier.padding(8.dp))
-                        showVerticesLabels(viewModel)
-                        showEdgesLabels(viewModel)
-                        resetGraphView(viewModel)
-                        var algoNum by remember { mutableStateOf(0) }
-                        var message by remember { mutableStateOf("") }
-                        Button(
-                            onClick = { message = viewModel.run(algoNum) },
-                            enabled = true,
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                backgroundColor = MaterialTheme.colorScheme.secondary
-                            ),
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text(
-                                text = "Run", color = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-                        algoNum = menu(viewModel.getListOfAlgorithms())
-                    }
-                    Surface(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        DirectedGraphView(viewModel.graphViewModel)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun <V> UGMainScreen(viewModel: MainScreenViewModel<V>, theme: MutableState<Theme>) {
-    Material3AppTheme(theme = theme.value) {
-        val snackbarHostState = remember { SnackbarHostState() }
-        val scope = rememberCoroutineScope()
-        Scaffold(
-            backgroundColor = MaterialTheme.colorScheme.surface,
-            /* add snackbar for some messages */
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(50.dp)
-                ) {
-                    Text(
-                        text = "",
-                        modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    ThemeSwitcher(
-                        theme,
-                        size = 45.dp,
-                        padding = 5.dp
-                    )
-                }
-                Row(
-                ) {
-                    Column(modifier = Modifier.width(300.dp)) {
-                        Spacer(modifier = Modifier.padding(8.dp))
-                        showVerticesLabels(viewModel)
-                        showEdgesLabels(viewModel)
-                        resetGraphView(viewModel)
-                        var algoNum by remember { mutableStateOf(0) }
-                        var message by remember { mutableStateOf("") }
-                        Button(
-                            onClick = { message = viewModel.run(algoNum) },
-                            enabled = true,
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                backgroundColor = MaterialTheme.colorScheme.secondary
-                            ),
-                            modifier = Modifier.padding(4.dp)
-                        ) {
-                            Text(
-                                text = "Run", color = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
-                        algoNum = menu(viewModel.getListOfAlgorithms())
-                    }
-                    Surface(
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        UndirectedGraphView(viewModel.graphViewModel)
-                    }
-                }
-
-            }
-        }
-    }
-}
-
 @Composable
 fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
     Row(
@@ -280,12 +321,21 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun menu(list: List<String>): Int {
-    var algoNum by remember { mutableStateOf(0)}
-//    val list = listOf(
-//        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
-//        "Bridges", "Min path (Deijkstra)", "Min path (Ford-Bellman)"
-//    )
+fun menu(): menuInput {
+
+    var showOneVertexSelection by remember { mutableStateOf(false) }
+    var showTwoVertexSelection by remember { mutableStateOf(false) }
+
+    var showNoInputError by remember { mutableStateOf(false) }
+    var showIncorrectInputError by remember { mutableStateOf(false) }
+
+    var menuInputState by remember { mutableStateOf(menuInput()) }
+
+    //var algoNum by remember { mutableStateOf(0)}
+    val list = listOf(
+        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
+        "Bridges", "Min path (Dijkstra)", "Min path (Ford-Bellman)"
+    )
     /* by remember : if the variable changes, the parts of code where it's used change view accordingly */
     var selectedText by remember {
         mutableStateOf("Pick an algo")
@@ -330,7 +380,9 @@ fun menu(list: List<String>): Int {
                             )
                         },
                         onClick = {
-                            algoNum = index
+                            menuInputState.algoNum = index
+                            showOneVertexSelection = menuInputState.algoNum == 2
+                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 7
                             selectedText = list[index]
                             isExpanded = false
                         },
@@ -351,8 +403,153 @@ fun menu(list: List<String>): Int {
                 )
             }
         }
+        if (showOneVertexSelection) {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            ) {
+                Card(
+                    elevation = 8.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(text = "Insert vertex index")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = menuInputState.inputValueOneVertex,
+                            onValueChange = { newValue ->
+                                menuInputState = menuInputState.copy(inputValueOneVertex = newValue)
+                                showNoInputError = false
+                                showIncorrectInputError = false
+                            },
+                            label = { Text("index") },
+                            isError = showNoInputError || showIncorrectInputError
+                        )
+                        if (showNoInputError) {
+                            Text(
+                                text = "No input passed. Please check that input values are integer",
+                            )
+                        }
+                        if (showIncorrectInputError) {
+                            Text(
+                                text = "Invalid input passed. Please check that input values are integer",
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Button(
+                                onClick = {
+                                    if (menuInputState.inputValueOneVertex.all { it.isDigit() } && menuInputState.inputValueOneVertex.isNotEmpty()) {
+                                        // Действие при нажатии на кнопку подтверждения
+                                        showOneVertexSelection = false
+                                    } else if (menuInputState.inputValueOneVertex.isEmpty()) {
+                                        showNoInputError = true // Показать сообщение об ошибке
+                                    }
+                                    else {
+                                        showIncorrectInputError = true
+                                    }
+                                }
+                            ) {
+                                Text("Select")
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    showOneVertexSelection = false
+                                    showIncorrectInputError = false
+                                }
+                            ) {
+                                Text("Escape")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (showTwoVertexSelection) {
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+            ) {
+                Card(
+                    elevation = 8.dp,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(text = "Insert start and end vertex indices")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = menuInputState.inputStartTwoVer,
+                            onValueChange = { newValue ->
+                                menuInputState = menuInputState.copy(inputStartTwoVer = newValue)
+                                showNoInputError = false // Скрыть сообщение об ошибке при изменении текста
+                            },
+                            label = { Text("Start index") },
+                            isError = showNoInputError
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        TextField(
+                            value = menuInputState.inputEndTwoVer,
+                            onValueChange = { newValue ->
+                                menuInputState = menuInputState.copy(inputEndTwoVer = newValue)
+                                showNoInputError = false // Скрыть сообщение об ошибке при изменении текста
+                                showIncorrectInputError = false
+                            },
+                            label = { Text("End index") },
+                            isError = showNoInputError || showIncorrectInputError
+                        )
+                        if (showNoInputError) {
+                            Text(
+                                text = "No input passed. Please check that input values are integer",
+                            )
+                        }
+                        if (showIncorrectInputError) {
+                            Text(
+                                text = "Invalid input passed. Please check that input values are integer",
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            Button(
+                                onClick = {
+                                    if (menuInputState.inputStartTwoVer.all { it.isDigit() }
+                                        && menuInputState.inputEndTwoVer.all { it.isDigit() }
+                                        && menuInputState.inputStartTwoVer.isNotEmpty()
+                                        && menuInputState.inputEndTwoVer.isNotEmpty()) {
+                                        // Действие при нажатии на кнопку подтверждения
+                                        showTwoVertexSelection = false
+                                    } else if (menuInputState.inputStartTwoVer.isEmpty()
+                                        || menuInputState.inputEndTwoVer.isEmpty()){
+                                        showNoInputError = true // Показать сообщение об ошибке
+                                    } else {
+                                        showIncorrectInputError = true
+                                    }
+                                }
+                            ) {
+                                Text("Select")
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Button(
+                                onClick = {
+                                    showTwoVertexSelection = false
+                                }
+                            ) {
+                                Text("Escape")
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
-    return algoNum
+    return menuInputState
 }
 
 @Composable
