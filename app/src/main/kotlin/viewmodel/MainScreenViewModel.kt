@@ -8,7 +8,7 @@ import model.Graph
 import model.Vertex
 import model.algorithms.CommonAlgorithmsImpl
 import view.*
-import view.menuInput
+import view.MenuInput
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
@@ -49,34 +49,34 @@ abstract class MainScreenViewModel<V>(
     }
 
     //should be protected?
-    open fun getVertexByIndex(index: Int): Vertex<V>? {
-        val vertList = graph.vertices.toList()
-        val result = vertList.getOrNull(index)
-        return result
-    }
+//    open fun getVertexByIndex(index: Int): Vertex<V>? {
+//        val vertList = graph.vertices.toList()
+//        val result = vertList.getOrNull(index)
+//        return result
+//    }
     protected open val algorithms = CommonAlgorithmsImpl<V>()
 
-    fun run(input: menuInput): String {
-        //println("num is $num")
-        var message = ""
-        when {
-            input.algoNum == 1 -> highlightKeyVertices()
-            input.algoNum == 2 -> {
-                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
-                if (vertex != null) {
-                    resetGraphView()
-                    message = highlightCycles(vertex)
-                }
-                else {
-                    message = "Vertex with that index does not exist"
-                }
-            }
-            else -> {
-                resetGraphView()
-            }
-        }
-        return message
-    }
+//    fun run(input: MenuInput): String {
+//        //println("num is $num")
+//        var message = ""
+//        when {
+//            input.algoNum == 1 -> highlightKeyVertices()
+//            input.algoNum == 2 -> {
+//                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
+//                if (vertex != null) {
+//                    resetGraphView()
+//                    message = highlightCycles(vertex)
+//                }
+//                else {
+//                    message = "Vertex with that index does not exist"
+//                }
+//            }
+//            else -> {
+//                resetGraphView()
+//            }
+//        }
+//        return message
+//    }
 
     protected fun highlightKeyVertices() {
         clearChanges()
@@ -169,10 +169,19 @@ class DGScreenViewModel<V>(
     private val graph2 = graph
     override fun run(input: MenuInput): String {
         var message = ""
-        println(input.text)
+//        println(input.text)
         when {
             input.text == "Key vertices" -> highlightKeyVertices()
-            input.text == "Cycles" -> highlightCycles()
+            input.text == "Cycles" -> {
+                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
+                if (vertex != null) {
+                    resetGraphView()
+                    message = highlightCycles(vertex)
+                }
+                else {
+                    message = "Index out of bounds, maximum value is ${graph2.vertices.size - 1}"
+                }
+            }
             input.text == "Strong components" -> findStrongComponents()
             input.text == "Min path (Ford-Bellman)" -> {
                 val source = getVertexByIndex(input.inputStartTwoVer.toInt())
@@ -240,10 +249,10 @@ class DGScreenViewModel<V>(
                 path[v] = vertexMap[v.vertex]
             }
         }
-        path.forEach{
-            println("${it.key.vertex}, ${it.value}")
-        }
-        println(path.size)
+//        path.forEach{
+//            println("${it.key.vertex}, ${it.value}")
+//        }
+//        println(path.size)
         graphViewModel.edges.forEach { e ->
             if (path.contains(e.u) && path.contains(e.v) &&
                 (path[e.u]?.let { path[e.v]?.minus(it) }) == 1 || (path[e.u]?.let { path[e.v]?.minus(it) }) == -1) {
@@ -272,7 +281,16 @@ class UGScreenViewModel<V>(
         var message = ""
         when {
             input.text == "Key vertices" -> highlightKeyVertices()
-            input.text == "Cycles" -> highlightCycles()
+            input.text == "Cycles" -> {
+                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
+                if (vertex != null) {
+                    resetGraphView()
+                    message = highlightCycles(vertex)
+                }
+                else {
+                    message = "Index out of bounds, maximum value is ${graph.vertices.size - 1}"
+                }
+            }
             else -> {
                 resetGraphView()
             }
