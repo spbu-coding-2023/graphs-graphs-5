@@ -12,6 +12,7 @@ import model.Graph
 import model.Vertex
 import model.algorithms.CommonAlgorithmsImpl
 import view.*
+import view.menuInput
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
@@ -33,7 +34,37 @@ abstract class MainScreenViewModel<V>(
     open fun getListOfAlgorithms(): List<String> {
         return listOf("Graph Clustering", "Key vertices", "Cycles", "Min path (Dijkstra)")
     }
+
+    //should be protected?
+    open fun getVertexByIndex(index: Int): Vertex<V>? {
+        val vertList = graph.vertices.toList()
+        val result = vertList.getOrNull(index)
+        return result
+    }
     protected open val algorithms = CommonAlgorithmsImpl<V>()
+
+    fun run(input: menuInput): String {
+        //println("num is $num")
+        var message = ""
+        when {
+            input.algoNum == 1 -> highlightKeyVertices()
+            input.algoNum == 2 -> {
+                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
+                if (vertex != null) {
+                    resetGraphView()
+                    message = highlightCycles(vertex)
+                }
+                else {
+                    message = "Vertex with that index does not exist"
+                }
+            }
+            else -> {
+                resetGraphView()
+            }
+        }
+        return message
+    }
+
     protected fun highlightKeyVertices() {
         val rankingList = mutableListOf<Double>()
         algorithms.findKeyVertices(graph).forEach{ v ->
@@ -63,15 +94,29 @@ abstract class MainScreenViewModel<V>(
             i++
         }
     }
+    
     abstract fun run(num: Int): String
 
     private fun divideIntoClusters() {
         TODO()
     }
 
-    fun highlightCycles(source: Vertex<V>): MutableList<MutableList<Int>>? {
+    fun highlightCycles(source: Vertex<V>): String {
         val cycles = algorithms.getCycles(graph, source)
-        return cycles
+        var message = ""
+        if (cycles.isNullOrEmpty()) {
+            message = "No cycles for $source detected"
+        }
+        else {
+            //проверить, что он один
+            val cycle = cycles[0]
+            graphViewModel.vertices.forEach{v ->
+                if (cycle.contains(v.vertex.index)) {
+                    v.color = BlackAndWhite20
+                }
+            }
+        }
+        return message
     }
 
     fun highlightPathDijkstra(source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?> {

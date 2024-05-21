@@ -45,7 +45,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
     Material3AppTheme(theme = theme.value){
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
+    var message by remember { mutableStateOf("") }
     var menuInputState by remember { mutableStateOf(menuInput()) }
 
     Scaffold(
@@ -54,11 +54,23 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
             hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
         ) { snackbarData ->
+            val snackbarBackgroundColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.background }
+            else {
+                MaterialTheme.colorScheme.error
+            }
+
+            val snackbarContentColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.onSurface }
+            else {
+                MaterialTheme.colorScheme.onError
+            }
+
             Snackbar(
                 snackbarData = snackbarData,
-                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
-                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
-                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
+                backgroundColor = snackbarBackgroundColor, // Conditional background color of the Snackbar
+                contentColor = snackbarContentColor, // Conditional text color of the Snackbar
+                actionColor = snackbarContentColor // Conditional action (button) text color
             )
         }
         }
@@ -91,33 +103,37 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     resetGraphView(viewModel)
 
                     var showSnackbar by remember { mutableStateOf(false) }
-                    var message by remember { mutableStateOf("") }
                     Button(
                         onClick = {
                             //message = viewModel.run(menuInputState.algoNum)
                             when (menuInputState.algoNum) {
                                 2 -> {
                                     if (menuInputState.inputValueOneVertex != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
                                     }
                                     else {
+                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
                                         showSnackbar = true
                                     }
                                 }
                                 6, 7 -> {
                                     if (menuInputState.inputStartTwoVer != "" && menuInputState.inputEndTwoVer != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
                                     }
                                     else {
+                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
                                         showSnackbar = true
                                     }
                                 }
-                                else -> message = viewModel.run(menuInputState.algoNum)
+                                else -> message = viewModel.run(menuInputState)
+                            }
+                            if (message != "") {
+                                showSnackbar = true
                             }
                             scope.launch {
                                 if (showSnackbar) {
                                     snackbarHostState.showSnackbar(
-                                        "No required parameter for chosen algo was passed. Please enter parameter",
+                                        message,
                                         "Dismiss",
                                         duration = SnackbarDuration.Short
                                     )
@@ -137,7 +153,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             text = "Run", color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
-                    val newState = menu()
+                    val newState = menu(viewModel.getListOfAlgorithms())
                     menuInputState = menuInputState.copy(algoNum = newState.algoNum,
                         inputValueOneVertex = newState.inputValueOneVertex,
                         inputStartTwoVer = newState.inputStartTwoVer,
@@ -158,6 +174,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>, ) {
     Material3AppTheme(theme = theme.value){val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var message by remember { mutableStateOf("") }
 
     var menuInputState by remember { mutableStateOf(menuInput()) }
     Scaffold(
@@ -166,11 +183,23 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
             hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
         ) { snackbarData ->
+            val snackbarBackgroundColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.background }
+            else {
+                MaterialTheme.colorScheme.error
+            }
+
+            val snackbarContentColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.onSurface }
+            else {
+                MaterialTheme.colorScheme.onError
+            }
+
             Snackbar(
                 snackbarData = snackbarData,
-                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
-                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
-                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
+                backgroundColor = snackbarBackgroundColor, // Conditional background color of the Snackbar
+                contentColor = snackbarContentColor, // Conditional text color of the Snackbar
+                actionColor = snackbarContentColor // Conditional action (button) text color
             )
         }
         }
@@ -203,25 +232,29 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                     resetGraphView(viewModel)
 
                     var showSnackbar by remember { mutableStateOf(false) }
-                    var message by remember { mutableStateOf("") }
                     Button(
                         onClick = {
                             when (menuInputState.algoNum) {
                                 2 -> {
                                     if (menuInputState.inputValueOneVertex != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
+
                                     }
                                     else {
+                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
                                         showSnackbar = true
                                     }
                                 }
                                 //add another types
-                                else -> message = viewModel.run(menuInputState.algoNum)
+                                else -> message = viewModel.run(menuInputState)
+                            }
+                            if (message != "") {
+                                showSnackbar = true
                             }
                             scope.launch {
                                 if (showSnackbar) {
                                     snackbarHostState.showSnackbar(
-                                        "No required parameter for chosen algo was passed. Please enter parameter",
+                                        message,
                                         "Dismiss",
                                         duration = SnackbarDuration.Short
                                     )
@@ -240,7 +273,7 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                             text = "Run", color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
-                    val newState = menu()
+                    val newState = menu(viewModel.getListOfAlgorithms())
                     menuInputState = menuInputState.copy(algoNum = newState.algoNum,
                         inputValueOneVertex = newState.inputValueOneVertex,
                         inputStartTwoVer = newState.inputStartTwoVer,
@@ -321,7 +354,7 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun menu(): menuInput {
+fun menu(algoList: List<String>): menuInput {
 
     var showOneVertexSelection by remember { mutableStateOf(false) }
     var showTwoVertexSelection by remember { mutableStateOf(false) }
@@ -331,11 +364,6 @@ fun menu(): menuInput {
 
     var menuInputState by remember { mutableStateOf(menuInput()) }
 
-    //var algoNum by remember { mutableStateOf(0)}
-    val list = listOf(
-        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
-        "Bridges", "Min path (Dijkstra)", "Min path (Ford-Bellman)"
-    )
     /* by remember : if the variable changes, the parts of code where it's used change view accordingly */
     var selectedText by remember {
         mutableStateOf("Pick an algo")
@@ -370,7 +398,7 @@ fun menu(): menuInput {
                 expanded = isExpanded,
                 onDismissRequest = { isExpanded = false }
             ) {
-                list.forEachIndexed { index, text ->
+                algoList.forEachIndexed { index, text ->
                     androidx.compose.material3.DropdownMenuItem(
                         text = {
                             Text(
@@ -381,9 +409,10 @@ fun menu(): menuInput {
                         },
                         onClick = {
                             menuInputState.algoNum = index
-                            showOneVertexSelection = menuInputState.algoNum == 2
-                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 7
-                            selectedText = list[index]
+                            //println(text)
+                            showOneVertexSelection = text == "Cycles"
+                            showTwoVertexSelection = text == "Min path (Dijkstra)" || text == "Min path (Ford-Bellman)"
+                            selectedText = algoList[index]
                             isExpanded = false
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
@@ -451,18 +480,30 @@ fun menu(): menuInput {
                                     else {
                                         showIncorrectInputError = true
                                     }
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Select")
+                                Text(
+                                    text = "Select",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
                                     showOneVertexSelection = false
                                     showIncorrectInputError = false
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Escape")
+                                Text(
+                                    text = "Escape",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                         }
                     }
@@ -531,17 +572,29 @@ fun menu(): menuInput {
                                     } else {
                                         showIncorrectInputError = true
                                     }
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Select")
+                                Text(
+                                    text = "Select",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                    )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
                                     showTwoVertexSelection = false
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Escape")
+                                Text(
+                                    text = "Escape",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                         }
                     }
