@@ -36,24 +36,34 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
     Material3AppTheme(theme = theme.value) {
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
-
         var menuInputState by remember { mutableStateOf(MenuInput()) }
-
         Scaffold(
             backgroundColor = MaterialTheme.colorScheme.surface,
             snackbarHost = {
                 SnackbarHost(
                     hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
-                ) { snackbarData ->
-                    Snackbar(
-                        snackbarData = snackbarData,
-                        backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
-                        contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
-                        actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
-                    )
-                }
+        ) { snackbarData ->
+            val snackbarBackgroundColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.background }
+            else {
+                MaterialTheme.colorScheme.error
             }
+
+            val snackbarContentColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.onSurface }
+            else {
+                MaterialTheme.colorScheme.onError
+            }
+
+            Snackbar(
+                snackbarData = snackbarData,
+                backgroundColor = snackbarBackgroundColor, // Conditional background color of the Snackbar
+                contentColor = snackbarContentColor, // Conditional text color of the Snackbar
+                actionColor = snackbarContentColor // Conditional action (button) text color
+            )
+        }
+        }
 
         ) {
             Column(
@@ -81,7 +91,6 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                         showVerticesLabels(viewModel)
                         showEdgesLabels(viewModel)
                         resetGraphView(viewModel)
-
                         var showSnackbar by remember { mutableStateOf(false) }
                         var message by remember { mutableStateOf("") }
                         Button(
@@ -108,6 +117,9 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                     }
                                     else -> message = viewModel.run(menuInputState)
                                 }
+                                if (message != "") {
+                                    showSnackbar = true
+                                }
                                 scope.launch {
                                     if (showSnackbar) {
                                         snackbarHostState.showSnackbar(
@@ -117,9 +129,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                         )
                                         showSnackbar = false
                                     }
-
                                 }
-
                             },
                             enabled = true,
                             colors = ButtonDefaults.outlinedButtonColors(
@@ -152,11 +162,11 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 }
 
 @Composable
+
 fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>) {
     Material3AppTheme(theme = theme.value) {
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
-
         var menuInputState by remember { mutableStateOf(MenuInput()) }
         Scaffold(
             backgroundColor = MaterialTheme.colorScheme.surface,
@@ -164,34 +174,46 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                 SnackbarHost(
                     hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
-                ) { snackbarData ->
-                    Snackbar(
-                        snackbarData = snackbarData,
-                        backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
-                        contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
-                        actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
-                    )
-                }
+        ) { snackbarData ->
+            val snackbarBackgroundColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.background }
+            else {
+                MaterialTheme.colorScheme.error
             }
+
+            val snackbarContentColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.onSurface }
+            else {
+                MaterialTheme.colorScheme.onError
+            }
+
+            Snackbar(
+                snackbarData = snackbarData,
+                backgroundColor = snackbarBackgroundColor, // Conditional background color of the Snackbar
+                contentColor = snackbarContentColor, // Conditional text color of the Snackbar
+                actionColor = snackbarContentColor // Conditional action (button) text color
+            )
+        }
+        }
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth().height(50.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(50.dp)
-                ) {
-                    Text(
-                        text = "",
-                        modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
-                    ThemeSwitcher(
-                        theme,
-                        size = 45.dp,
-                        padding = 5.dp
-                    )
+                Text(
+                    text = "",
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                ThemeSwitcher(
+                    theme,
+                    size = 45.dp,
+                    padding = 5.dp
+                )
                 }
                 Row(
                 ) {
@@ -200,6 +222,7 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                         showVerticesLabels(viewModel)
                         showEdgesLabels(viewModel)
                         resetGraphView(viewModel)
+
 
                         var showSnackbar by remember { mutableStateOf(false) }
                         var message by remember { mutableStateOf("") }
@@ -217,6 +240,14 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                                     }
                                     //add another types
                                     else -> message = viewModel.run(menuInputState)
+
+                    
+                            }
+                            if (message != "") {
+                                showSnackbar = true
+                            }
+                          
+
                                 }
                                 scope.launch {
                                     if (showSnackbar) {
@@ -249,11 +280,13 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                             inputEndTwoVer = newState.inputEndTwoVer
                         )
                     }
+
                     Surface(
                         modifier = Modifier.weight(1f),
                     ) {
                         UndirectedGraphView(viewModel.graphViewModel)
                     }
+
                 }
 
             }
@@ -324,7 +357,8 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun menu(list: List<String>): MenuInput {
+
+fun menu(algoList: List<String>): menuInput {
 
     var showOneVertexSelection by remember { mutableStateOf(false) }
     var showTwoVertexSelection by remember { mutableStateOf(false) }
@@ -334,11 +368,6 @@ fun menu(list: List<String>): MenuInput {
 
     var menuInputState by remember { mutableStateOf(MenuInput()) }
 
-    //var algoNum by remember { mutableStateOf(0)}
-//    val list = listOf(
-//        "Graph Clustering", "Key vertices", "Cycles", "Min tree", "Components",
-//        "Bridges", "Min path (Dijkstra)", "Min path (Ford-Bellman)"
-//    )
     /* by remember : if the variable changes, the parts of code where it's used change view accordingly */
     var selectedText by remember {
         mutableStateOf("Pick an algo")
@@ -373,7 +402,7 @@ fun menu(list: List<String>): MenuInput {
                 expanded = isExpanded,
                 onDismissRequest = { isExpanded = false }
             ) {
-                list.forEachIndexed { index, text ->
+                algoList.forEachIndexed { index, text ->
                     androidx.compose.material3.DropdownMenuItem(
                         text = {
                             Text(
@@ -383,8 +412,9 @@ fun menu(list: List<String>): MenuInput {
                             )
                         },
                         onClick = {
+
 //                            menuInputState.algoNum = index
-                            menuInputState.text = list[index]
+                            menuInputState.text = algoList[index]
                             showOneVertexSelection = menuInputState.text == "Cycles"
 //                            showOneVertexSelection = menuInputState.algoNum == 2
 //                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 5
@@ -457,18 +487,30 @@ fun menu(list: List<String>): MenuInput {
                                     else {
                                         showIncorrectInputError = true
                                     }
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Select")
+                                Text(
+                                    text = "Select",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
                                     showOneVertexSelection = false
                                     showIncorrectInputError = false
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Escape")
+                                Text(
+                                    text = "Escape",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                         }
                     }
@@ -537,17 +579,29 @@ fun menu(list: List<String>): MenuInput {
                                     } else {
                                         showIncorrectInputError = true
                                     }
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Select")
+                                Text(
+                                    text = "Select",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                    )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
                                     showTwoVertexSelection = false
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Escape")
+                                Text(
+                                    text = "Escape",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                         }
                     }
