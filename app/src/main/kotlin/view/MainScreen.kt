@@ -447,18 +447,30 @@ fun menu(algoList: List<String>): menuInput {
                                     else {
                                         showIncorrectInputError = true
                                     }
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Select")
+                                Text(
+                                    text = "Select",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
                                     showOneVertexSelection = false
                                     showIncorrectInputError = false
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Escape")
+                                Text(
+                                    text = "Escape",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                         }
                     }
@@ -527,17 +539,29 @@ fun menu(algoList: List<String>): menuInput {
                                     } else {
                                         showIncorrectInputError = true
                                     }
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Select")
+                                Text(
+                                    text = "Select",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                    )
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             Button(
                                 onClick = {
                                     showTwoVertexSelection = false
-                                }
+                                },
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    backgroundColor = MaterialTheme.colorScheme.secondary
+                                )
                             ) {
-                                Text("Escape")
+                                Text(
+                                    text = "Escape",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
                             }
                         }
                     }
