@@ -49,10 +49,11 @@ open class MainScreenViewModel<V>(
             input.algoNum == 2 -> {
                 val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
                 if (vertex != null) {
-                    highlightCycles(vertex)
+                    resetGraphView()
+                    message = highlightCycles(vertex)
                 }
                 else {
-                    message = "vertex does not exist"
+                    message = "Vertex with that index does not exist"
                 }
             }
             else -> {
@@ -100,7 +101,7 @@ open class MainScreenViewModel<V>(
         val cycles = algorithms.getCycles(graph, source)
         var message = ""
         if (cycles.isNullOrEmpty()) {
-            message = "no cycles for $source"
+            message = "No cycles for $source detected"
         }
         else {
             //проверить, что он один

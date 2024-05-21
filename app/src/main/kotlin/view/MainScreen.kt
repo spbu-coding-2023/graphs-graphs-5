@@ -45,7 +45,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
     Material3AppTheme(theme = theme.value){
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
-
+    var message by remember { mutableStateOf("") }
     var menuInputState by remember { mutableStateOf(menuInput()) }
 
     Scaffold(
@@ -54,11 +54,23 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
             hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
         ) { snackbarData ->
+            val snackbarBackgroundColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.background }
+            else {
+                MaterialTheme.colorScheme.error
+            }
+
+            val snackbarContentColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.onSurface }
+            else {
+                MaterialTheme.colorScheme.onError
+            }
+
             Snackbar(
                 snackbarData = snackbarData,
-                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
-                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
-                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
+                backgroundColor = snackbarBackgroundColor, // Conditional background color of the Snackbar
+                contentColor = snackbarContentColor, // Conditional text color of the Snackbar
+                actionColor = snackbarContentColor // Conditional action (button) text color
             )
         }
         }
@@ -91,7 +103,6 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     resetGraphView(viewModel)
 
                     var showSnackbar by remember { mutableStateOf(false) }
-                    var message by remember { mutableStateOf("") }
                     Button(
                         onClick = {
                             //message = viewModel.run(menuInputState.algoNum)
@@ -101,6 +112,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                         message = viewModel.run(menuInputState)
                                     }
                                     else {
+                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
                                         showSnackbar = true
                                     }
                                 }
@@ -109,15 +121,19 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                         message = viewModel.run(menuInputState)
                                     }
                                     else {
+                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
                                         showSnackbar = true
                                     }
                                 }
                                 else -> message = viewModel.run(menuInputState)
                             }
+                            if (message != "") {
+                                showSnackbar = true
+                            }
                             scope.launch {
                                 if (showSnackbar) {
                                     snackbarHostState.showSnackbar(
-                                        "No required parameter for chosen algo was passed. Please enter parameter",
+                                        message,
                                         "Dismiss",
                                         duration = SnackbarDuration.Short
                                     )
@@ -158,6 +174,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>, ) {
     Material3AppTheme(theme = theme.value){val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    var message by remember { mutableStateOf("") }
 
     var menuInputState by remember { mutableStateOf(menuInput()) }
     Scaffold(
@@ -166,11 +183,23 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
             hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
         ) { snackbarData ->
+            val snackbarBackgroundColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.background }
+            else {
+                MaterialTheme.colorScheme.error
+            }
+
+            val snackbarContentColor = if (message.contains("No cycles")) {
+                MaterialTheme.colorScheme.onSurface }
+            else {
+                MaterialTheme.colorScheme.onError
+            }
+
             Snackbar(
                 snackbarData = snackbarData,
-                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
-                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
-                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
+                backgroundColor = snackbarBackgroundColor, // Conditional background color of the Snackbar
+                contentColor = snackbarContentColor, // Conditional text color of the Snackbar
+                actionColor = snackbarContentColor // Conditional action (button) text color
             )
         }
         }
@@ -203,25 +232,29 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                     resetGraphView(viewModel)
 
                     var showSnackbar by remember { mutableStateOf(false) }
-                    var message by remember { mutableStateOf("") }
                     Button(
                         onClick = {
                             when (menuInputState.algoNum) {
                                 2 -> {
                                     if (menuInputState.inputValueOneVertex != "") {
                                         message = viewModel.run(menuInputState)
+
                                     }
                                     else {
+                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
                                         showSnackbar = true
                                     }
                                 }
                                 //add another types
                                 else -> message = viewModel.run(menuInputState)
                             }
+                            if (message != "") {
+                                showSnackbar = true
+                            }
                             scope.launch {
                                 if (showSnackbar) {
                                     snackbarHostState.showSnackbar(
-                                        "No required parameter for chosen algo was passed. Please enter parameter",
+                                        message,
                                         "Dismiss",
                                         duration = SnackbarDuration.Short
                                     )
