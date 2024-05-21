@@ -2,12 +2,8 @@ package viewmodel
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.dp
-import model.*
 import model.algorithms.DirectedGraphAlgorithmsImpl
 import model.algorithms.UndirectedGraphAlgorithmsImpl
-import model.algorithms.CommonAlgorithms
-import model.UndirectedGraph
-import model.DirectedGraph
 import model.Graph
 import model.Vertex
 import model.algorithms.CommonAlgorithmsImpl
@@ -30,9 +26,26 @@ abstract class MainScreenViewModel<V>(
             v.color = BlackAndWhite60
             v.radius = 20.dp
         }
+        graphViewModel.edges.forEach { e ->
+            e.color = BlackAndWhite30
+        }
+    }
+    fun clearChanges() {
+        graphViewModel.vertices.forEach{ v ->
+            v.color = BlackAndWhite60
+            v.radius = 20.dp
+        }
+        graphViewModel.edges.forEach { e ->
+            e.color = BlackAndWhite30
+        }
     }
     open fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph Clustering", "Key vertices", "Cycles", "Min path (Dijkstra)")
+        return listOf("Graph clustering", "Key vertices", "Cycles", "Min path (Dijkstra)")
+    }
+    open fun getVertexByIndex(index: Int): Vertex<V>? {
+        val vertList = graph.vertices.toList()
+        val result = vertList.getOrNull(index)
+        return result
     }
 
     //should be protected?
@@ -66,6 +79,7 @@ abstract class MainScreenViewModel<V>(
     }
 
     protected fun highlightKeyVertices() {
+        clearChanges()
         val rankingList = mutableListOf<Double>()
         algorithms.findKeyVertices(graph).forEach{ v ->
             val vertexRank = v.second
@@ -76,11 +90,11 @@ abstract class MainScreenViewModel<V>(
         graphViewModel.vertices.forEach{ v ->
             val relativeRank = rankingList[i]/maxRank
             val radius = when {
-                relativeRank > 0.8 -> 34
-                relativeRank > 0.6 -> 30
+                relativeRank > 0.8 -> 32
+                relativeRank > 0.6 -> 29
                 relativeRank > 0.4 -> 26
-                relativeRank > 0.2 -> 22
-                else -> 18
+                relativeRank > 0.2 -> 23
+                else -> 20
             }
             v.radius = radius.dp
             val color = when {
@@ -92,10 +106,26 @@ abstract class MainScreenViewModel<V>(
             }
             v.color = color
             i++
+            graphViewModel.edges.forEach { e ->
+                e.color = BlackAndWhite30
+            }
         }
     }
-    
-    abstract fun run(num: Int): String
+
+//    open fun run(input: MenuInput): String {
+//        //println("num is $num")
+//        println(input.text)
+//        var message = ""
+//        when {
+//            input.text == "Key vertices" -> highlightKeyVertices()
+//            else -> {
+//                resetGraphView()
+//            }
+//        }
+//        return message
+//    }
+    abstract fun run(input: MenuInput): String
+
 
     private fun divideIntoClusters() {
         TODO()
@@ -137,36 +167,36 @@ class DGScreenViewModel<V>(
 ) : MainScreenViewModel<V>(graph, representationStrategy) {
     override val algorithms = DirectedGraphAlgorithmsImpl<V>()
     private val graph2 = graph
-    override fun run(num: Int): String {
+    override fun run(input: MenuInput): String {
         var message = ""
+        println(input.text)
         when {
-            num == 1 -> highlightKeyVertices()
-            num == 3 -> findStrongComponents()
+            input.text == "Key vertices" -> highlightKeyVertices()
+            input.text == "Cycles" -> highlightCycles()
+            input.text == "Strong components" -> findStrongComponents()
+            input.text == "Min path (Ford-Bellman)" -> {
+                val source = getVertexByIndex(input.inputStartTwoVer.toInt())
+                val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
+                if(source == null || destination == null) message = "Index out of bounds, maximum value is ${graph2.vertices.size - 1}"
+                else message = findSPwFB(source, destination)
+            }
             else -> {
                 resetGraphView()
             }
         }
         return message
     }
+
     private fun findStrongComponents() {
+        clearChanges()
         val componentsList = algorithms.findStrongComponents(graph2)
-//        println("pipipipipi")
-//        componentsList.forEach { v ->
-//            println("$v")
-//        }
         val relativeList = mutableListOf<Int>()
         componentsList.forEach {
             relativeList.add(it.second)
         }
-//        println("hhhhhiiii")
-//        relativeList.forEach {
-//            print("$it ")
-//        }
         val vertexVMMap= hashMapOf<VertexViewModel<V>, Int>()
         var i = 0
-//        println("")
         graphViewModel.vertices.forEach{ v ->
-//            print("${v.vertex} ")
             vertexVMMap[v] = relativeList[i]
             val radius = 18 + relativeList[i] % 10
             v.radius = radius.dp
@@ -191,8 +221,43 @@ class DGScreenViewModel<V>(
             }
         }
     }
+    private fun findSPwFB(source: Vertex<V>, destination: Vertex<V>): String {
+        clearChanges()
+        var message = ""
+        val list = algorithms.findPathWithFordBellman(source, destination, graph2)
+            ?: return  "${destination.index} is not reachable from ${source.index}"
+        if (list[0] == list[list.size - 1]) message = "Negative-weight cycle detected"
+        val vertexMap = hashMapOf<Vertex<V>, Int>()
+        var i = 0
+        list.forEach {
+            vertexMap[it] = i
+            i++
+        }
+        val path = hashMapOf<VertexViewModel<V>, Int?>()
+        graphViewModel.vertices.forEach {v ->
+            if(vertexMap.contains(v.vertex)) {
+                v.color = ComponentColorNavy
+                path[v] = vertexMap[v.vertex]
+            }
+        }
+        path.forEach{
+            println("${it.key.vertex}, ${it.value}")
+        }
+        println(path.size)
+        graphViewModel.edges.forEach { e ->
+            if (path.contains(e.u) && path.contains(e.v) &&
+                (path[e.u]?.let { path[e.v]?.minus(it) }) == 1 || (path[e.u]?.let { path[e.v]?.minus(it) }) == -1) {
+                e.color = ComponentColorNavy
+            }
+//            if (path[e.u] == 1 && path[e.v] == path.size && message == "Negative-weight cycle detected") {
+            if (path[e.u] == 1 && path[e.v] == path.size) {
+                e.color = ComponentColorNavy
+            }
+        }
+        return message
+    }
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph Clustering", "Key vertices", "Cycles", "Strong Components",
+        return listOf("Graph clustering", "Key vertices", "Cycles", "Strong components",
             "Min path (Dijkstra)", "Min path (Ford-Bellman)")
     }
 
@@ -203,12 +268,20 @@ class UGScreenViewModel<V>(
     representationStrategy: RepresentationStrategy
 ) : MainScreenViewModel<V>(graph, representationStrategy) {
     override val algorithms = UndirectedGraphAlgorithmsImpl<V>()
-    override fun run(num: Int): String {
-        TODO("Not yet implemented")
+    override fun run(input: MenuInput): String {
+        var message = ""
+        when {
+            input.text == "Key vertices" -> highlightKeyVertices()
+            input.text == "Cycles" -> highlightCycles()
+            else -> {
+                resetGraphView()
+            }
+        }
+        return message
     }
 
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph Clustering", "Key vertices", "Cycles", "Min tree", "Bridges",
+        return listOf("Graph clustering", "Key vertices", "Cycles", "Min tree", "Bridges",
             "Min path (Dijkstra)")
     }
     private fun findBridges() {
@@ -219,69 +292,3 @@ class UGScreenViewModel<V>(
         TODO()
     }
 }
-
-//object ScreenVM {
-//    fun <V> createView(graph: Graph<V>): MainScreenViewModel<V> {
-//        return when (graph.graphType) {
-//            GraphType.DIRECTED ->
-//                DGScreenViewModel(graph, CircularPlacementStrategy())
-//            else -> UGScreenViewModel(graph, CircularPlacementStrategy())
-//        }
-//    }
-//}
-
-//class MainScreenViewModel<V>(graph: Graph<V>, private val representationStrategy: RepresentationStrategy) {
-//    val showVerticesLabels = mutableStateOf(false)
-//    val showEdgesLabels = mutableStateOf(false)
-//    val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
-//    init {
-//        representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
-//    }
-//    fun resetGraphView() {
-//        representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
-//        graphViewModel.vertices.forEach{ v ->
-//            v.color = BlackAndWhite70
-//            v.radius = 20.dp
-//        }
-//    }
-//    fun run(num: Int): String {
-//        var message = ""
-//        when {
-//            num == 1 -> highlightKeyVertices()
-//            else -> {
-//                resetGraphView()
-//            }
-//        }
-//        return message
-//    }
-
-//    private fun highlightKeyVertices() {
-//        val rankingList = mutableListOf<Double>()
-//        graphViewModel.rankingListOfVertices.forEach{ v ->
-//            val vertexRank = v.second
-//            rankingList.add(vertexRank)
-//        }
-//        val maxRank = rankingList.max()
-//        var i = 0
-//        graphViewModel.vertices.forEach{ v ->
-//            val relativeRank = rankingList[i]/maxRank
-//            val radius = when {
-//                relativeRank > 0.8 -> 36
-//                relativeRank > 0.6 -> 32
-//                relativeRank > 0.4 -> 26
-//                relativeRank > 0.2 -> 20
-//                else -> 14
-//            }
-//            v.radius = radius.dp
-//            val color = when {
-//                relativeRank > 0.8 -> BlackAndWhite20
-//                relativeRank > 0.6 -> BlackAndWhite35
-//                relativeRank > 0.4 -> BlackAndWhite50
-//                relativeRank > 0.2 -> BlackAndWhite65
-//                else -> BlackAndWhite80
-//            }
-//            v.color = color
-//            i++
-//        }
-//    }
-//}

@@ -20,24 +20,23 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         return resultList
     }
 
-    private fun <V> assignComponent(
+    private fun <V> assignComponentNum(
         v: Vertex<V>,
-        component: MutableList<Vertex<V>>,
-        componentsList: MutableList<List<Vertex<V>>>,
+        componentNum: Int,
+        componentsList: MutableList<Pair<Vertex<V>, Int>>,
         assigned: BooleanArray,
-        graph: DirectedGraph<V>
+        graph: Graph<V>
     ) {
         if (!assigned[v.index]) {
             assigned[v.index] = true
-            component.add(v)
-            graph.edges(v).forEach { e ->
-                assignComponent(e.destination, component, componentsList, assigned, graph)
+            componentsList.add(Pair(v, componentNum))
+            graph.edges(v).forEach {
+                assignComponentNum(it.destination, componentNum, componentsList, assigned,  graph)
             }
         }
-        if (!componentsList.contains(component) && component.isNotEmpty()) componentsList.add(component)
     }
 
-    private fun <V> dfs(v: Vertex<V>, listOfOrder: MutableList<Vertex<V>>, visited: BooleanArray, graph: DirectedGraph<V>) {
+    private fun <V> dfs(v: Vertex<V>, listOfOrder: MutableList<Vertex<V>>, visited: BooleanArray, graph: Graph<V>) {
         if (!visited[v.index]) {
             visited[v.index] = true
             graph.edges(v).forEach {e ->
@@ -48,7 +47,7 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
     }
 
     /* transpose graph is built from the graph by changing direction of every edge */
-    private fun <V> buildTransposeGraph(graph: DirectedGraph<V>): DirectedGraph<V> {
+    private fun <V> buildTransposeGraph(graph: Graph<V>): Graph<V> {
         if (!graph.isDirected) return graph
         val transposeGraph = DirectedGraph<V>()
         graph.vertices.forEach { v ->
