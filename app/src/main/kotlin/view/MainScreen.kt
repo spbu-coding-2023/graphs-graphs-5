@@ -98,7 +98,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             when (menuInputState.algoNum) {
                                 2 -> {
                                     if (menuInputState.inputValueOneVertex != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
                                     }
                                     else {
                                         showSnackbar = true
@@ -106,13 +106,13 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                 }
                                 6, 7 -> {
                                     if (menuInputState.inputStartTwoVer != "" && menuInputState.inputEndTwoVer != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
                                     }
                                     else {
                                         showSnackbar = true
                                     }
                                 }
-                                else -> message = viewModel.run(menuInputState.algoNum)
+                                else -> message = viewModel.run(menuInputState)
                             }
                             scope.launch {
                                 if (showSnackbar) {
@@ -209,14 +209,14 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                             when (menuInputState.algoNum) {
                                 2 -> {
                                     if (menuInputState.inputValueOneVertex != "") {
-                                        message = viewModel.run(menuInputState.algoNum)
+                                        message = viewModel.run(menuInputState)
                                     }
                                     else {
                                         showSnackbar = true
                                     }
                                 }
                                 //add another types
-                                else -> message = viewModel.run(menuInputState.algoNum)
+                                else -> message = viewModel.run(menuInputState)
                             }
                             scope.launch {
                                 if (showSnackbar) {
