@@ -8,7 +8,6 @@ import model.Graph
 import model.Vertex
 import model.algorithms.CommonAlgorithmsImpl
 import view.*
-import kotlin.math.abs
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
@@ -40,7 +39,12 @@ abstract class MainScreenViewModel<V>(
         }
     }
     open fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph Clustering", "Key vertices", "Cycles", "Min path (Dijkstra)")
+        return listOf("Graph clustering", "Key vertices", "Cycles", "Min path (Dijkstra)")
+    }
+    open fun getVertexByIndex(index: Int): Vertex<V>? {
+        val vertList = graph.vertices.toList()
+        val result = vertList.getOrNull(index)
+        return result
     }
     protected open val algorithms = CommonAlgorithmsImpl<V>()
     protected fun highlightKeyVertices() {
@@ -76,7 +80,19 @@ abstract class MainScreenViewModel<V>(
             }
         }
     }
-    abstract fun run(input: menuInput): String
+//    open fun run(input: MenuInput): String {
+//        //println("num is $num")
+//        println(input.text)
+//        var message = ""
+//        when {
+//            input.text == "Key vertices" -> highlightKeyVertices()
+//            else -> {
+//                resetGraphView()
+//            }
+//        }
+//        return message
+//    }
+    abstract fun run(input: MenuInput): String
 
     private fun divideIntoClusters() {
         TODO()
@@ -105,14 +121,15 @@ class DGScreenViewModel<V>(
 ) : MainScreenViewModel<V>(graph, representationStrategy) {
     override val algorithms = DirectedGraphAlgorithmsImpl<V>()
     private val graph2 = graph
-    override fun run(input: menuInput): String {
+    override fun run(input: MenuInput): String {
         var message = ""
+        println(input.text)
         when {
-            input.algoNum == 1 -> highlightKeyVertices()
-            input.algoNum == 3 -> findStrongComponents()
-            input.algoNum == 5 -> {
-                val source = algorithms.findVertexByIndex(input.inputStartTwoVer.toInt(), graph2)
-                val destination = algorithms.findVertexByIndex(input.inputEndTwoVer.toInt(), graph2)
+            input.text == "Key vertices" -> highlightKeyVertices()
+            input.text == "Strong components" -> findStrongComponents()
+            input.text == "Min path (Ford-Bellman)" -> {
+                val source = getVertexByIndex(input.inputStartTwoVer.toInt())
+                val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
                 if(source == null || destination == null) message = "Index out of bounds, maximum value is ${graph2.vertices.size - 1}"
                 else message = findSPwFB(source, destination)
             }
@@ -193,7 +210,7 @@ class DGScreenViewModel<V>(
         return message
     }
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph Clustering", "Key vertices", "Cycles", "Strong Components",
+        return listOf("Graph clustering", "Key vertices", "Cycles", "Strong components",
             "Min path (Dijkstra)", "Min path (Ford-Bellman)")
     }
 
@@ -204,12 +221,19 @@ class UGScreenViewModel<V>(
     representationStrategy: RepresentationStrategy
 ) : MainScreenViewModel<V>(graph, representationStrategy) {
     override val algorithms = UndirectedGraphAlgorithmsImpl<V>()
-    override fun run(input: menuInput): String {
-        TODO("Not yet implemented")
+    override fun run(input: MenuInput): String {
+        var message = ""
+        when {
+            input.text == "Key vertices" -> highlightKeyVertices()
+            else -> {
+                resetGraphView()
+            }
+        }
+        return message
     }
 
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph Clustering", "Key vertices", "Cycles", "Min tree", "Bridges",
+        return listOf("Graph clustering", "Key vertices", "Cycles", "Min tree", "Bridges",
             "Min path (Dijkstra)")
     }
     private fun findBridges() {
