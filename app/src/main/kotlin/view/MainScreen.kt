@@ -399,13 +399,11 @@ fun menu(algoList: List<String>): MenuInput {
                             )
                         },
                         onClick = {
-
 //                            menuInputState.algoNum = index
                             menuInputState.text = algoList[index]
                             showOneVertexSelection = menuInputState.text == "Cycles"
-//                            showOneVertexSelection = menuInputState.algoNum == 2
-//                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 5
-                            showTwoVertexSelection = menuInputState.text == "Min path (Dijkstra)" || menuInputState.text == "Min path (Ford-Bellman)"
+                            showTwoVertexSelection = menuInputState.text == "Min path (Dijkstra)" ||
+                                    menuInputState.text == "Min path (Ford-Bellman)"
                             selectedText = algoList[index]
                             isExpanded = false
                         },
@@ -446,17 +444,29 @@ fun menu(algoList: List<String>): MenuInput {
                                 showNoInputError = false
                                 showIncorrectInputError = false
                             },
-                            label = { Text("index") },
-                            isError = showNoInputError || showIncorrectInputError
+                            label = {
+                                Text(
+                                    text = "Index",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            },
+                            isError = showNoInputError || showIncorrectInputError,
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = MaterialTheme.colorScheme.surface,
+                                cursorColor = MaterialTheme.colorScheme.onSecondary,
+                                focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary
+                            )
                         )
                         if (showNoInputError) {
                             Text(
                                 text = "No input passed. Please check that input values are integer",
+                                color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         if (showIncorrectInputError) {
                             Text(
                                 text = "Invalid input passed. Please check that input values are integer",
+                                color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -516,7 +526,8 @@ fun menu(algoList: List<String>): MenuInput {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(text = "Insert start and end vertex indices")
+                        Text(text = "Insert start and end vertex indices",
+                            color = MaterialTheme.colorScheme.onSecondary)
                         Spacer(modifier = Modifier.height(8.dp))
                         TextField(
                             value = menuInputState.inputStartTwoVer,
@@ -524,8 +535,18 @@ fun menu(algoList: List<String>): MenuInput {
                                 menuInputState = menuInputState.copy(inputStartTwoVer = newValue)
                                 showNoInputError = false // Скрыть сообщение об ошибке при изменении текста
                             },
-                            label = { Text("Start index") },
-                            isError = showNoInputError
+                            label = {
+                                Text(
+                                    text = "Start index",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            },
+                            isError = showNoInputError,
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = MaterialTheme.colorScheme.surface,
+                                cursorColor = MaterialTheme.colorScheme.onSecondary,
+                                focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary
+                            )
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         TextField(
@@ -535,17 +556,29 @@ fun menu(algoList: List<String>): MenuInput {
                                 showNoInputError = false // Скрыть сообщение об ошибке при изменении текста
                                 showIncorrectInputError = false
                             },
-                            label = { Text("End index") },
-                            isError = showNoInputError || showIncorrectInputError
+                            label = {
+                                Text(
+                                    text = "End index",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            },
+                            isError = showNoInputError || showIncorrectInputError,
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = MaterialTheme.colorScheme.surface,
+                                cursorColor = MaterialTheme.colorScheme.onSecondary,
+                                focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary
+                            )
                         )
                         if (showNoInputError) {
                             Text(
                                 text = "No input passed. Please check that input values are integer",
+                                color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         if (showIncorrectInputError) {
                             Text(
                                 text = "Invalid input passed. Please check that input values are integer",
+                                color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
