@@ -33,225 +33,233 @@ import viewmodel.UGScreenViewModel
 
 @Composable
 fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>) {
-    Material3AppTheme(theme = theme.value){
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+    Material3AppTheme(theme = theme.value) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
 
-    var menuInputState by remember { mutableStateOf(menuInput()) }
+        var menuInputState by remember { mutableStateOf(MenuInput()) }
 
-    Scaffold(
-        backgroundColor = MaterialTheme.colorScheme.surface,
-        snackbarHost = { SnackbarHost(
-            hostState = snackbarHostState,
+        Scaffold(
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
-        ) { snackbarData ->
-            Snackbar(
-                snackbarData = snackbarData,
-                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
-                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
-                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
-            )
-        }
-        }
-
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().height(50.dp)
-            ) {
-                Text(
-                    text = "",
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                ThemeSwitcher(
-                    theme,
-                    size = 45.dp,
-                    padding = 5.dp
-                )
-            }
-            Row {
-                Column(modifier = Modifier.width(300.dp)) {
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    showVerticesLabels(viewModel)
-                    showEdgesLabels(viewModel)
-                    resetGraphView(viewModel)
-
-                    var showSnackbar by remember { mutableStateOf(false) }
-                    var message by remember { mutableStateOf("") }
-                    Button(
-                        onClick = {
-                            //message = viewModel.run(menuInputState.algoNum)
-                            when (menuInputState.algoNum) {
-                                2 -> {
-                                    if (menuInputState.inputValueOneVertex != "") {
-                                        message = viewModel.run(menuInputState)
-                                        showSnackbar = message.isNotEmpty()
-                                    }
-                                    else {
-                                        showSnackbar = true
-                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
-                                    }
-                                }
-                                6, 5 -> {
-                                    if (menuInputState.inputStartTwoVer != "" && menuInputState.inputEndTwoVer != "") {
-                                        message = viewModel.run(menuInputState)
-                                        showSnackbar = message.isNotEmpty()
-                                    }
-                                    else {
-                                        showSnackbar = true
-                                        message = "No required parameter for chosen algo was passed. Please enter parameter"
-                                    }
-                                }
-                                else -> message = viewModel.run(menuInputState)
-                            }
-                            scope.launch {
-                                if (showSnackbar) {
-                                    snackbarHostState.showSnackbar(
-                                        message,
-                                        "Dismiss",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                    showSnackbar = false
-                                }
-
-                            }
-
-                        },
-                        enabled = true,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            backgroundColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        Text(
-                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                    val newState = menu(viewModel.getListOfAlgorithms())
-                    menuInputState = menuInputState.copy(algoNum = newState.algoNum,
-                        inputValueOneVertex = newState.inputValueOneVertex,
-                        inputStartTwoVer = newState.inputStartTwoVer,
-                        inputEndTwoVer = newState.inputEndTwoVer
+                ) { snackbarData ->
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
+                        contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
+                        actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
                     )
                 }
-                Surface(
-                    modifier = Modifier.weight(1f)
+            }
+
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
                 ) {
-                    DirectedGraphView(viewModel.graphViewModel)
+                    Text(
+                        text = "",
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    ThemeSwitcher(
+                        theme,
+                        size = 45.dp,
+                        padding = 5.dp
+                    )
+                }
+                Row {
+                    Column(modifier = Modifier.width(300.dp)) {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        showVerticesLabels(viewModel)
+                        showEdgesLabels(viewModel)
+                        resetGraphView(viewModel)
+
+                        var showSnackbar by remember { mutableStateOf(false) }
+                        var message by remember { mutableStateOf("") }
+                        Button(
+                            onClick = {
+                                //message = viewModel.run(menuInputState.algoNum)
+                                when (menuInputState.text) {
+                                    "Cycles" -> {
+                                        if (menuInputState.inputValueOneVertex != "") {
+                                            message = viewModel.run(menuInputState)
+                                            showSnackbar = message.isNotEmpty()
+                                        } else {
+                                            showSnackbar = true
+                                            message = "No required parameter for chosen algo was passed. Please enter parameter"
+                                        }
+                                    }
+                                    "Min path (Dijkstra)", "Min path (Ford-Bellman)" -> {
+                                        if (menuInputState.inputStartTwoVer != "" && menuInputState.inputEndTwoVer != "") {
+                                            message = viewModel.run(menuInputState)
+                                            showSnackbar = message.isNotEmpty()
+                                        } else {
+                                            showSnackbar = true
+                                            message = "No required parameter for chosen algo was passed. Please enter parameter"
+                                        }
+                                    }
+                                    else -> message = viewModel.run(menuInputState)
+                                }
+                                scope.launch {
+                                    if (showSnackbar) {
+                                        snackbarHostState.showSnackbar(
+                                            message,
+                                            "Dismiss",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        showSnackbar = false
+                                    }
+
+                                }
+
+                            },
+                            enabled = true,
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                backgroundColor = MaterialTheme.colorScheme.secondary
+                            ),
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text(
+                                text = "Run", color = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+                        val newState = menu(viewModel.getListOfAlgorithms())
+                        menuInputState = menuInputState.copy(
+//                            algoNum = newState.algoNum,
+                            text = newState.text,
+                            inputValueOneVertex = newState.inputValueOneVertex,
+                            inputStartTwoVer = newState.inputStartTwoVer,
+                            inputEndTwoVer = newState.inputEndTwoVer
+                        )
+                    }
+                    Surface(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        DirectedGraphView(viewModel.graphViewModel)
+                    }
                 }
             }
         }
     }
-}}
+}
 
 @Composable
-fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>, ) {
-    Material3AppTheme(theme = theme.value){val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
+fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>) {
+    Material3AppTheme(theme = theme.value) {
+        val snackbarHostState = remember { SnackbarHostState() }
+        val scope = rememberCoroutineScope()
 
-    var menuInputState by remember { mutableStateOf(menuInput()) }
-    Scaffold(
-        backgroundColor = MaterialTheme.colorScheme.surface,
-        snackbarHost = { SnackbarHost(
-            hostState = snackbarHostState,
+        var menuInputState by remember { mutableStateOf(MenuInput()) }
+        Scaffold(
+            backgroundColor = MaterialTheme.colorScheme.surface,
+            snackbarHost = {
+                SnackbarHost(
+                    hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
-        ) { snackbarData ->
-            Snackbar(
-                snackbarData = snackbarData,
-                backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
-                contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
-                actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
-            )
-        }
-        }
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().height(50.dp)
-            ) {
-                Text(
-                    text = "",
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                ThemeSwitcher(
-                    theme,
-                    size = 45.dp,
-                    padding = 5.dp
-                )
-            }
-            Row(
-            ) {
-                Column(modifier = Modifier.width(300.dp)) {
-                    Spacer(modifier = Modifier.padding(8.dp))
-                    showVerticesLabels(viewModel)
-                    showEdgesLabels(viewModel)
-                    resetGraphView(viewModel)
-
-                    var showSnackbar by remember { mutableStateOf(false) }
-                    var message by remember { mutableStateOf("") }
-                    Button(
-                        onClick = {
-                            when (menuInputState.algoNum) {
-                                2 -> {
-                                    if (menuInputState.inputValueOneVertex != "") {
-                                        message = viewModel.run(menuInputState)
-                                    }
-                                    else {
-                                        showSnackbar = true
-                                    }
-                                }
-                                //add another types
-                                else -> message = viewModel.run(menuInputState)
-                            }
-                            scope.launch {
-                                if (showSnackbar) {
-                                    snackbarHostState.showSnackbar(
-                                        "No required parameter for chosen algo was passed. Please enter parameter",
-                                        "Dismiss",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                    showSnackbar = false
-                                }
-
-                            }
-                        },
-                        enabled = true,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            backgroundColor = MaterialTheme.colorScheme.secondary
-                        ),
-                        modifier = Modifier.padding(4.dp)
-                    ) {
-                        Text(
-                            text = "Run", color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                    val newState = menu(viewModel.getListOfAlgorithms())
-                    menuInputState = menuInputState.copy(algoNum = newState.algoNum,
-                        inputValueOneVertex = newState.inputValueOneVertex,
-                        inputStartTwoVer = newState.inputStartTwoVer,
-                        inputEndTwoVer = newState.inputEndTwoVer
+                ) { snackbarData ->
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        backgroundColor = MaterialTheme.colorScheme.error, // Background color of the Snackbar
+                        contentColor = MaterialTheme.colorScheme.onError, // Text color of the Snackbar
+                        actionColor = MaterialTheme.colorScheme.onError, // Action (button) text color
                     )
                 }
-                Surface(
-                    modifier = Modifier.weight(1f),
-                ) {
-                    UndirectedGraphView(viewModel.graphViewModel)
-                }
             }
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                ) {
+                    Text(
+                        text = "",
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    ThemeSwitcher(
+                        theme,
+                        size = 45.dp,
+                        padding = 5.dp
+                    )
+                }
+                Row(
+                ) {
+                    Column(modifier = Modifier.width(300.dp)) {
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        showVerticesLabels(viewModel)
+                        showEdgesLabels(viewModel)
+                        resetGraphView(viewModel)
 
+                        var showSnackbar by remember { mutableStateOf(false) }
+                        var message by remember { mutableStateOf("") }
+                        Button(
+                            onClick = {
+                                when (menuInputState.text) {
+                                    "Cycles" -> {
+                                        if (menuInputState.inputValueOneVertex != "") {
+                                            message = viewModel.run(menuInputState)
+                                            showSnackbar = message.isNotEmpty()
+                                        } else {
+                                            showSnackbar = true
+                                            message = "No required parameter for chosen algo was passed. Please enter parameter"
+                                        }
+                                    }
+                                    //add another types
+                                    else -> message = viewModel.run(menuInputState)
+                                }
+                                scope.launch {
+                                    if (showSnackbar) {
+                                        snackbarHostState.showSnackbar(
+                                            message,
+                                            "Dismiss",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        showSnackbar = false
+                                    }
+
+                                }
+                            },
+                            enabled = true,
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                backgroundColor = MaterialTheme.colorScheme.secondary
+                            ),
+                            modifier = Modifier.padding(4.dp)
+                        ) {
+                            Text(
+                                text = "Run", color = MaterialTheme.colorScheme.onSecondary
+                            )
+                        }
+                        val newState = menu(viewModel.getListOfAlgorithms())
+                        menuInputState = menuInputState.copy(
+//                            algoNum = newState.algoNum,
+                            text = newState.text,
+                            inputValueOneVertex = newState.inputValueOneVertex,
+                            inputStartTwoVer = newState.inputStartTwoVer,
+                            inputEndTwoVer = newState.inputEndTwoVer
+                        )
+                    }
+                    Surface(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        UndirectedGraphView(viewModel.graphViewModel)
+                    }
+                }
+
+            }
         }
     }
-}}
+}
 @Composable
 fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
     Row(
@@ -316,7 +324,7 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun menu(list: List<String>): menuInput {
+fun menu(list: List<String>): MenuInput {
 
     var showOneVertexSelection by remember { mutableStateOf(false) }
     var showTwoVertexSelection by remember { mutableStateOf(false) }
@@ -324,7 +332,7 @@ fun menu(list: List<String>): menuInput {
     var showNoInputError by remember { mutableStateOf(false) }
     var showIncorrectInputError by remember { mutableStateOf(false) }
 
-    var menuInputState by remember { mutableStateOf(menuInput()) }
+    var menuInputState by remember { mutableStateOf(MenuInput()) }
 
     //var algoNum by remember { mutableStateOf(0)}
 //    val list = listOf(
@@ -375,9 +383,12 @@ fun menu(list: List<String>): menuInput {
                             )
                         },
                         onClick = {
-                            menuInputState.algoNum = index
-                            showOneVertexSelection = menuInputState.algoNum == 2
-                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 5
+//                            menuInputState.algoNum = index
+                            menuInputState.text = list[index]
+                            showOneVertexSelection = menuInputState.text == "Cycles"
+//                            showOneVertexSelection = menuInputState.algoNum == 2
+//                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 5
+                            showTwoVertexSelection = menuInputState.text == "Min path (Dijkstra)" || menuInputState.text == "Min path (Ford-Bellman)"
                             selectedText = list[index]
                             isExpanded = false
                         },
