@@ -4,6 +4,17 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
+val ComponentColorPurple = Color(153, 51, 153)
+val ComponentColorNavy = Color(0, 102, 255)
+val ComponentColorBurdundy = Color(204, 0, 0)
+val ComponentColorOrange = Color(255, 153, 0)
+val ComponentColorBlue = Color(0, 51, 153)
+val ComponentColorLavender = Color(204, 153, 255)
+val ComponentColorPink = Color(255, 51, 204)
+val ComponentColorSmoke = Color(102, 102, 153)
+val ComponentColorWater = Color(0, 255, 255)
+val ComponentColorRed = Color(230, 46, 0)
+
 val Pink10 = Color(51, 0, 26)
 val Pink20 = Color(102, 0, 53)
 val Pink30 = Color(153, 0, 79)

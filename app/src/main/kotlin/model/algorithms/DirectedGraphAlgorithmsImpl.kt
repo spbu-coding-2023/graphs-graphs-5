@@ -3,7 +3,7 @@ package model.algorithms
 import model.*
 
 class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
-    override fun findStrongComponents(graph: Graph<V>): MutableList<List<Vertex<V>>> {
+    override fun findStrongComponents(graph: Graph<V>): List<Pair<Vertex<V>, Int>> {
         val visited = BooleanArray(graph.vertices.size)
         val listOfOrder = mutableListOf<Vertex<V>>()
         graph.vertices.forEach { v ->
@@ -11,13 +11,13 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         }
         val transposeGraph = buildTransposeGraph(graph)
         val assigned = BooleanArray(listOfOrder.size)
-        var component = mutableListOf<Vertex<V>>()
-        val componentsList = mutableListOf<List<Vertex<V>>>()
+        var componentNum = 0
+        val componentsList = mutableListOf<Pair<Vertex<V>, Int>>()
         listOfOrder.forEach { v ->
-            assignComponent(v, component, componentsList, assigned, transposeGraph)
-            component = mutableListOf()
+            assignComponentNum(v, componentNum++, componentsList, assigned, transposeGraph)
         }
-        return componentsList
+        val resultList = componentsList.sortedBy { it.first.index }
+        return resultList
     }
 
     private fun <V> assignComponent(
