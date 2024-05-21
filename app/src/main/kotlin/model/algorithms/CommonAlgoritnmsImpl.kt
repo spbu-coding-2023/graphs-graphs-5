@@ -6,12 +6,6 @@ import model.Edge
 import kotlin.math.pow
 
 open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
-    override fun findVertexByIndex(index: Int, graph: Graph<V>): Vertex<V>? {
-        graph.vertices.forEach { v ->
-            if (v.index == index) return v
-        }
-        return null
-    }
 
     override fun createAdjacencyMatrix(graph: Graph<V>): Array<DoubleArray> {
         val adjacencyMatrix = Array(graph.vertices.count()) { DoubleArray(graph.vertices.count()) { 0.0 } }
