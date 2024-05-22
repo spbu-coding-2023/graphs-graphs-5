@@ -2,7 +2,7 @@ package model.algorithms
 
 import model.Graph
 import model.Vertex
-import model.Edge
+import kotlin.math.min
 import kotlin.math.pow
 
 open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
@@ -19,8 +19,153 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
         return adjacencyMatrix
     }
 
-    override fun getClusters(graph: Graph<V>): List<List<Int>> {
-        TODO("Not yet implemented")
+    override fun getClusters(graph: Graph<V>): IntArray {
+        val adjMatrix = createAdjacencyMatrix(graph)
+        //move to directed graph later
+        for (i in adjMatrix.indices) {
+            for (j in adjMatrix.indices) {
+                if (adjMatrix[i][j] != 0.0) {
+                    adjMatrix[j][i] = adjMatrix[i][j]
+                }
+            }
+        }
+        val result = louvainClustering(adjMatrix)
+        var vertPartition = IntArray(graph.vertices.size)
+        for ((clusterNum, cluster) in result.withIndex()) {
+            for (vertex in cluster.indices) {
+                vertPartition[vertex] = clusterNum
+            }
+        }
+
+        return vertPartition
+    }
+
+    private fun createInitialModularityMatrix(adjMatrix: Array<DoubleArray>): Array<DoubleArray> {
+        val size = adjMatrix.size
+        //arrays of sums of all weights attached to vertices i, j respectively
+        val k_i = DoubleArray(size) { i -> adjMatrix[i].sum() }
+        val k_j = k_i.copyOf()
+
+        val norm = 1.0 / k_i.sum()
+        val K = Array(size) { i ->
+            DoubleArray(size) { j ->
+                norm * k_i[i] * k_j[j]
+            }
+        }
+        val modMatrix = Array(size) { i ->
+            DoubleArray(size) { j ->
+                norm * (adjMatrix[i][j] - K[i][j])
+            }
+        }
+
+        return modMatrix
+    }
+
+    private fun countNewModularity(modMatrix: Array<DoubleArray>, communities: List<List<Int>>): Double {
+        //calculate the modularity of partition (Q)
+        //matrix C here is a representation of relations between vertices.
+        //if they are in one cluster, C has 1, else 0. in formula, it is Kronecker delta function
+        val size = modMatrix.size
+        val C = Array(size) { DoubleArray(size) }
+
+        //construction of Kronecker delta matrix
+        //communities -- список сообществ, каждое из которых само по себе список с индексами вершин
+        for (community in communities) {
+            for (i in community.indices) {
+                for (j in i + 1 until community.size) {
+                    val node1 = community[i]
+                    val node2 = community[j]
+                    C[node1][node2] = 1.0
+                    C[node2][node1] = 1.0
+                }
+            }
+        }
+
+        //multiply Kronecker delta[i, j] and modularity matrix element[i, j]
+        val modMatrixC = Array(size) { i ->
+            DoubleArray(size) { j ->
+                modMatrix[i][j] * C[i][j]
+            }
+        }
+
+        //take only lower part of matrix (aka divide by 2)
+        val modMatrixCLowerTriangular = Array(size) { i ->
+            DoubleArray(size) { j ->
+                min(modMatrixC[i][j], modMatrixC[j][i])
+            }
+        }
+
+        var modularity = 0.0
+        for (i in 0 until modMatrixCLowerTriangular.size) {
+            modularity += modMatrixCLowerTriangular[i].sum()
+            //needs testing!! and maybe it should be divided by m
+        }
+
+        return modularity
+    }
+
+    private fun copyMap(originalMap: Map<Int, List<Int>>): MutableMap<Int, MutableList<Int>> {
+        val copiedMap = mutableMapOf<Int, MutableList<Int>>()
+
+        for ((key, value) in originalMap) {
+            val newList = value.toMutableList()
+            copiedMap[key] = newList
+        }
+
+        return copiedMap
+    }
+
+    private fun louvainClustering(adjacencyMatrix: Array<DoubleArray>): List<List<Int>> {
+        val vertToCommMap = mutableMapOf<Int, Int>()
+        var commToVertMap = mutableMapOf<Int, MutableList<Int>>()
+        for (i in adjacencyMatrix.indices) {
+            vertToCommMap[i] = i
+            val list = mutableListOf<Int>()
+            list.add(i)
+            commToVertMap[i] = list
+        }
+
+        val initialPartition = adjacencyMatrix.indices.map { listOf(it) }
+        val modMatrix = createInitialModularityMatrix(adjacencyMatrix)
+        var currentModularity = countNewModularity(adjacencyMatrix, initialPartition)
+
+        var improved = true
+        while (improved) {
+            improved = false
+            //рассматриваем каждую вершину с ее соседями
+            for (vertex in adjacencyMatrix.indices) {
+                for (neighbor in adjacencyMatrix[vertex].indices) {
+                    if ((vertex != neighbor) && (adjacencyMatrix[vertex][neighbor] != 0.0)) {
+                        //берем вершину i, если она и j в разных кластерах, пробуем запихнуть i в кластер j, смотрим обновление модулярности
+                        val vertexCurCommunity = vertToCommMap[vertex]
+                        val neighborCommunity = vertToCommMap[neighbor]
+                        val newPartition = copyMap(commToVertMap)
+                        if (vertexCurCommunity != neighborCommunity) {
+                            newPartition[neighborCommunity]?.add(vertex)
+                            newPartition[vertexCurCommunity]?.remove(vertex)
+                            //превращаем мапу в список кластеров и находим новую модулярность
+                            val communitiesList = mutableListOf<List<Int>>()
+                            for (comm in newPartition.values) { communitiesList.add(comm) }
+                            val newModularity = countNewModularity(modMatrix, communitiesList.toList())
+                            //если модулярность увеличилась
+                            if (newModularity > currentModularity) {
+                                commToVertMap = newPartition
+                                vertToCommMap[vertex] = neighborCommunity ?: throw IllegalStateException("should not be null")
+                                currentModularity = newModularity
+                                improved = true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        val finalList = mutableListOf<List<Int>>()
+        for (comm in commToVertMap.values) {
+            if (comm.isNotEmpty()) {
+                finalList.add(comm)
+            }
+        }
+        return finalList
     }
 
     override fun findKeyVertices(graph: Graph<V>): List<Pair<Vertex<V>, Double>> {
@@ -166,7 +311,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
     }
 
     override fun findPathWithDijkstra(graph: Graph<V>, source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?> {
-        createAdjacencyMatrix(graph)
+        //createAdjacencyMatrix(graph)
         val length = graph.vertices.size
         val distances = MutableList(length) { Double.MAX_VALUE }
         val prevNode = MutableList(length) { Int.MAX_VALUE }
