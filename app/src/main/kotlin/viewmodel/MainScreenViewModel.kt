@@ -112,23 +112,27 @@ abstract class MainScreenViewModel<V>(
         }
     }
 
-//    open fun run(input: MenuInput): String {
-//        //println("num is $num")
-//        println(input.text)
-//        var message = ""
-//        when {
-//            input.text == "Key vertices" -> highlightKeyVertices()
-//            else -> {
-//                resetGraphView()
-//            }
-//        }
-//        return message
-//    }
     abstract fun run(input: MenuInput): String
 
 
-    private fun divideIntoClusters() {
-        TODO()
+    fun divideIntoClusters() {
+        val result = algorithms.getClusters(graph)
+        graphViewModel.vertices.forEach {v ->
+            val vertClusterNum = result[v.vertex.index]
+            val color = when {
+                vertClusterNum % 10 == 0 -> ComponentColorNavy
+                vertClusterNum % 10 == 1 -> ComponentColorOrange
+                vertClusterNum % 10 == 2 -> ComponentColorPurple
+                vertClusterNum % 10 == 3 -> ComponentColorLavender
+                vertClusterNum % 10 == 4 -> ComponentColorBlue
+                vertClusterNum % 10 == 5 -> ComponentColorWater
+                vertClusterNum % 10 == 6 -> ComponentColorPink
+                vertClusterNum % 10 == 7 -> ComponentColorSmoke
+                vertClusterNum % 10 == 8 -> ComponentColorBurdundy
+                else -> ComponentColorRed
+            }
+            v.color = color
+        }
     }
 
     fun highlightCycles(source: Vertex<V>): String {
@@ -171,6 +175,7 @@ class DGScreenViewModel<V>(
         var message = ""
 //        println(input.text)
         when {
+            input.text == "Graph clustering" -> divideIntoClusters()
             input.text == "Key vertices" -> highlightKeyVertices()
             input.text == "Cycles" -> {
                 val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
