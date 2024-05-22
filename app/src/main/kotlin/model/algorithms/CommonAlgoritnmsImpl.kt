@@ -30,10 +30,13 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
             }
         }
         val result = louvainClustering(adjMatrix)
-        var vertPartition = IntArray(graph.vertices.size)
+        println(result.toString())
+        val vertPartition = IntArray(graph.vertices.size)
         for ((clusterNum, cluster) in result.withIndex()) {
-            for (vertex in cluster.indices) {
+            println(cluster)
+            for (vertex in cluster) {
                 vertPartition[vertex] = clusterNum
+                println(vertex)
             }
         }
 
