@@ -30,13 +30,13 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
             }
         }
         val result = louvainClustering(adjMatrix)
-        println(result.toString())
+        //println(result.toString())
         val vertPartition = IntArray(graph.vertices.size)
         for ((clusterNum, cluster) in result.withIndex()) {
-            println(cluster)
+            //println(cluster)
             for (vertex in cluster) {
                 vertPartition[vertex] = clusterNum
-                println(vertex)
+                //println(vertex)
             }
         }
 
@@ -247,7 +247,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
         if (result != null) {
             result = deleteOverlappingCycles(result)
         }
-        //println("result is $result")
+        ////println("result is $result")
         return result
     }
 
@@ -313,8 +313,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
         return result
     }
 
-    override fun findPathWithDijkstra(graph: Graph<V>, source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?> {
-        //createAdjacencyMatrix(graph)
+    override fun findPathWithDijkstra(graph: Graph<V>, source: Vertex<V>, sink: Vertex<V>): Pair<String, Pair<ArrayDeque<Int>?, Double?>> {
         val length = graph.vertices.size
         val distances = MutableList(length) { Double.MAX_VALUE }
         val prevNode = MutableList(length) { Int.MAX_VALUE }
@@ -323,7 +322,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
 
 
         while (distinctVert.isNotEmpty()) {
-            val consideredVer = distinctVert.minByOrNull { distances[it] ?: 0.0 }
+            val consideredVer = distinctVert.minByOrNull { distances[it] }
             distinctVert.remove(consideredVer)
             if (consideredVer == null) {
                 break
@@ -332,21 +331,21 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
             //dk оставлять ли, если это раскомментить, то пути будут считаться только до указанной вершины. дает прирост во времени, но остальной список будет неправильный
             //if (consideredVer == sink.index) { break }
 
-            //найти все ребра, исходящие из рассматриваемой вершины
             val outgoingEdges = graph.edges.filter { it.source.index == consideredVer }
             outgoingEdges.forEach {edge ->
                 val consideredDestination = edge.destination
-                val alternativePath = (distances[consideredVer] ?: 0.0) + (edge.weight ?: throw IllegalArgumentException("edge should have weight"))
-                if (alternativePath < (distances[consideredDestination.index] ?: 0.0)) {
+                val alternativePath = (distances[consideredVer]) + (edge.weight)
+                if ((alternativePath < (distances[consideredDestination.index])) || (source == sink)) {
                     distances[consideredDestination.index] = alternativePath
                     prevNode[consideredDestination.index] = consideredVer
                 }
             }
         }
 
+        var message = ""
         if (prevNode[sink.index] == Int.MAX_VALUE) {
-            //println("vertices are not connected")
-            return Pair(null, null)
+            message = "Vertices are unattainable"
+            return Pair(message, Pair(null, null))
         }
 
         val verSequence = ArrayDeque<Int>()
@@ -358,6 +357,6 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
             backtrace = prevNode[backtrace]
         }
         //println("sequence is $verSequence, length is ${distances[sink.index]}")
-        return Pair(verSequence, distances[sink.index])
+        return Pair(message, Pair(verSequence, distances[sink.index]))
     }
 }
