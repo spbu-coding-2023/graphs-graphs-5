@@ -116,6 +116,7 @@ abstract class MainScreenViewModel<V>(
 
 
     fun divideIntoClusters() {
+        clearChanges()
         val result = algorithms.getClusters(graph)
         graphViewModel.vertices.forEach {v ->
             val vertClusterNum = result[v.vertex.index]
@@ -136,6 +137,7 @@ abstract class MainScreenViewModel<V>(
     }
 
     fun highlightCycles(source: Vertex<V>): String {
+        clearChanges()
         val cycles = algorithms.getCycles(graph, source)
         var message = ""
         if (cycles.isNullOrEmpty()) {
@@ -146,16 +148,41 @@ abstract class MainScreenViewModel<V>(
             val cycle = cycles[0]
             graphViewModel.vertices.forEach{v ->
                 if (cycle.contains(v.vertex.index)) {
-                    v.color = BlackAndWhite20
+                    v.color = ComponentColorNavy
+                }
+            }
+            //REDO
+            graphViewModel.edges.forEach{e ->
+                if ((cycle.contains(e.u.vertex.index)) && (cycle.contains(e.v.vertex.index))) {
+                    e.color = ComponentColorNavy
                 }
             }
         }
         return message
     }
 
-    fun highlightPathDijkstra(source: Vertex<V>, sink: Vertex<V>): Pair<ArrayDeque<Int>?, Double?> {
-        val path = algorithms.findPathWithDijkstra(graph, source, sink)
-        return path
+    fun highlightPathDijkstra(source: Vertex<V>, sink: Vertex<V>): String {
+        clearChanges()
+        //val path = algorithms.findPathWithDijkstra(graph, source, sink)
+        val (algoMessage, pathInfo) = algorithms.findPathWithDijkstra(graph, source, sink)
+        if (pathInfo.first == null) {
+            return algoMessage
+        }
+        else {
+            val path: ArrayDeque<Int> = pathInfo.first ?: throw IllegalArgumentException("should not be null")
+            graphViewModel.vertices.forEach{v ->
+                if (path.contains(v.vertex.index)) {
+                    v.color = ComponentColorNavy
+                }
+            }
+            //REDO
+            graphViewModel.edges.forEach{e ->
+                if ((path.contains(e.u.vertex.index)) && (path.contains(e.v.vertex.index))) {
+                    e.color = ComponentColorNavy
+                }
+            }
+        }
+        return ""
     }
 
     //take out from view model later
@@ -188,6 +215,15 @@ class DGScreenViewModel<V>(
                 }
             }
             input.text == "Strong components" -> findStrongComponents()
+            input.text == "Min path (Dijkstra)" -> {
+                //ПРОВЕРКА НА ОТРИЦАТЕЛЬНЫЕ ВЕСА
+                val source = getVertexByIndex(input.inputStartTwoVer.toInt())
+                val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
+                if(source == null || destination == null) message = "Index out of bounds, maximum value is ${graph2.vertices.size - 1}"
+                else {
+                    message = highlightPathDijkstra(source, destination)
+                }
+            }
             input.text == "Min path (Ford-Bellman)" -> {
                 val source = getVertexByIndex(input.inputStartTwoVer.toInt())
                 val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
@@ -239,7 +275,7 @@ class DGScreenViewModel<V>(
         clearChanges()
         var message = ""
         val list = algorithms.findPathWithFordBellman(source, destination, graph2)
-            ?: return  "${destination.index} is not reachable from ${source.index}"
+            ?: return  "${destination.index} is unattainable from ${source.index}"
         if (list[0] == list[list.size - 1]) message = "Negative-weight cycle detected"
         val vertexMap = hashMapOf<Vertex<V>, Int>()
         var i = 0
