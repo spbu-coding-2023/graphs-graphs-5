@@ -7,6 +7,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+//import androidx.compose.foundation.gestures.detectTapGestures
+//import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -24,7 +26,10 @@ import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+//import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
+//import androidx.compose.ui.graphics.graphicsLayer
+//import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
 import viewmodel.DGScreenViewModel
@@ -45,7 +50,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
                 ) { snackbarData ->
-                    val snackbarBackgroundColor = if (message.contains("No cycles")) {
+                    val snackbarBackgroundColor = if (message.contains("No cycles") || message.contains("unattainable")) {
                         MaterialTheme.colorScheme.background
                     } else {
                         MaterialTheme.colorScheme.error
@@ -148,16 +153,90 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             inputEndTwoVer = newState.inputEndTwoVer
                         )
                     }
+                    //сюда вставить zoomable
                     Surface(
                         modifier = Modifier.weight(1f)
                     ) {
                         DirectedGraphView(viewModel.graphViewModel)
                     }
+//                    Surface(
+//                        modifier = Modifier.weight(1f)
+//                            .graphicsLayer(
+//                                scaleX = viewModel.scale,
+//                                scaleY = viewModel.scale,
+//                                translationX = viewModel.offsetX,
+//                                translationY = viewModel.offsetY
+//                            )
+//                            .pointerInput(Unit) {
+//                                detectTransformGestures { _, pan, zoom, _ ->
+//                                    viewModel.handleTransformGestures(pan, zoom)
+//                                }
+//                            }
+//                    ) {
+//                        Box(
+//                            modifier = Modifier.fillMaxSize()
+//                                .pointerInput(Unit) {
+//                                    detectTransformGestures { _, pan, _, _ ->
+//                                        viewModel.moveSurface(pan)
+//                                    }
+//                                }
+//                        ) {
+//                            DirectedGraphView(viewModel.graphViewModel)
+//                        }
+//                    }
+
+
+//                    ZoomableSurface {
+//                        DirectedGraphView(viewModel.graphViewModel)
+//                    }
+//                    var scale by remember { mutableStateOf(1f) }
+//
+//                    Surface(
+//                        modifier = Modifier
+//                            .weight(1f)
+//                            .fillMaxSize()
+//                            .padding(16.dp)
+//                            .pointerInput(Unit) {
+//                                detectTransformGestures { _, _, zoom, _ ->
+//                                    scale *= zoom
+//                                }
+//                            }
+//                            .graphicsLayer(
+//                                scaleX = scale,
+//                                scaleY = scale
+//                            )
+//                    ) {
+//                        DirectedGraphView(viewModel.graphViewModel)
+//                    }
                 }
             }
         }
     }
 }
+
+//@Composable
+//fun ZoomableSurface(content: @Composable () -> Unit) {
+//    var scale by remember { mutableStateOf(1f) }
+//    var offset by remember { mutableStateOf(Offset.Zero) }
+//
+//    Box(
+//        modifier = Modifier
+//            .fillMaxSize()
+//            .padding(16.dp)
+//            .fillMaxSize()
+//            .pointerInput(Unit) {
+//                detectTransformGestures { _, pan, zoom, _ ->
+//                    scale *= zoom
+//                    offset += pan / scale
+//                }
+//            }
+//            .pointerInput(Unit) {
+//                detectTapGestures { offset = Offset.Zero }
+//            }
+//    ) {
+//        content()
+//    }
+//}
 
 @Composable
 fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>) {
