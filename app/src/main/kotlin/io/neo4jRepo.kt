@@ -18,7 +18,7 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
         val vertices = graphInput.first.toList()
         val edges = graphInput.second.toList()
         for (i in vertices.indices) {
-            graph.addVertex(vertices[i].data, vertices[i].dBIndex)
+            graph.addVertex(vertices[i].data, vertices[i].DBindex)
         }
         for (i in edges.indices) {
             graph.addEdge(edges[i].source, edges[i].destination)
@@ -112,7 +112,7 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
         session.beginTransaction().use { tx ->
             for (i in clusterPartition.indices) {
                 val vertex = vertList[i]
-                val dbIndex = vertex.dBIndex
+                val dbIndex = vertex.DBindex
                 val clusterNumber = clusterPartition[i]
                 val query = """
                 MATCH (v)
@@ -132,7 +132,7 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
         session.beginTransaction().use { tx ->
             for (i in rankingList.indices) {
                 val vertex = vertList[i]
-                val dbIndex = vertex.dBIndex
+                val dbIndex = vertex.DBindex
                 val keyVertexRank = rankingList[i]
                 val query = """
                 MATCH (v)
