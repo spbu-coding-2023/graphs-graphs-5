@@ -1,6 +1,9 @@
 package viewmodel
 
+//import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+//import androidx.compose.runtime.setValue
+//import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
 import model.algorithms.DirectedGraphAlgorithmsImpl
 import model.algorithms.UndirectedGraphAlgorithmsImpl
@@ -17,6 +20,22 @@ abstract class MainScreenViewModel<V>(
     val showVerticesLabels = mutableStateOf(false)
     val showEdgesLabels = mutableStateOf(false)
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
+//
+//    var scale by mutableStateOf(1f)
+//    var offsetX by mutableStateOf(0f)
+//    var offsetY by mutableStateOf(0f)
+//
+//    fun handleTransformGestures(pan: Offset, zoom: Float) {
+//        offsetX += pan.x / scale
+//        offsetY += pan.y / scale
+//        scale *= zoom
+//    }
+//
+//    fun moveSurface(pan: Offset) {
+//        offsetX += pan.x
+//        offsetY += pan.y
+//    }
+
     init {
         representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
     }
@@ -44,7 +63,12 @@ abstract class MainScreenViewModel<V>(
     }
     open fun getVertexByIndex(index: Int): Vertex<V>? {
         val vertList = graph.vertices.toList()
-        val result = vertList.getOrNull(index)
+        var result: Vertex<V>? = null
+        for (i in vertList.indices) {
+            if (vertList[i].DBindex == index) {
+                result = vertList[i]
+            }
+        }
         return result
     }
 
