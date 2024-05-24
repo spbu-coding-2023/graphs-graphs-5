@@ -1,3 +1,3 @@
 package model
 
-data class Vertex<V>(val index: Int, val data: V)
+data class Vertex<V>(val index: Int, val data: V, val DBindex: Int)

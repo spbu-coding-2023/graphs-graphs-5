@@ -18,8 +18,8 @@ open class DirectedGraph<V> : Graph<V> {
 
     private val adjacencies: HashMap<Vertex<V>, ArrayList<Edge<V>>> = HashMap()
 
-    override fun addVertex(data: V): Vertex<V> {
-        val vertex = Vertex(adjacencies.count(), data)
+    override fun addVertex(data: V, DBindex: Int): Vertex<V> {
+        val vertex = Vertex(adjacencies.count(), data, DBindex)
         _vertices[adjacencies.count()] = vertex
         adjacencies[vertex] = ArrayList()
         return vertex

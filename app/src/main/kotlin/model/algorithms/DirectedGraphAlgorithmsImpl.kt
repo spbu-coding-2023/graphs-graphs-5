@@ -51,7 +51,7 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         if (!graph.isDirected) return graph
         val transposeGraph = DirectedGraph<V>()
         graph.vertices.forEach { v ->
-            transposeGraph.addVertex(v.data)
+            transposeGraph.addVertex(v.data, v.DBindex)
         }
         graph.edges.forEach { e ->
             transposeGraph.addEdge(e.destination, e.source)
