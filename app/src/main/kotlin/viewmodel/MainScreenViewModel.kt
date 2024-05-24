@@ -12,14 +12,17 @@ import model.Vertex
 import model.algorithms.CommonAlgorithmsImpl
 import view.*
 import view.MenuInput
+import io.Neo4jRepo
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
-    private val representationStrategy: RepresentationStrategy
+    private val representationStrategy: RepresentationStrategy,
 ) {
     val showVerticesLabels = mutableStateOf(false)
     val showEdgesLabels = mutableStateOf(false)
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
+
+    val neoRepo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
 //
 //    var scale by mutableStateOf(1f)
 //    var offsetX by mutableStateOf(0f)
@@ -72,12 +75,6 @@ abstract class MainScreenViewModel<V>(
         return result
     }
 
-    //should be protected?
-//    open fun getVertexByIndex(index: Int): Vertex<V>? {
-//        val vertList = graph.vertices.toList()
-//        val result = vertList.getOrNull(index)
-//        return result
-//    }
     protected open val algorithms = CommonAlgorithmsImpl<V>()
 
 //    fun run(input: MenuInput): String {
@@ -104,11 +101,13 @@ abstract class MainScreenViewModel<V>(
 
     protected fun highlightKeyVertices() {
         clearChanges()
+        //println(neoRepo.getKeyVerticesResults())
         val rankingList = mutableListOf<Double>()
         algorithms.findKeyVertices(graph).forEach{ v ->
             val vertexRank = v.second
             rankingList.add(vertexRank)
         }
+        neoRepo.saveKeyVerticesResults(graph, rankingList)
         val maxRank = rankingList.max()
         var i = 0
         graphViewModel.vertices.forEach{ v ->
@@ -141,7 +140,9 @@ abstract class MainScreenViewModel<V>(
 
     fun divideIntoClusters() {
         clearChanges()
+        //println(neoRepo.getClusteringResults())
         val result = algorithms.getClusters(graph)
+        neoRepo.saveClusterDetectionResults(graph, result)
         graphViewModel.vertices.forEach {v ->
             val vertClusterNum = result[v.vertex.index]
             val color = when {
