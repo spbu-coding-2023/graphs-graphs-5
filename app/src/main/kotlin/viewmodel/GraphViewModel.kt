@@ -7,6 +7,13 @@ import view.BlackAndWhite30
 import view.BlackAndWhite60
 import view.BlackAndWhite70
 
+
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
+
 class GraphViewModel<V>(
     private val graph: Graph<V>,
     showVerticesLabels: State<Boolean>,
@@ -28,4 +35,14 @@ class GraphViewModel<V>(
         get() = _edges.values
     val isDirected: Boolean
         get() = graph.isDirected
+
+//    var scale by mutableStateOf(1f)
+//    var offsetX by mutableStateOf(0f)
+//    var offsetY by mutableStateOf(0f)
+//
+//    fun handleTransformGestures(pan: Offset, zoom: Float) {
+//        offsetX += pan.x / scale
+//        offsetY += pan.y / scale
+//        scale *= zoom
+//    }
 }
