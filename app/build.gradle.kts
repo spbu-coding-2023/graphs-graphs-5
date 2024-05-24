@@ -27,7 +27,18 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
-//implementation("org.gephi", "gephi-toolkit", "0.10.1", classifier = "all")
+
+//    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    implementation("org.neo4j.driver:neo4j-java-driver:4.3.3")
+    implementation("org.jetbrains.exposed:exposed-core:0.35.1")
+    implementation("org.jetbrains.exposed:exposed-dao:0.35.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.35.1")
+    implementation("org.xerial:sqlite-jdbc:3.41.2.2")
+    //implementation("io.github.microutils", "kotlin-logging-jvm", "2.0.6")
+//    implementation("io.coil-kt:coil-compose:2.2.2")
+//    implementation("com.google.accompanist:accompanist-flowlayout:0.24.8-beta")
+//    implementation("io.coil-kt:coil")
+    //implementation(androidx.compose.material3:material3:1.0.0-alpha02)
 
 }
 
