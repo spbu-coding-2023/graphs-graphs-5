@@ -52,8 +52,8 @@ class SqliteRepo<V>(pathToDatabase: String) {
         GraphEntity.find(
             Graphs.name eq name
         ).firstOrNull()?.let {entity ->
-            println(entity.id)
-            val graph : Graph<Any> = if (entity.metadata == "true") DirectedGraph() else UndirectedGraph()
+//            println(entity.metadata)
+            val graph : Graph<Any> = if (entity.metadata == "DIRECTED") DirectedGraph() else UndirectedGraph()
             val vertexIdMap = mutableMapOf<Int, Int>()
             transaction {
                 VertexEntity.all().forEach { vertexEntity ->
@@ -83,16 +83,16 @@ class SqliteRepo<V>(pathToDatabase: String) {
 
 
 
-//fun main() {
-//    val repo = SqliteRepo<Any>("/Users/sofyakozyreva/dddiiieee/mamamiia.db")
-//    repo.connectToDatabase()
-//    transaction {
-//        val graph3 = repo.loadGraphFromDB("ladybird") ?: return@transaction
-//        graph3.vertices.forEach {
-//            println(it)
-//        }
-//        graph3.edges.forEach {
-//            println(it)
-//        }
-//    }
-//}
+fun main() {
+    val repo = SqliteRepo<Any>("/Users/sofyakozyreva/dddiiieee/mamamiia.db")
+    repo.connectToDatabase()
+    transaction {
+        val graph3 = repo.loadGraphFromDB("States") ?: return@transaction
+        graph3.vertices.forEach {
+            println(it)
+        }
+        graph3.edges.forEach {
+            println(it)
+        }
+    }
+}
