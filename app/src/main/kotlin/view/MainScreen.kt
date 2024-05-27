@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 //import androidx.compose.foundation.gestures.detectTapGestures
 //import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
@@ -26,10 +27,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 //import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 //import androidx.compose.ui.graphics.graphicsLayer
 //import androidx.compose.ui.input.pointer.pointerInput
 
@@ -38,7 +44,10 @@ import kotlinx.coroutines.launch
 import viewmodel.DGScreenViewModel
 import viewmodel.MainScreenViewModel
 import viewmodel.UGScreenViewModel
+import kotlin.math.exp
+import kotlin.math.sign
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>) {
     Material3AppTheme(theme = theme.value) {
@@ -201,11 +210,34 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             inputEndTwoVer = newState.inputEndTwoVer
                         )
                     }
-                    //сюда вставить zoomable
+                    var scale by viewModel.scale
+                    fun adjustScale(scrollAmount: Int) {
+                        scale = (scale * exp(scrollAmount * 0.1f)).coerceIn(0.05f, 4.0f)
+                    }
+                    var offset by viewModel.offset
                     Surface(
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .onPointerEvent(PointerEventType.Scroll) {
+                                val change = it.changes.first()
+                                val scrollAmount = change.scrollDelta.y.toInt().sign
+                                adjustScale(scrollAmount)
+                            }
+                            .pointerInput(Unit) {
+                                detectDragGestures { change, dragAmount ->
+                                    change.consume()
+                                    offset += DpOffset(
+                                        (dragAmount.x * (1 / scale)).toDp(),
+                                        (dragAmount.y * (1 / scale)).toDp()
+                                    )
+                                }
+                            }
                     ) {
-                        DirectedGraphView(viewModel.graphViewModel)
+                        DirectedGraphView(
+                            viewModel.graphViewModel,
+                            scale,
+                            offset
+                        )
                     }
                 }
             }
@@ -369,6 +401,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>) {
     Material3AppTheme(theme = theme.value) {
@@ -504,10 +537,35 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                             inputEndTwoVer = newState.inputEndTwoVer
                         )
                     }
+                    var scale by viewModel.scale
+                    fun adjustScale(scrollAmount: Int) {
+                        scale = (scale * exp(scrollAmount * 0.1f)).coerceIn(0.05f, 4.0f)
+                    }
+
+                    var offset by viewModel.offset
                     Surface(
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .onPointerEvent(PointerEventType.Scroll) {
+                                val change = it.changes.first()
+                                val scrollAmount = change.scrollDelta.y.toInt().sign
+                                adjustScale(scrollAmount)
+                            }
+                            .pointerInput(Unit) {
+                                detectDragGestures { change, dragAmount ->
+                                    change.consume()
+                                    offset += DpOffset(
+                                        (dragAmount.x * (1 / scale)).toDp(),
+                                        (dragAmount.y * (1 / scale)).toDp()
+                                    )
+                                }
+                            }
                     ) {
-                        UndirectedGraphView(viewModel.graphViewModel)
+                        UndirectedGraphView(
+                            viewModel.graphViewModel,
+                            scale,
+                            offset
+                        )
                     }
                 }
             }
