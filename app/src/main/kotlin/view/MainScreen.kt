@@ -187,17 +187,6 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                 if (message.isNotEmpty()) {
                     showSnackbar = true
                 }
-                scope.launch {
-                    if (showSnackbar) {
-                        snackbarHostState.showSnackbar(
-                            message,
-                            "Dismiss",
-                            duration = SnackbarDuration.Short
-                        )
-                        showSnackbar = false
-                        message = ""
-                    }
-                }
             }
         }
 
@@ -327,13 +316,24 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 
         if (loadGraph) {
             if (selectedDatabase == "neo4j") {
-                drawGraph(viewModel, neo4jInput)
+                message = drawGraph(viewModel, neo4jInput)
             }
             else if (selectedDatabase == "sqlite") {
                 TODO()
             }
             else {
                 TODO()
+            }
+        }
+
+        scope.launch {
+            if (showSnackbar) {
+                snackbarHostState.showSnackbar(
+                    message,
+                    "Dismiss",
+                    duration = SnackbarDuration.Short
+                )
+                showSnackbar = false
             }
         }
     }
@@ -349,6 +349,8 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
 
         var isGraphLoaded by remember { mutableStateOf(false) }
         var showDialog by remember { mutableStateOf(false) }
+
+        var showSnackbar by remember { mutableStateOf(false) }
 
         Scaffold(
             backgroundColor = MaterialTheme.colorScheme.surface,
@@ -431,7 +433,6 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                         showVerticesLabels(viewModel)
                         showEdgesLabels(viewModel)
                         resetGraphView(viewModel)
-                        var showSnackbar by remember { mutableStateOf(false) }
                         Button(
                             onClick = {
                                 when (menuInputState.text) {
@@ -452,16 +453,6 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                                 }
                                 if (message.isNotEmpty()) {
                                     showSnackbar = true
-                                }
-                                scope.launch {
-                                    if (showSnackbar) {
-                                        snackbarHostState.showSnackbar(
-                                            message,
-                                            "Dismiss",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                        showSnackbar = false
-                                    }
                                 }
                             },
                             enabled = true,
@@ -617,7 +608,7 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
 
         if (loadGraph) {
             if (selectedDatabase == "neo4j") {
-                drawGraph(viewModel, neo4jInput)
+                message = drawGraph(viewModel, neo4jInput)
             }
             else if (selectedDatabase == "sqlite") {
                 TODO()
@@ -626,13 +617,30 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                 TODO()
             }
         }
+
+        scope.launch {
+            if (showSnackbar) {
+                snackbarHostState.showSnackbar(
+                    message,
+                    "Dismiss",
+                    duration = SnackbarDuration.Short
+                )
+                showSnackbar = false
+            }
+        }
     }
 }
 
 @Composable
-fun <V> drawGraph(viewModel: MainScreenViewModel<V>, input: Neo4jInput) {
-    val graph = viewModel.configureNeo4jRepo(input)
-    ScreenFactory.createView(graph)
+fun <V> drawGraph(viewModel: MainScreenViewModel<V>, input: Neo4jInput): String {
+    val (graph, message) = viewModel.configureNeo4jRepo(input)
+    if (message != "") {
+        return message
+    }
+    else if (graph != null){
+        ScreenFactory.createView(graph)
+    }
+    return ""
 }
 
 @Composable

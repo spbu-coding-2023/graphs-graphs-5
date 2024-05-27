@@ -26,17 +26,27 @@ abstract class MainScreenViewModel<V>(
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
 
     //val neoRepo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
-    fun configureNeo4jRepo(input: Neo4jInput): DirectedGraph<Any> {
-        val neoRepo = Neo4jRepo<Any>(input.uri,input.login, input.password)
-        if (!input.isUndirected) {
-            var graph10 = DirectedGraph<Any>()
-            graph10 = neoRepo.getGraphFromNeo4j(graph10) as DirectedGraph<Any>
-            return graph10
-        }
-        else {
-            var graph10 = UndirectedGraph<Any>()
-            graph10 = neoRepo.getGraphFromNeo4j(graph10) as UndirectedGraph<Any>
-            return graph10
+    fun configureNeo4jRepo(input: Neo4jInput): Pair<DirectedGraph<Any>?, String> {
+        return try {
+            val neoRepo = Neo4jRepo<Any>(input.uri, input.login, input.password)
+
+            if (!input.isUndirected) {
+                val inputGraph = DirectedGraph<Any>()
+                val graph = neoRepo.getGraphFromNeo4j(inputGraph) as DirectedGraph<Any>
+                Pair(graph, "")
+            } else {
+                val inputGraph = UndirectedGraph<Any>()
+                val graph = neoRepo.getGraphFromNeo4j(inputGraph) as UndirectedGraph<Any>
+                Pair(graph, "")
+            }
+        } catch (e: Exception) {
+            val errorMessage = when {
+                e.message?.contains("Scheme") == true -> "${e.message} error occured. Please check the entered URI"
+                e.message?.contains("Authentication failed") == true -> "${e.message} error occured. Please check login and password"
+                else -> "An unexpected error occurred: ${e.message}"
+            }
+            println(errorMessage)
+            Pair(null, errorMessage)
         }
     }
 
