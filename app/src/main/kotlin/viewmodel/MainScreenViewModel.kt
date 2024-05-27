@@ -13,6 +13,9 @@ import model.algorithms.CommonAlgorithmsImpl
 import view.*
 import view.MenuInput
 import io.Neo4jRepo
+import model.DirectedGraph
+import model.UndirectedGraph
+
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
@@ -22,22 +25,20 @@ abstract class MainScreenViewModel<V>(
     val showEdgesLabels = mutableStateOf(false)
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
 
-    val neoRepo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
-//
-//    var scale by mutableStateOf(1f)
-//    var offsetX by mutableStateOf(0f)
-//    var offsetY by mutableStateOf(0f)
-//
-//    fun handleTransformGestures(pan: Offset, zoom: Float) {
-//        offsetX += pan.x / scale
-//        offsetY += pan.y / scale
-//        scale *= zoom
-//    }
-//
-//    fun moveSurface(pan: Offset) {
-//        offsetX += pan.x
-//        offsetY += pan.y
-//    }
+    //val neoRepo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
+    fun configureNeo4jRepo(input: Neo4jInput): DirectedGraph<Any> {
+        val neoRepo = Neo4jRepo<Any>(input.uri,input.login, input.password)
+        if (!input.isUndirected) {
+            var graph10 = DirectedGraph<Any>()
+            graph10 = neoRepo.getGraphFromNeo4j(graph10) as DirectedGraph<Any>
+            return graph10
+        }
+        else {
+            var graph10 = UndirectedGraph<Any>()
+            graph10 = neoRepo.getGraphFromNeo4j(graph10) as UndirectedGraph<Any>
+            return graph10
+        }
+    }
 
     init {
         representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
