@@ -161,31 +161,6 @@ abstract class MainScreenViewModel<V>(
         }
     }
 
-    fun highlightCycles(source: Vertex<V>): String {
-        clearChanges()
-        val cycles = algorithms.getCycles(graph, source)
-        var message = ""
-        if (cycles.isNullOrEmpty()) {
-            message = "No cycles for $source detected"
-        }
-        else {
-            //проверить, что он один
-            val cycle = cycles[0]
-            graphViewModel.vertices.forEach{v ->
-                if (cycle.contains(v.vertex.index)) {
-                    v.color = ComponentColorNavy
-                }
-            }
-            //REDO
-            graphViewModel.edges.forEach{e ->
-                if ((cycle.contains(e.u.vertex.index)) && (cycle.contains(e.v.vertex.index))) {
-                    e.color = ComponentColorNavy
-                }
-            }
-        }
-        return message
-    }
-
     fun highlightPathDijkstra(source: Vertex<V>, sink: Vertex<V>): String {
         clearChanges()
         //val path = algorithms.findPathWithDijkstra(graph, source, sink)
@@ -262,6 +237,30 @@ class DGScreenViewModel<V>(
         return message
     }
 
+    private fun highlightCycles(source: Vertex<V>): String {
+        clearChanges()
+        val cycles = algorithms.getCycles(graph, source)
+        var message = ""
+        if (cycles.isNullOrEmpty()) {
+            message = "No cycles for $source detected"
+        }
+        else {
+            //проверить, что он один
+            val cycle = cycles[0]
+            graphViewModel.vertices.forEach{v ->
+                if (cycle.contains(v.vertex.index)) {
+                    v.color = ComponentColorNavy
+                }
+            }
+            //REDO
+            graphViewModel.edges.forEach{e ->
+                if ((cycle.contains(e.u.vertex.index)) && (cycle.contains(e.v.vertex.index))) {
+                    e.color = ComponentColorNavy
+                }
+            }
+        }
+        return message
+    }
     private fun findStrongComponents() {
         clearChanges()
         val componentsList = algorithms.findStrongComponents(graph2)
@@ -347,16 +346,16 @@ class UGScreenViewModel<V>(
         var message = ""
         when {
             input.text == "Key vertices" -> highlightKeyVertices()
-            input.text == "Cycles" -> {
-                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
-                if (vertex != null) {
-                    resetGraphView()
-                    message = highlightCycles(vertex)
-                }
-                else {
-                    message = "Index out of bounds, maximum value is ${graph.vertices.size - 1}"
-                }
-            }
+//            input.text == "Cycles" -> {
+//                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
+//                if (vertex != null) {
+//                    resetGraphView()
+//                    message = highlightCycles(vertex)
+//                }
+//                else {
+//                    message = "Index out of bounds, maximum value is ${graph.vertices.size - 1}"
+//                }
+//            }
             else -> {
                 resetGraphView()
             }
@@ -365,7 +364,7 @@ class UGScreenViewModel<V>(
     }
 
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph clustering", "Key vertices", "Cycles", "Min tree", "Bridges",
+        return listOf("Graph clustering", "Key vertices", "Min tree", "Bridges",
             "Min path (Dijkstra)")
     }
     private fun findBridges() {
