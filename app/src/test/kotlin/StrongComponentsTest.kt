@@ -1,74 +1,147 @@
 import model.DirectedGraph
 import model.Vertex
 import model.algorithms.DirectedGraphAlgorithmsImpl
-import model.algorithms.buildTransposeGraph
-import model.algorithms.dfs
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import kotlin.test.Test
 
 class StrongComponentsTestOnDirectedGraph {
-    private lateinit var graph: DirectedGraph<String>
-    private lateinit var algorithms: DirectedGraphAlgorithmsImpl<String>
+    private lateinit var graph: DirectedGraph<Int>
+    private lateinit var algorithms: DirectedGraphAlgorithmsImpl<Int>
+
     @BeforeEach
     fun setup() {
         algorithms = DirectedGraphAlgorithmsImpl()
         graph = DirectedGraph()
-        val alice = graph.addVertex("hi")
-        val bob = graph.addVertex("hello")
-        val carrie = graph.addVertex("good morning")
-        val harry = graph.addVertex("have a good one")
-        val max = graph.addVertex("see you soon")
-        val lacy = graph.addVertex("goodbye")
-
-        graph.addEdge(carrie, alice)
-        graph.addEdge(alice, bob)
-        graph.addEdge(bob, carrie)
-        graph.addEdge(bob, harry)
-        graph.addEdge(max, harry)
-        graph.addEdge(harry, max)
-        graph.addEdge(max, lacy)
+        for (i in 0..5) {
+            graph.addVertex(i)
+        }
     }
-    @Test
-    fun `dfs on directed graph`() {
-        val visited = BooleanArray(6)
-        val listOfOrder = mutableListOf<Vertex<String>>()
-        graph.vertices.forEach { v ->
-            dfs(v, listOfOrder, visited, graph)
+
+    private fun convertToListOfInt(componentsList: List<Pair<Vertex<Int>, Int>>): List<Int> {
+        val actualComponentsList = mutableListOf<Int>()
+        var i = 0
+        var prevNum = 0
+        var curNum: Int
+        componentsList.forEach { (_, num) ->
+            curNum = num
+            if (curNum != prevNum) i++
+            actualComponentsList.add(i)
+            prevNum = num
         }
-        val actualListOfOrder = mutableListOf<Int>()
-        /* for easier comparison, we are going to use indices instead of vertices */
-        listOfOrder.forEach {
-            actualListOfOrder.add(it.index)
+        return actualComponentsList
+    }
+
+    private fun addEdgesFrom0To4() {
+        for (i in 0..4) {
+            graph.addEdge(Vertex(i, i), Vertex(i + 1, i + 1))
         }
-        val expectedListOfOrder = listOf(0, 1, 3, 4, 5, 2)
-        assertEquals(expectedListOfOrder, actualListOfOrder)
     }
 
     @Test
-    fun `transpose directed graph`() {
-        val transposeGraph = buildTransposeGraph(graph)
-        val actualListOfEdges = mutableListOf<Pair<Int, Int>>()
-        transposeGraph.edges.forEach {e ->
-            actualListOfEdges.add(Pair(e.source.index, e.destination.index))
-        }
-        val expectedListOfEdges = listOf(Pair(0, 2), Pair(1, 0), Pair(2, 1), Pair(3, 1), Pair(3, 4), Pair(4, 3), Pair(5, 4))
-        assertEquals(expectedListOfEdges, actualListOfEdges)
-    }
-
-    @Test
-    fun `find strong components in directed graph`() {
+    fun `find strong components in disconnected graph`() {
         val componentsList = algorithms.findStrongComponents(graph)
-        val actualComponentsList = mutableListOf<List<Int>>()
-        var actualComponent = mutableListOf<Int>()
-        componentsList.forEach { component ->
-            component.forEach { v ->
-                actualComponent.add(v.index)
-            }
-            actualComponentsList.add(actualComponent)
-            actualComponent = mutableListOf()
+        val actualComponentsList = convertToListOfInt(componentsList)
+        val expectedComponentsList = listOf(1, 2, 3, 4, 5, 6)
+        assertEquals(expectedComponentsList, actualComponentsList)
+    }
+
+    @Test
+    fun `find strong components in simple cyclic graph`() {
+        addEdgesFrom0To4()
+        graph.addEdge(Vertex(5, 5), Vertex(0, 0))
+        val componentsList = algorithms.findStrongComponents(graph)
+        val actualComponentsList = convertToListOfInt(componentsList)
+        val expectedComponentsList = listOf(0, 0, 0, 0, 0, 0)
+        assertEquals(expectedComponentsList, actualComponentsList)
+    }
+
+    @Test
+    fun `find strong components in chain of nodes`() {
+        addEdgesFrom0To4()
+        val componentsList = algorithms.findStrongComponents(graph)
+        val actualComponentsList = convertToListOfInt(componentsList)
+        val expectedComponentsList = listOf(0, 1, 2, 3, 4, 5)
+        assertEquals(expectedComponentsList, actualComponentsList)
+    }
+
+    /*
+    *  0 -- 1
+    *   \  /
+    *    2 -- 3 -- 4 -- 5
+    *
+    */
+    @Test
+    fun `find strong components in graph with combination of cycles and chains`() {
+        addEdgesFrom0To4()
+        graph.addEdge(Vertex(2, 2), Vertex(0, 0))
+        val componentsList = algorithms.findStrongComponents(graph)
+        val actualComponentsList = convertToListOfInt(componentsList)
+        val expectedComponentsList = listOf(0, 0, 0, 1, 2, 3)
+        assertEquals(expectedComponentsList, actualComponentsList)
+    }
+
+    /*
+    *      2        4
+    *    /  \      / \
+    *   1    3     \ /
+    *    \  /       5
+    *     0
+    *
+    */
+    @Test
+    fun `find strong components among multiple disjoint cycles`() {
+        for (i in 0..2) {
+            graph.addEdge(Vertex(i, i), Vertex(i + 1, i + 1))
         }
-        val expectedComponentsList = listOf(listOf(0, 2, 1), listOf(3, 4), listOf(5))
+        graph.addEdge(Vertex(3, 3), Vertex(0, 0))
+        graph.addEdge(Vertex(4, 4), Vertex(5, 5))
+        graph.addEdge(Vertex(5, 5), Vertex(4, 4))
+        val componentsList = algorithms.findStrongComponents(graph)
+        val actualComponentsList = convertToListOfInt(componentsList)
+        val expectedComponentsList = listOf(1, 1, 1, 1, 2, 2)
+        assertEquals(expectedComponentsList, actualComponentsList)
+    }
+
+    /*
+    *     2      4
+    *    /  \  / |
+    *   1    3   |
+    *    \  /  \ |
+    *     0     5
+    *
+    */
+    @Test
+    fun `find strong components in graph with interlinked subgraphs`() {
+        addEdgesFrom0To4()
+        graph.addEdge(Vertex(3, 3), Vertex(0, 0))
+        graph.addEdge(Vertex(5, 5), Vertex(3, 3))
+        val componentsList = algorithms.findStrongComponents(graph)
+        val actualComponentsList = convertToListOfInt(componentsList)
+        val expectedComponentsList = listOf(0, 0, 0, 0, 0, 0)
+        assertEquals(expectedComponentsList, actualComponentsList)
+    }
+
+    /*
+    *     2       4 -- 3
+    *     | \   / |
+    *     |   0   |
+    *     | /  \  |
+    *     1      5
+    *
+    */
+    @Test
+    fun `find strong components in directed acyclic graph`() {
+        graph.addEdge(Vertex(0, 0), Vertex(1, 1))
+        graph.addEdge(Vertex(0, 0), Vertex(2, 2))
+        graph.addEdge(Vertex(0, 0), Vertex(5, 5))
+        graph.addEdge(Vertex(1, 1), Vertex(2, 2))
+        graph.addEdge(Vertex(4, 4), Vertex(3, 3))
+        graph.addEdge(Vertex(4, 4), Vertex(5, 5))
+        graph.addEdge(Vertex(4, 4), Vertex(0, 0))
+        val componentsList = algorithms.findStrongComponents(graph)
+        val actualComponentsList = convertToListOfInt(componentsList)
+        val expectedComponentsList = listOf(1, 2, 3, 4, 5, 6)
         assertEquals(expectedComponentsList, actualComponentsList)
     }
 }

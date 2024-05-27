@@ -175,6 +175,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
         val rankingList = mutableListOf<Pair<Vertex<V>, Double>>()
         graph.vertices.forEach {
             rankingList.add(Pair(it, (calculateEHC(it, graph))))
+//            println(calculateEHC(it, graph))
         }
         return rankingList
     }
@@ -185,6 +186,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
         val listOfDegrees = mutableListOf<Int>()
         graph.vertices.forEach { listOfDegrees.add(getDegree(it, graph)) }
         val maxDegree = listOfDegrees.max()
+//        println(maxDegree)
         return maxDegree
     }
     /* |N_i(k)| -- getNumOfNeighborsWithDegree(k, v_i) is the number of neighbors of degree k of node v_i  */
@@ -195,6 +197,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
                 result++
             }
         }
+//        println(result)
         return result
     }
     /* S_k(v_i) -- cumulativeFunctionVectorElement(k, v_i) is the value of the kth index of vector */
@@ -206,6 +209,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
             cumulativeVectorElement =
                 getCumulativeFunctionVectorElement(k - 1, vertex, graph) - getNumOfNeighborsWithDegree(k - 1, vertex, graph)
         }
+//        println(cumulativeVectorElement)
         return cumulativeVectorElement
     }
     private fun cumulativeCentrality(vertex: Vertex<V>, graph: Graph<V>): Double {
@@ -218,6 +222,7 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
         val r = 100.0
         for (k in 1..h) {
             cmc += p.pow(1.0 + k.toDouble() * p / r) * getCumulativeFunctionVectorElement(k, vertex, graph).toDouble()
+//            println(cmc)
         }
         return cmc
     }
@@ -225,7 +230,8 @@ open class CommonAlgorithmsImpl<V>: CommonAlgorithms<V> {
     private fun calculateEHC(vertex: Vertex<V>, graph: Graph<V>): Double {
         var ehc = 0.0
         graph.edges(vertex).forEach {
-            ehc += cumulativeCentrality(it.destination, graph)
+            ehc += cumulativeCentrality(it.destination, graph) + cumulativeCentrality(vertex, graph)
+//            println(ehc)
         }
         return ehc
     }

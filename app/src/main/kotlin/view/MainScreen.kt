@@ -57,16 +57,15 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
                 ) { snackbarData ->
-                    val snackbarBackgroundColor = if (message.contains("No cycles") || message.contains("unattainable")) {
-                        MaterialTheme.colorScheme.background
-                    } else {
+                    val snackbarBackgroundColor = if (message.contains("Error")) {
                         MaterialTheme.colorScheme.error
-                    }
-
-                    val snackbarContentColor = if (message.contains("No cycles")) {
-                        MaterialTheme.colorScheme.onSurface
                     } else {
+                        MaterialTheme.colorScheme.background
+                    }
+                    val snackbarContentColor = if (message.contains("Error")) {
                         MaterialTheme.colorScheme.onError
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
                     }
 
                     Snackbar(
@@ -143,7 +142,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                             showSnackbar = message.isNotEmpty()
                                         } else {
                                             showSnackbar = true
-                                            message = "No required parameter for chosen algo was passed. Please enter parameter"
+                                            message = "Error: no required parameter for chosen algo was passed. Please enter parameter"
                                         }
                                     }
                                     "Min path (Dijkstra)", "Min path (Ford-Bellman)" -> {
@@ -152,7 +151,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                             showSnackbar = message.isNotEmpty()
                                         } else {
                                             showSnackbar = true
-                                            message = "No required parameter for chosen algo was passed. Please enter parameter"
+                                            message = "Error: no required parameter for chosen algo was passed. Please enter parameter"
                                         }
                                     }
                                     else -> message = viewModel.run(menuInputState)
@@ -239,15 +238,15 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                     hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
                 ) { snackbarData ->
-                    val snackbarBackgroundColor = if (message.contains("No cycles")) {
-                        MaterialTheme.colorScheme.background
-                    } else {
+                    val snackbarBackgroundColor = if (message.contains("Error")) {
                         MaterialTheme.colorScheme.error
-                    }
-                    val snackbarContentColor = if (message.contains("No cycles")) {
-                        MaterialTheme.colorScheme.onSurface
                     } else {
+                        MaterialTheme.colorScheme.background
+                    }
+                    val snackbarContentColor = if (message.contains("Error")) {
                         MaterialTheme.colorScheme.onError
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
                     }
                     Snackbar(
                         snackbarData = snackbarData,
@@ -294,8 +293,7 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                                             showSnackbar = message.isNotEmpty()
                                         } else {
                                             showSnackbar = true
-                                            message =
-                                                "No required parameter for chosen algo was passed. Please enter parameter"
+                                            message = "Error: no required parameter for chosen algo was passed. Please enter parameter"
                                         }
                                     }
                                     //add another types
@@ -361,7 +359,7 @@ fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
         )
         Text(
             text = "Show vertices' labels",
-            fontSize = 20.sp,
+            fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 4.dp)
         )
@@ -383,7 +381,7 @@ fun <V> showEdgesLabels(viewModel: MainScreenViewModel<V>) {
         )
         Text(
             text = "Show edges' weights",
-            fontSize = 20.sp,
+            fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 4.dp)
         )
@@ -410,7 +408,6 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
 fun menu(algoList: List<String>): MenuInput {
 
     var showOneVertexSelection by remember { mutableStateOf(false) }
@@ -525,13 +522,13 @@ fun menu(algoList: List<String>): MenuInput {
                         )
                         if (showNoInputError) {
                             Text(
-                                text = "No input passed. Please check that input values are integer",
+                                text = "Error: no input passed. Please check that input values are integer",
                                 color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         if (showIncorrectInputError) {
                             Text(
-                                text = "Invalid input passed. Please check that input values are integer",
+                                text = "Error: invalid input passed. Please check that input values are integer",
                                 color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
@@ -637,13 +634,13 @@ fun menu(algoList: List<String>): MenuInput {
                         )
                         if (showNoInputError) {
                             Text(
-                                text = "No input passed. Please check that input values are integer",
+                                text = "Error: no input passed. Please check that input values are integer",
                                 color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         if (showIncorrectInputError) {
                             Text(
-                                text = "Invalid input passed. Please check that input values are integer",
+                                text = "Error: invalid input passed. Please check that input values are integer",
                                 color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
