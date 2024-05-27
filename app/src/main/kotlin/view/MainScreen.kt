@@ -43,6 +43,13 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
         val scope = rememberCoroutineScope()
         var menuInputState by remember { mutableStateOf(MenuInput()) }
         var message by remember { mutableStateOf("") }
+
+        var isGraphLoaded by remember { mutableStateOf(false) }
+        var showDialog by remember { mutableStateOf(false) }
+
+        var showSnackbar by remember { mutableStateOf(false) }
+
+
         Scaffold(
             backgroundColor = MaterialTheme.colorScheme.surface,
             snackbarHost = {
@@ -75,28 +82,57 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                 modifier = Modifier.fillMaxSize().padding(16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "",
-                        modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { showDialog = true },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text(
+                            text = "Load Graph",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            if (!isGraphLoaded) {
+                                message = "no graph provided, please load your graph"
+
+                            }
+                        },
+                        //enabled = isGraphLoaded,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = if (isGraphLoaded) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
+                        )
+                    ) {
+                        Text(
+                            text = "Save",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
                     ThemeSwitcher(
                         theme,
                         size = 45.dp,
                         padding = 5.dp
                     )
                 }
+
                 Row {
                     Column(modifier = Modifier.width(300.dp)) {
                         Spacer(modifier = Modifier.padding(8.dp))
                         showVerticesLabels(viewModel)
                         showEdgesLabels(viewModel)
                         resetGraphView(viewModel)
-                        var showSnackbar by remember { mutableStateOf(false) }
                         Button(
                             onClick = {
                                 //message = viewModel.run(menuInputState.algoNum)
@@ -120,19 +156,6 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                         }
                                     }
                                     else -> message = viewModel.run(menuInputState)
-                                }
-                                if (message.isNotEmpty()) {
-                                    showSnackbar = true
-                                }
-                                scope.launch {
-                                    if (showSnackbar) {
-                                        snackbarHostState.showSnackbar(
-                                            message,
-                                            "Dismiss",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                        showSnackbar = false
-                                    }
                                 }
                             },
                             enabled = true,
@@ -159,84 +182,48 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     ) {
                         DirectedGraphView(viewModel.graphViewModel)
                     }
-//                    Surface(
-//                        modifier = Modifier.weight(1f)
-//                            .graphicsLayer(
-//                                scaleX = viewModel.scale,
-//                                scaleY = viewModel.scale,
-//                                translationX = viewModel.offsetX,
-//                                translationY = viewModel.offsetY
-//                            )
-//                            .pointerInput(Unit) {
-//                                detectTransformGestures { _, pan, zoom, _ ->
-//                                    viewModel.handleTransformGestures(pan, zoom)
-//                                }
-//                            }
-//                    ) {
-//                        Box(
-//                            modifier = Modifier.fillMaxSize()
-//                                .pointerInput(Unit) {
-//                                    detectTransformGestures { _, pan, _, _ ->
-//                                        viewModel.moveSurface(pan)
-//                                    }
-//                                }
-//                        ) {
-//                            DirectedGraphView(viewModel.graphViewModel)
-//                        }
-//                    }
-
-
-//                    ZoomableSurface {
-//                        DirectedGraphView(viewModel.graphViewModel)
-//                    }
-//                    var scale by remember { mutableStateOf(1f) }
-//
-//                    Surface(
-//                        modifier = Modifier
-//                            .weight(1f)
-//                            .fillMaxSize()
-//                            .padding(16.dp)
-//                            .pointerInput(Unit) {
-//                                detectTransformGestures { _, _, zoom, _ ->
-//                                    scale *= zoom
-//                                }
-//                            }
-//                            .graphicsLayer(
-//                                scaleX = scale,
-//                                scaleY = scale
-//                            )
-//                    ) {
-//                        DirectedGraphView(viewModel.graphViewModel)
-//                    }
+                }
+                if (message.isNotEmpty()) {
+                    showSnackbar = true
+                }
+                scope.launch {
+                    if (showSnackbar) {
+                        snackbarHostState.showSnackbar(
+                            message,
+                            "Dismiss",
+                            duration = SnackbarDuration.Short
+                        )
+                        showSnackbar = false
+                        message = ""
+                    }
+                }
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = { Text(text = "Load Graph") },
+                        text = { Text(text = "Graph loading dialog...") },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    isGraphLoaded = true
+                                    showDialog = false
+                                }
+                            ) {
+                                Text("Load")
+                            }
+                        },
+                        dismissButton = {
+                            Button(onClick = { showDialog = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
                 }
             }
         }
     }
 }
 
-//@Composable
-//fun ZoomableSurface(content: @Composable () -> Unit) {
-//    var scale by remember { mutableStateOf(1f) }
-//    var offset by remember { mutableStateOf(Offset.Zero) }
-//
-//    Box(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .padding(16.dp)
-//            .fillMaxSize()
-//            .pointerInput(Unit) {
-//                detectTransformGestures { _, pan, zoom, _ ->
-//                    scale *= zoom
-//                    offset += pan / scale
-//                }
-//            }
-//            .pointerInput(Unit) {
-//                detectTapGestures { offset = Offset.Zero }
-//            }
-//    ) {
-//        content()
-//    }
-//}
 
 @Composable
 fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>) {
