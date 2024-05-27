@@ -68,7 +68,7 @@ abstract class MainScreenViewModel<V>(
         val vertList = graph.vertices.toList()
         var result: Vertex<V>? = null
         for (i in vertList.indices) {
-            if (vertList[i].DBindex == index) {
+            if (vertList[i].dBIndex == index) {
                 result = vertList[i]
             }
         }
@@ -106,8 +106,9 @@ abstract class MainScreenViewModel<V>(
         algorithms.findKeyVertices(graph).forEach{ v ->
             val vertexRank = v.second
             rankingList.add(vertexRank)
+//            println(vertexRank)
         }
-        neoRepo.saveKeyVerticesResults(graph, rankingList)
+        //neoRepo.saveKeyVerticesResults(graph, rankingList)
         val maxRank = rankingList.max()
         var i = 0
         graphViewModel.vertices.forEach{ v ->
@@ -137,12 +138,11 @@ abstract class MainScreenViewModel<V>(
 
     abstract fun run(input: MenuInput): String
 
-
     fun divideIntoClusters() {
         clearChanges()
         //println(neoRepo.getClusteringResults())
         val result = algorithms.getClusters(graph)
-        neoRepo.saveClusterDetectionResults(graph, result)
+        //neoRepo.saveClusterDetectionResults(graph, result)
         graphViewModel.vertices.forEach {v ->
             val vertClusterNum = result[v.vertex.index]
             val color = when {
@@ -160,7 +160,6 @@ abstract class MainScreenViewModel<V>(
             v.color = color
         }
     }
-
     fun highlightPathDijkstra(source: Vertex<V>, sink: Vertex<V>): String {
         clearChanges()
         //val path = algorithms.findPathWithDijkstra(graph, source, sink)
@@ -209,7 +208,7 @@ class DGScreenViewModel<V>(
                     message = highlightCycles(vertex)
                 }
                 else {
-                    message = "Index out of bounds, maximum value is ${graph2.vertices.size - 1}"
+                    message = "Error: vertex with this index doesn't exist"
                 }
             }
             input.text == "Strong components" -> findStrongComponents()
@@ -217,7 +216,7 @@ class DGScreenViewModel<V>(
                 //ПРОВЕРКА НА ОТРИЦАТЕЛЬНЫЕ ВЕСА
                 val source = getVertexByIndex(input.inputStartTwoVer.toInt())
                 val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
-                if(source == null || destination == null) message = "Index out of bounds, maximum value is ${graph2.vertices.size - 1}"
+                if(source == null || destination == null) message = "Error: vertex with this index doesn't exist"
                 else {
                     message = highlightPathDijkstra(source, destination)
                 }
@@ -225,7 +224,7 @@ class DGScreenViewModel<V>(
             input.text == "Min path (Ford-Bellman)" -> {
                 val source = getVertexByIndex(input.inputStartTwoVer.toInt())
                 val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
-                if(source == null || destination == null) message = "Index out of bounds, maximum value is ${graph2.vertices.size - 1}"
+                if(source == null || destination == null) message = "Error: vertex with this index doesn't exist"
                 else message = findSPwFB(source, destination)
             }
             else -> {
@@ -263,26 +262,26 @@ class DGScreenViewModel<V>(
     private fun findStrongComponents() {
         clearChanges()
         val componentsList = algorithms.findStrongComponents(graph2)
-        val relativeList = mutableListOf<Int>()
+        val componentNumList = mutableListOf<Int>()
         componentsList.forEach {
-            relativeList.add(it.second)
+            componentNumList.add(it.second)
         }
         val vertexVMMap= hashMapOf<VertexViewModel<V>, Int>()
         var i = 0
         graphViewModel.vertices.forEach{ v ->
-            vertexVMMap[v] = relativeList[i]
-            val radius = 18 + relativeList[i] % 10
+            vertexVMMap[v] = componentNumList[i]
+            val radius = 18 + componentNumList[i] % 10
             v.radius = radius.dp
             val color = when {
-                relativeList[i] % 10 == 0 -> ComponentColorNavy
-                relativeList[i] % 10 == 1 -> ComponentColorOrange
-                relativeList[i] % 10 == 2 -> ComponentColorPurple
-                relativeList[i] % 10 == 3 -> ComponentColorLavender
-                relativeList[i] % 10 == 4 -> ComponentColorBlue
-                relativeList[i] % 10 == 5 -> ComponentColorWater
-                relativeList[i] % 10 == 6 -> ComponentColorPink
-                relativeList[i] % 10 == 7 -> ComponentColorSmoke
-                relativeList[i] % 10 == 8 -> ComponentColorBurdundy
+                componentNumList[i] % 10 == 0 -> ComponentColorNavy
+                componentNumList[i] % 10 == 1 -> ComponentColorOrange
+                componentNumList[i] % 10 == 2 -> ComponentColorPurple
+                componentNumList[i] % 10 == 3 -> ComponentColorLavender
+                componentNumList[i] % 10 == 4 -> ComponentColorBlue
+                componentNumList[i] % 10 == 5 -> ComponentColorWater
+                componentNumList[i] % 10 == 6 -> ComponentColorPink
+                componentNumList[i] % 10 == 7 -> ComponentColorSmoke
+                componentNumList[i] % 10 == 8 -> ComponentColorBurdundy
                 else -> ComponentColorRed
             }
             v.color = color
@@ -298,7 +297,7 @@ class DGScreenViewModel<V>(
         clearChanges()
         var message = ""
         val list = algorithms.findPathWithFordBellman(source, destination, graph2)
-            ?: return  "${destination.index} is unattainable from ${source.index}"
+            ?: return  "Vertex ${destination.dBIndex} is unattainable from vertex ${source.dBIndex}"
         if (list[0] == list[list.size - 1]) message = "Negative-weight cycle detected"
         val vertexMap = hashMapOf<Vertex<V>, Int>()
         var i = 0
@@ -313,16 +312,11 @@ class DGScreenViewModel<V>(
                 path[v] = vertexMap[v.vertex]
             }
         }
-//        path.forEach{
-//            println("${it.key.vertex}, ${it.value}")
-//        }
-//        println(path.size)
         graphViewModel.edges.forEach { e ->
             if (path.contains(e.u) && path.contains(e.v) &&
                 (path[e.u]?.let { path[e.v]?.minus(it) }) == 1 || (path[e.u]?.let { path[e.v]?.minus(it) }) == -1) {
                 e.color = ComponentColorNavy
             }
-//            if (path[e.u] == 1 && path[e.v] == path.size && message == "Negative-weight cycle detected") {
             if (path[e.u] == 1 && path[e.v] == path.size) {
                 e.color = ComponentColorNavy
             }
