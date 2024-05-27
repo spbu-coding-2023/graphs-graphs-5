@@ -1,6 +1,5 @@
 package view
 
-import App
 import ScreenFactory
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState
@@ -35,7 +34,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 //import androidx.compose.ui.graphics.graphicsLayer
 //import androidx.compose.ui.input.pointer.pointerInput
 

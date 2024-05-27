@@ -2,6 +2,7 @@ package viewmodel
 
 //import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.unit.DpOffset
 //import androidx.compose.runtime.setValue
 //import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
@@ -75,7 +76,8 @@ abstract class MainScreenViewModel<V>(
         }
         return message
     }
-
+    var scale = mutableStateOf(1f)
+    var offset = mutableStateOf(DpOffset.Zero)
     init {
         representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
     }

@@ -1,19 +1,18 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import io.Neo4jRepo
+import io.SqliteRepo
 import model.DirectedGraph
 import model.Graph
 import model.GraphType
 import model.UndirectedGraph
+import org.jetbrains.exposed.sql.transactions.transaction
 import view.*
 import viewmodel.*
 import java.awt.Dimension
+
 
 val graph = DirectedGraph<Int>().apply {
     val zero = addVertex(0, 1)
@@ -131,12 +130,12 @@ val graph2 = UndirectedGraph<Int>().apply {
     addEdge(three, four)
     addEdge(four, five)
 }
-
 val emptyGraph = DirectedGraph<Int>()
 
 @Composable
 @Preview
 fun App() {
+
 //    val repo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
 //    var graph3 = DirectedGraph<Any>()
 //    graph3 = repo.getGraphFromNeo4j(graph3) as DirectedGraph<Any>
@@ -144,6 +143,13 @@ fun App() {
     //println(graph3.vertices)
     val input = Neo4jInput()
     ScreenFactory.createView(graph, input)
+    /* временно */
+    val repo = SqliteRepo<Any>("/Users/sofyakozyreva/dddiiieee/mamamiia.db")
+    repo.connectToDatabase()
+    var graph3 : Graph<Any> = DirectedGraph()
+    transaction {
+        graph3 = repo.loadGraphFromDB("States") ?: return@transaction
+    }
 }
 
 object ScreenFactory {
@@ -164,7 +170,7 @@ object ScreenFactory {
 }
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication) {
+    Window(onCloseRequest = ::exitApplication, title = "So Old School",) {
         window.minimumSize = Dimension(1050, 750)
         App()
     }
