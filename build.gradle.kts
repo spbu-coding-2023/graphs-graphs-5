@@ -10,6 +10,9 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    maven("https://raw.github.com/gephi/gephi/mvn-thirdparty-repo/")
+
 //    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
 }
@@ -24,10 +27,10 @@ dependencies {
     implementation(compose.materialIconsExtended)
 //    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-//    implementation("io.coil-kt:coil-compose:2.2.2")
-//    implementation("com.google.accompanist:accompanist-flowlayout:0.24.8-beta")
-//    implementation("io.coil-kt:coil")
-    //implementation(androidx.compose.material3:material3:1.0.0-alpha02)
+    implementation(files("libs/gephi-toolkit-0.10.0-all.jar"))
+
+//implementation("org.gephi", "gephi-toolkit", "0.10.1", classifier = "all")
+
 }
 
 tasks.test {
@@ -44,4 +47,28 @@ compose.desktop {
             packageVersion = "1.0.0"
         }
     }
+}
+
+
+tasks.register("downloadGephiToolkit") {
+    val path = "libs/gephi-toolkit-0.10.0-all.jar"
+    val sourceUrl = "https://github.com/gephi/gephi-toolkit/releases/download/v0.10.0/gephi-toolkit-0.10.0-all.jar"
+
+    val libsDirectory = File("libs")
+    val jarFile = File(path)
+
+    if (!libsDirectory.exists())
+        libsDirectory.mkdir()
+
+    if (!jarFile.exists())
+        download(sourceUrl, path)
+}
+
+tasks.build {
+    dependsOn("downloadGephiToolkit")
+}
+
+fun download(url: String, path: String){
+    val destinationFile = File(path)
+    ant.invokeMethod("get", mapOf("src" to url, "dest" to destinationFile))
 }
