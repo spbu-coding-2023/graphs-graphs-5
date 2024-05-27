@@ -5,8 +5,7 @@ class UndirectedGraph<V> : DirectedGraph<V>(), Graph<V> {
         addDirectedEdge(source, destination, weight)
         addDirectedEdge(destination, source, weight)
     }
-    override val isDirected: Boolean
-        get() = false
+
     override val graphType: GraphType
         get() = GraphType.UNDIRECTED
 }

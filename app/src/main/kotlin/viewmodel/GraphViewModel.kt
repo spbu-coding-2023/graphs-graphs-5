@@ -27,14 +27,12 @@ class GraphViewModel<V>(
             ?: throw IllegalStateException("VertexView for ${e.source} not found")
         val snd = _vertices[e.destination]
             ?: throw IllegalStateException("VertexView for ${e.destination} not found")
-        EdgeViewModel(fst, snd, e, showEdgesLabels, isDirected, BlackAndWhite30)
+        EdgeViewModel(fst, snd, e, showEdgesLabels, BlackAndWhite30)
     }
     val vertices: Collection<VertexViewModel<V>>
         get() = _vertices.values
     val edges: Collection<EdgeViewModel<V>>
         get() = _edges.values
-    val isDirected: Boolean
-        get() = graph.isDirected
 
 //    var scale by mutableStateOf(1f)
 //    var offsetX by mutableStateOf(0f)

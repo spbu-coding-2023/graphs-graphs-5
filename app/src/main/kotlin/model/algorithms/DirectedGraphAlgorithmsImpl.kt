@@ -14,7 +14,10 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         var componentNum = 0
         val componentsList = mutableListOf<Pair<Vertex<V>, Int>>()
         listOfOrder.forEach { v ->
-            assignComponentNum(v, componentNum++, componentsList, assigned, transposeGraph)
+            if (!assigned[v.index]) {
+                assignComponentNum(v, componentNum, componentsList, assigned, transposeGraph)
+                componentNum++
+            }
         }
         val resultList = componentsList.sortedBy { it.first.index }
         return resultList
@@ -48,10 +51,9 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
 
     /* transpose graph is built from the graph by changing direction of every edge */
     private fun <V> buildTransposeGraph(graph: Graph<V>): Graph<V> {
-        if (!graph.isDirected) return graph
         val transposeGraph = DirectedGraph<V>()
         graph.vertices.forEach { v ->
-            transposeGraph.addVertex(v.data, v.DBindex)
+            transposeGraph.addVertex(v.data, v.dBIndex)
         }
         graph.edges.forEach { e ->
             transposeGraph.addEdge(e.destination, e.source)
@@ -60,7 +62,6 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
     }
     
     override fun findPathWithFordBellman(source: Vertex<V>, destination: Vertex<V>, graph: Graph<V>): MutableList<Vertex<V>>? {
-
         val distance = DoubleArray(graph.vertices.size)
         /* whose predecessor and who is predecessor */
         val predecessor = mutableListOf<Vertex<V>>()
