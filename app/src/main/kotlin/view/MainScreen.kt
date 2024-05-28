@@ -126,8 +126,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             }
                             else {
                                 //implement other bases
-                                println("here, ${dBInput.dBType}")
-                                message = viewModel.saveAlgoResults(dBInput)
+                                message = viewModel.saveAlgoResults()
                             }
 
                         },
@@ -407,7 +406,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                 }
                 else {
                     isGraphLoaded = true
-                    println("here")
+//                    println("here")
                 }
 
                 scope.launch {

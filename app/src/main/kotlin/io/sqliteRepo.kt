@@ -88,7 +88,7 @@ class SqliteRepo<V>(pathToDatabase: String) {
         return null
     }
 
-    fun getAllGraphsNames(): List<String> {
+    private fun getAllGraphsNames(): List<String> {
         val graphsNamesList = mutableListOf<String>()
         transaction {
             GraphEntity.all().forEach{ entity ->
@@ -111,7 +111,7 @@ class SqliteRepo<V>(pathToDatabase: String) {
         }
     }
 
-    fun <V> saveClusteringResults(graph: Graph<V>, clusterPartition: IntArray) {
+    fun <V> saveClusterDetectionResults(graph: Graph<V>, clusterPartition: IntArray) {
         val vertices = graph.vertices.toList()
         transaction {
             for (i in clusterPartition.indices) {
@@ -233,6 +233,9 @@ fun main() {
     }
     transaction {
         val list = repo.loadKeyVerticesResults("pipi")?.forEach {
+            println(it)
+        }
+        repo.loadClusteringResults("pipi")?.forEach {
             println(it)
         }
     }

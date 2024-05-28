@@ -60,7 +60,6 @@ abstract class MainScreenViewModel<V>(
             Pair(null, errorMessage)
         }
     }
-
     fun configureSQLiteRepo(input: DBInput): Pair<Graph<Any>?, String> {
         val sqliteRepo = SqliteRepo<Any>(input.pathToDb)
         sqliteRepo.connectToDatabase()
@@ -71,11 +70,7 @@ abstract class MainScreenViewModel<V>(
         if (graph == null) return Pair(null, "Graph with such name doesn't exist in this directory")
         return Pair(graph, "")
     }
-
-
-    fun saveAlgoResults(input: DBInput): String {
-        //println(input.uri)
-        //println(neo4jRepo)
+    fun saveAlgoResults(): String {
         var message = ""
         when (DBinput.dBType) {
             "neo4j" -> {
@@ -94,7 +89,7 @@ abstract class MainScreenViewModel<V>(
                 return message
             }
             "sqlite" -> {
-                val repoState = SqliteRepo<Any>(input.pathToDb)
+                val repoState = SqliteRepo<Any>(DBinput.pathToDb)
                 algoResults.keyVerticesResult?.let { keyVertState ->
                     repoState.saveKeyVerticesResults(graph, keyVertState)
                 }
