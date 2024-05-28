@@ -15,7 +15,7 @@ import androidx.compose.runtime.setValue
 
 
 class GraphViewModel<V>(
-    private val graph: Graph<V>,
+    val graph: Graph<V>,
     showVerticesLabels: State<Boolean>,
     showEdgesLabels: State<Boolean>
 ) {
