@@ -14,26 +14,29 @@ import model.algorithms.CommonAlgorithmsImpl
 import view.*
 import view.MenuInput
 import io.Neo4jRepo
+import io.SqliteRepo
 import model.DirectedGraph
 import model.UndirectedGraph
+import org.jetbrains.exposed.sql.transactions.transaction
 
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
     private val representationStrategy: RepresentationStrategy,
-    val DBinput: Neo4jInput
+    val DBinput: DBInput
 ) {
     val showVerticesLabels = mutableStateOf(false)
     val showEdgesLabels = mutableStateOf(false)
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
     var neo4jRepo: Neo4jRepo<Any>? = if (DBinput.uri != "") Neo4jRepo(DBinput.uri, DBinput.login, DBinput.password) else null
-    val algoResults = AlgoResults()
+//    val sqliteRepo: SqliteRepo<Any>? = if (DBinput.dBType == "sqlite") SqliteRepo(DBinput.pathToDb) else null
+    private val algoResults = AlgoResults()
 
     //val neoRepo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
-    fun configureNeo4jRepo(input: Neo4jInput): Pair<DirectedGraph<Any>?, String> {
+    fun configureNeo4jRepo(input: DBInput): Pair<DirectedGraph<Any>?, String> {
         return try {
             val neoRepo = Neo4jRepo<Any>(input.uri, input.login, input.password)
-            if (input.isUpdated) {
+            if (input.isUpdatedNeo4j) {
                 neoRepo.cleanOutdatedAlgoResults()
             }
             neo4jRepo = neoRepo
@@ -58,21 +61,48 @@ abstract class MainScreenViewModel<V>(
         }
     }
 
-    fun saveAlgoResults(input: Neo4jInput): String {
+    fun configureSQLiteRepo(input: DBInput): Pair<Graph<Any>?, String> {
+        val sqliteRepo = SqliteRepo<Any>(input.pathToDb)
+        sqliteRepo.connectToDatabase()
+        var graph : Graph<Any>? = DirectedGraph()
+        transaction {
+            graph = sqliteRepo.loadGraphFromDB(input.name)
+        }
+        if (graph == null) return Pair(null, "Graph with such name doesn't exist in this directory")
+        return Pair(graph, "")
+    }
+
+
+    fun saveAlgoResults(input: DBInput): String {
         //println(input.uri)
         //println(neo4jRepo)
         var message = ""
-        val repoState = neo4jRepo
-        if (repoState == null) {
-            message = "nowhere to save, enter repo first"
-        }
-        else {
-            algoResults.keyVerticesResult?.let { keyVertState ->
-                repoState.saveKeyVerticesResults(graph, keyVertState)
+        when (DBinput.dBType) {
+            "neo4j" -> {
+                val repoState = neo4jRepo
+                if (repoState == null) {
+                    message = "nowhere to save, enter repo first"
+                }
+                else {
+                    algoResults.keyVerticesResult?.let { keyVertState ->
+                        repoState.saveKeyVerticesResults(graph, keyVertState)
+                    }
+                    algoResults.clusteringResult?.let { clusterState ->
+                        repoState.saveClusterDetectionResults(graph, clusterState)
+                    }
+                }
+                return message
             }
-            algoResults.clusteringResult?.let { clusterState ->
-                repoState.saveClusterDetectionResults(graph, clusterState)
+            "sqlite" -> {
+                val repoState = SqliteRepo<Any>(input.pathToDb)
+                algoResults.keyVerticesResult?.let { keyVertState ->
+                    repoState.saveKeyVerticesResults(graph, keyVertState)
+                }
+                algoResults.clusteringResult?.let { clusterState ->
+                    repoState.saveClusterDetectionResults(graph, clusterState)
+                }
             }
+            else -> {}
         }
         return message
     }
@@ -233,7 +263,7 @@ abstract class MainScreenViewModel<V>(
 class DGScreenViewModel<V>(
     graph: Graph<V>,
     representationStrategy: RepresentationStrategy,
-    DBinput: Neo4jInput
+    DBinput: DBInput
 ) : MainScreenViewModel<V>(graph, representationStrategy, DBinput) {
     override val algorithms = DirectedGraphAlgorithmsImpl<V>()
     private val graph2 = graph
@@ -383,7 +413,7 @@ class DGScreenViewModel<V>(
 class UGScreenViewModel<V>(
     graph: Graph<V>,
     representationStrategy: RepresentationStrategy,
-    DBinput: Neo4jInput
+    DBinput: DBInput
 ) : MainScreenViewModel<V>(graph, representationStrategy, DBinput) {
     override val algorithms = UndirectedGraphAlgorithmsImpl<V>()
     override fun run(input: MenuInput): String {
