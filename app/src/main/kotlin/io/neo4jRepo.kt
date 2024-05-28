@@ -21,8 +21,11 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
             graph.addVertex(vertices[i].data, vertices[i].dBIndex)
         }
         for (i in edges.indices) {
-            graph.addEdge(edges[i].source, edges[i].destination)
+            if (!graph.edges.any { it.source.dBIndex == edges[i].source.dBIndex && it.destination.dBIndex == edges[i].destination.dBIndex }) {
+                graph.addEdge(edges[i].source, edges[i].destination)
+            }
         }
+        println("edges are ${graph.edges}")
         return graph
     }
 
