@@ -7,13 +7,12 @@ import kotlin.test.Test
 
 class ShortestPathFordBellmanOnDirectedGraph {
     private lateinit var graph: DirectedGraph<Int>
-    private lateinit var zero: Vertex<Int>
     private lateinit var algorithms: DirectedGraphAlgorithmsImpl<Int>
     @BeforeEach
     fun setup() {
         algorithms = DirectedGraphAlgorithmsImpl()
         graph = DirectedGraph()
-        zero = graph.addVertex(0)
+        val zero = graph.addVertex(0)
         val one = graph.addVertex(1)
         val two = graph.addVertex(2)
         val three = graph.addVertex(3)
@@ -22,16 +21,13 @@ class ShortestPathFordBellmanOnDirectedGraph {
         graph.addEdge(zero, one, -1.0)
         graph.addEdge(zero, two, 4.0)
         graph.addEdge(one, two, 3.0)
-//        graph.addEdge(one, three, 2.0)
         graph.addEdge(one, four, 2.0)
         graph.addEdge(three, two, 5.0)
-//        graph.addEdge(three, one, 1.0)
         graph.addEdge(four, three, -3.0)
     }
 
     @Test
     fun`SPFB returns path on directed graph`() {
-//        graph.addEdge(Vertex(1, 1), zero, 3.0)
         graph.addEdge(Vertex(3, 3), Vertex(1, 1), 1.0)
         graph.addEdge(Vertex(1, 1), Vertex(3, 3), 2.0)
         val actualPath = mutableListOf<Int>()
