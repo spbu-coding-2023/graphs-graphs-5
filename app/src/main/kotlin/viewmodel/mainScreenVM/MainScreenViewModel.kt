@@ -1,4 +1,4 @@
-package viewmodel
+package viewmodel.mainScreenVM
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.DpOffset
@@ -14,6 +14,9 @@ import model.UndirectedGraph
 import org.jetbrains.exposed.sql.transactions.transaction
 import view.Theme.*
 import view.inputs.DBInput
+import viewmodel.AlgoResults
+import viewmodel.placementStrategy.RepresentationStrategy
+import viewmodel.graph.GraphViewModel
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,

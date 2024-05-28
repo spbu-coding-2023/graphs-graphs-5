@@ -10,9 +10,9 @@ import model.UndirectedGraph
 import view.Theme.Theme
 import view.inputs.DBInput
 import view.mainScreen.UGMainScreen
-import viewmodel.*
 import viewmodel.mainScreenVM.DGScreenViewModel
 import viewmodel.mainScreenVM.UGScreenViewModel
+import viewmodel.placementStrategy.ForceAtlasPlacementStrategy
 import java.awt.Dimension
 
 

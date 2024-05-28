@@ -2,7 +2,7 @@
 
 import androidx.compose.runtime.Composable
 import view.inputs.DBInput
-import viewmodel.MainScreenViewModel
+import viewmodel.mainScreenVM.MainScreenViewModel
 
 @Composable
 fun <V> drawGraph(viewModel: MainScreenViewModel<V>, input: DBInput): String {

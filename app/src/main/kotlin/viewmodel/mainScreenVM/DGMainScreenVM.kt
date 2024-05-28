@@ -7,9 +7,8 @@ import model.algorithms.DirectedGraphAlgorithmsImpl
 import view.Theme.*
 import view.inputs.DBInput
 import view.inputs.MenuInput
-import viewmodel.MainScreenViewModel
-import viewmodel.RepresentationStrategy
-import viewmodel.VertexViewModel
+import viewmodel.placementStrategy.RepresentationStrategy
+import viewmodel.graph.VertexViewModel
 class DGScreenViewModel<V>(
     graph: Graph<V>,
     representationStrategy: RepresentationStrategy,

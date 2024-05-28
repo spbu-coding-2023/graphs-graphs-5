@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import viewmodel.GraphViewModel
+import viewmodel.graph.GraphViewModel
 
 @Composable
 fun <V> DirectedGraphView(

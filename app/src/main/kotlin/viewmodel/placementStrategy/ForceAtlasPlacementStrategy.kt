@@ -1,8 +1,9 @@
-package viewmodel
+package viewmodel.placementStrategy
 
 import androidx.compose.ui.unit.dp
 import model.algorithms.VertexOffset
 import model.algorithms.applyForceAtlas2
+import viewmodel.graph.GraphViewModel
 
 class ForceAtlasPlacementStrategy : RepresentationStrategy {
     override fun <V> place(width: Double, height: Double, graphViewModel: GraphViewModel<V>) {

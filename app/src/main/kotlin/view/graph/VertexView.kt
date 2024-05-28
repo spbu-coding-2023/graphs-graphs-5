@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
-import viewmodel.VertexViewModel
+import viewmodel.graph.VertexViewModel
 
 @Composable
 fun <V> VertexView(

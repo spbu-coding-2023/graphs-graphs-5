@@ -4,8 +4,7 @@ import model.Graph
 import model.algorithms.UndirectedGraphAlgorithmsImpl
 import view.inputs.DBInput
 import view.inputs.MenuInput
-import viewmodel.MainScreenViewModel
-import viewmodel.RepresentationStrategy
+import viewmodel.placementStrategy.RepresentationStrategy
 
 class UGScreenViewModel<V>(
     graph: Graph<V>,

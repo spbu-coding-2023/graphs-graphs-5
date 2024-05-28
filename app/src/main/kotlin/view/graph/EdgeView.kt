@@ -10,7 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
-import viewmodel.EdgeViewModel
+import viewmodel.graph.EdgeViewModel
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos

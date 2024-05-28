@@ -1,4 +1,4 @@
-package viewmodel
+package viewmodel.graph
 
 import androidx.compose.runtime.State
 import androidx.compose.ui.unit.dp

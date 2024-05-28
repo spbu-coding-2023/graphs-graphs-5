@@ -1,7 +1,8 @@
-package viewmodel
+package viewmodel.placementStrategy
 
 import androidx.compose.ui.unit.dp
 import view.Theme.BlackAndWhite60
+import viewmodel.graph.GraphViewModel
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin

@@ -11,7 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import viewmodel.MainScreenViewModel
+import viewmodel.mainScreenVM.MainScreenViewModel
 
 @Composable
 fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
