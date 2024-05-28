@@ -264,14 +264,12 @@ class DGScreenViewModel<V>(
     private val graph2 = graph
     override fun run(input: MenuInput): String {
         var message = ""
-//        println(input.text)
         when {
             input.text == "Graph clustering" -> divideIntoClusters()
             input.text == "Key vertices" -> highlightKeyVertices()
             input.text == "Cycles" -> {
                 val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
                 if (vertex != null) {
-                    resetGraphView()
                     message = highlightCycles(vertex)
                 }
                 else {
