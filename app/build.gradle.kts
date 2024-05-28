@@ -16,7 +16,7 @@ repositories {
 }
 
 dependencies {
-    implementation(files(path))
+    implementation(files("libs/gephi-toolkit-0.10.0-all.jar"))
     // Note, if you develop a library, you should use compose.desktop.common.
     // compose.desktop.currentOs should be used in launcher-sourceSet
     // (in a separate module for demo project and in testMain).
@@ -24,7 +24,7 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
     implementation(compose.materialIconsExtended)
-//    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
 //implementation("org.gephi", "gephi-toolkit", "0.10.1", classifier = "all")
@@ -47,6 +47,6 @@ compose.desktop {
     }
 }
 
-tasks.build {
-    dependsOn("downloadGephiToolkit")
-}
+//tasks.build {
+//    dependsOn("downloadGephiToolkit")
+//}
