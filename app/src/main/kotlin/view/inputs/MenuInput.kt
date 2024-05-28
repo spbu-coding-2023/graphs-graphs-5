@@ -1,4 +1,4 @@
-package view
+package view.inputs
 
 data class MenuInput(
     var text: String ="",

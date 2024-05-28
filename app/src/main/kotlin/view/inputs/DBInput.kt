@@ -1,4 +1,4 @@
-package view
+package view.inputs
 
 data class DBInput(
     var dBType: String = "",
