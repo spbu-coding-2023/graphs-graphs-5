@@ -13,31 +13,68 @@ import model.algorithms.CommonAlgorithmsImpl
 import view.*
 import view.MenuInput
 import io.Neo4jRepo
+import model.DirectedGraph
+import model.UndirectedGraph
+
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
     private val representationStrategy: RepresentationStrategy,
+    val DBinput: Neo4jInput
 ) {
     val showVerticesLabels = mutableStateOf(false)
     val showEdgesLabels = mutableStateOf(false)
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
+    var neo4jRepo: Neo4jRepo<Any>? = if (DBinput.uri != "") Neo4jRepo(DBinput.uri, DBinput.login, DBinput.password) else null
+    val algoResults = AlgoResults()
 
-    val neoRepo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
-//
-//    var scale by mutableStateOf(1f)
-//    var offsetX by mutableStateOf(0f)
-//    var offsetY by mutableStateOf(0f)
-//
-//    fun handleTransformGestures(pan: Offset, zoom: Float) {
-//        offsetX += pan.x / scale
-//        offsetY += pan.y / scale
-//        scale *= zoom
-//    }
-//
-//    fun moveSurface(pan: Offset) {
-//        offsetX += pan.x
-//        offsetY += pan.y
-//    }
+    //val neoRepo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
+    fun configureNeo4jRepo(input: Neo4jInput): Pair<DirectedGraph<Any>?, String> {
+        return try {
+            val neoRepo = Neo4jRepo<Any>(input.uri, input.login, input.password)
+            if (input.isUpdated) {
+                neoRepo.cleanOutdatedAlgoResults()
+            }
+            neo4jRepo = neoRepo
+
+            if (!input.isUndirected) {
+                val inputGraph = DirectedGraph<Any>()
+                val graph = neoRepo.getGraphFromNeo4j(inputGraph) as DirectedGraph<Any>
+                Pair(graph, "")
+            } else {
+                val inputGraph = UndirectedGraph<Any>()
+                val graph = neoRepo.getGraphFromNeo4j(inputGraph) as UndirectedGraph<Any>
+                Pair(graph, "")
+            }
+        } catch (e: Exception) {
+            val errorMessage = when {
+                e.message?.contains("Scheme") == true -> "${e.message} error occured. Please check the entered URI"
+                e.message?.contains("Authentication failed") == true -> "${e.message} error occured. Please check login and password"
+                else -> "An unexpected error occurred: ${e.message}"
+            }
+            //println(errorMessage)
+            Pair(null, errorMessage)
+        }
+    }
+
+    fun saveAlgoResults(input: Neo4jInput): String {
+        //println(input.uri)
+        //println(neo4jRepo)
+        var message = ""
+        val repoState = neo4jRepo
+        if (repoState == null) {
+            message = "nowhere to save, enter repo first"
+        }
+        else {
+            algoResults.keyVerticesResult?.let { keyVertState ->
+                repoState.saveKeyVerticesResults(graph, keyVertState)
+            }
+            algoResults.clusteringResult?.let { clusterState ->
+                repoState.saveClusterDetectionResults(graph, clusterState)
+            }
+        }
+        return message
+    }
 
     init {
         representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
@@ -109,6 +146,7 @@ abstract class MainScreenViewModel<V>(
 //            println(vertexRank)
         }
         //neoRepo.saveKeyVerticesResults(graph, rankingList)
+        algoResults.keyVerticesResult = rankingList.toList()
         val maxRank = rankingList.max()
         var i = 0
         graphViewModel.vertices.forEach{ v ->
@@ -142,6 +180,7 @@ abstract class MainScreenViewModel<V>(
         clearChanges()
         //println(neoRepo.getClusteringResults())
         val result = algorithms.getClusters(graph)
+        algoResults.clusteringResult = result
         //neoRepo.saveClusterDetectionResults(graph, result)
         graphViewModel.vertices.forEach {v ->
             val vertClusterNum = result[v.vertex.index]
@@ -174,27 +213,25 @@ abstract class MainScreenViewModel<V>(
                     v.color = ComponentColorNavy
                 }
             }
-            //REDO
-            graphViewModel.edges.forEach{e ->
-                if ((path.contains(e.u.vertex.index)) && (path.contains(e.v.vertex.index))) {
+            graphViewModel.edges.forEach { e ->
+                if (path.contains(e.u.vertex.index) && path.contains(e.v.vertex.index) &&
+                    (path.indexOf(e.u.vertex.index).let { path.indexOf(e.v.vertex.index).minus(it) }) == 1 || (path.indexOf(e.u.vertex.index).let { path.indexOf(e.v.vertex.index).minus(it) }) == -1) {
+                        e.color = ComponentColorNavy
+                }
+                if (path.indexOf(e.u.vertex.index) == 1 && path.indexOf(e.v.vertex.index) == path.size) {
                     e.color = ComponentColorNavy
                 }
             }
         }
         return ""
     }
-
-    //take out from view model later
-    fun createAdjMatrix(): Array<DoubleArray> {
-        val matrix = algorithms.createAdjacencyMatrix(graph)
-        return matrix
-    }
 }
 
 class DGScreenViewModel<V>(
     graph: Graph<V>,
-    representationStrategy: RepresentationStrategy
-) : MainScreenViewModel<V>(graph, representationStrategy) {
+    representationStrategy: RepresentationStrategy,
+    DBinput: Neo4jInput
+) : MainScreenViewModel<V>(graph, representationStrategy, DBinput) {
     override val algorithms = DirectedGraphAlgorithmsImpl<V>()
     private val graph2 = graph
     override fun run(input: MenuInput): String {
@@ -213,7 +250,13 @@ class DGScreenViewModel<V>(
             }
             input.text == "Strong components" -> findStrongComponents()
             input.text == "Min path (Dijkstra)" -> {
-                //ПРОВЕРКА НА ОТРИЦАТЕЛЬНЫЕ ВЕСА
+                //negative weights check
+                for (edge in graph.edges) {
+                    if (edge.weight < 0.0) {
+                        message = "Error: Dijkstra's algorithm does not work on a negative weighted graphs"
+                        return message
+                    }
+                }
                 val source = getVertexByIndex(input.inputStartTwoVer.toInt())
                 val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
                 if(source == null || destination == null) message = "Error: vertex with this index doesn't exist"
@@ -332,8 +375,9 @@ class DGScreenViewModel<V>(
 
 class UGScreenViewModel<V>(
     graph: Graph<V>,
-    representationStrategy: RepresentationStrategy
-) : MainScreenViewModel<V>(graph, representationStrategy) {
+    representationStrategy: RepresentationStrategy,
+    DBinput: Neo4jInput
+) : MainScreenViewModel<V>(graph, representationStrategy, DBinput) {
     override val algorithms = UndirectedGraphAlgorithmsImpl<V>()
     override fun run(input: MenuInput): String {
         var message = ""
@@ -347,7 +391,7 @@ class UGScreenViewModel<V>(
     }
 
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph clustering", "Key vertices", "Cycles", "Min tree", "Bridges",
+        return listOf("Graph clustering", "Key vertices", "Min tree", "Bridges",
             "Min path (Dijkstra)")
     }
     private fun findBridges() {
