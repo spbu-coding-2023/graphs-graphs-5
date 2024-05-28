@@ -1,5 +1,7 @@
 package view
 
+import App
+import ScreenFactory
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -46,11 +48,13 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
         //var neo4jInputState by remember { mutableStateOf(Neo4jInput())}
         var message by remember { mutableStateOf("") }
 
-        var isGraphLoaded by remember { mutableStateOf(false) }
-        var showDialog by remember { mutableStateOf(false) }
-
         var showSnackbar by remember { mutableStateOf(false) }
 
+        var isGraphLoaded by remember { mutableStateOf(false) }
+        var showDBSelectionDialog by remember { mutableStateOf(false) }
+        var selectedDatabase by remember { mutableStateOf("") }
+        var neo4jInput by remember { mutableStateOf(Neo4jInput()) }
+        var loadGraph by remember { mutableStateOf(false)}
 
         Scaffold(
             backgroundColor = MaterialTheme.colorScheme.surface,
@@ -90,7 +94,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                 ) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
-                        onClick = { showDialog = true },
+                        onClick = { showDBSelectionDialog = true },
                         colors = ButtonDefaults.outlinedButtonColors(
                             backgroundColor = MaterialTheme.colorScheme.secondary
                         )
@@ -102,16 +106,23 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
+                    val graphLoadingState = { mutableStateOf(isGraphLoaded) }
                     Button(
                         onClick = {
-                            if (!isGraphLoaded) {
+                            //println(isGraphLoaded)
+                            if (graphLoadingState.equals(false)) {
                                 message = "no graph provided, please load your graph"
+                                showSnackbar = true
 
+                            }
+                            else {
+                                //implement other bases
+                                message = viewModel.saveAlgoResults(neo4jInput)
                             }
                         },
                         //enabled = isGraphLoaded,
                         colors = ButtonDefaults.outlinedButtonColors(
-                            backgroundColor = if (isGraphLoaded) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
+                            backgroundColor = if (graphLoadingState.equals(false)) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
                         )
                     ) {
                         Text(
@@ -158,6 +169,19 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                     }
                                     else -> message = viewModel.run(menuInputState)
                                 }
+                                if (message.isNotEmpty()) {
+                                    showSnackbar = true
+                                }
+                                scope.launch {
+                                    if (showSnackbar && (message != "")) {
+                                        snackbarHostState.showSnackbar(
+                                            message,
+                                            "Dismiss",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                        showSnackbar = false
+                                    }
+                                }
                             },
                             enabled = true,
                             colors = ButtonDefaults.outlinedButtonColors(
@@ -184,158 +208,164 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                         DirectedGraphView(viewModel.graphViewModel)
                     }
                 }
-                if (message.isNotEmpty()) {
-                    showSnackbar = true
-                }
             }
-        }
-
-        var selectedDatabase by remember { mutableStateOf("") }
-        var neo4jInput by remember { mutableStateOf(Neo4jInput()) }
-        var loadGraph by remember { mutableStateOf(false)}
-
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = { Text(text = "Load Graph") },
-                text = {
-                    Column {
-                        Text(text = "Select Database:")
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = selectedDatabase == "neo4j",
-                                onClick = { selectedDatabase = "neo4j" }
-                            )
-                            Text(text = "neo4j")
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = selectedDatabase == "sqlite",
-                                onClick = { selectedDatabase = "sqlite" }
-                            )
-                            Text(text = "sqlite")
-                        }
-
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            RadioButton(
-                                selected = selectedDatabase == ".csv",
-                                onClick = { selectedDatabase = ".csv" }
-                            )
-                            Text(text = ".csv file")
-                        }
-
-                        if (selectedDatabase == "neo4j") {
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            Text(text = "Enter Neo4j Details:")
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // Text fields for URI, login, password
-                            OutlinedTextField(
-                                value = neo4jInput.uri,
-                                onValueChange = {newURI ->
-                                    neo4jInput = neo4jInput.copy(uri = newURI)
-                                },
-                                label = { Text("URI") }
-                            )
+            //мб сдвинуть вниз
+            if (showDBSelectionDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDBSelectionDialog = false },
+                    title = { Text(text = "Load Graph") },
+                    text = {
+                        Column {
+                            Text(text = "Select Database:")
 
                             Spacer(modifier = Modifier.height(8.dp))
 
-                            OutlinedTextField(
-                                value = neo4jInput.login,
-                                onValueChange = {newLogin ->
-                                    neo4jInput = neo4jInput.copy(login = newLogin)   },
-                                label = { Text("Login") }
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            OutlinedTextField(
-                                value = neo4jInput.password,
-                                onValueChange = {newPass ->
-                                    neo4jInput = neo4jInput.copy(password = newPass) },
-                                label = { Text("Password") }
-                            )
-
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            // Switcher for "is database updated"
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Switch(
-                                    checked = neo4jInput.isUpdated,
-                                    onCheckedChange = {newState ->
-                                        neo4jInput = neo4jInput.copy(isUpdated = newState)},
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedDatabase == "neo4j",
+                                    onClick = { selectedDatabase = "neo4j" }
                                 )
-                                Text(
-                                    text = "Is database updated? (no/yes) If no, results of algorithms from previous runs can be displayed",
-                                    modifier = Modifier.padding(16.dp)
+                                Text(text = "neo4j")
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedDatabase == "sqlite",
+                                    onClick = { selectedDatabase = "sqlite" }
+                                )
+                                Text(text = "sqlite")
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedDatabase == ".csv",
+                                    onClick = { selectedDatabase = ".csv" }
+                                )
+                                Text(text = ".csv file")
+                            }
+
+                            if (selectedDatabase == "neo4j") {
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(text = "Enter Neo4j Details:")
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // Text fields for URI, login, password
+                                OutlinedTextField(
+                                    value = neo4jInput.uri,
+                                    onValueChange = {newURI ->
+                                        neo4jInput = neo4jInput.copy(uri = newURI)
+                                    },
+                                    label = { Text("URI") }
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                OutlinedTextField(
+                                    value = neo4jInput.login,
+                                    onValueChange = {newLogin ->
+                                        neo4jInput = neo4jInput.copy(login = newLogin)   },
+                                    label = { Text("Login") }
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                OutlinedTextField(
+                                    value = neo4jInput.password,
+                                    onValueChange = {newPass ->
+                                        neo4jInput = neo4jInput.copy(password = newPass) },
+                                    label = { Text("Password") }
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // Switcher for "is database updated"
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Switch(
+                                        checked = neo4jInput.isUpdated,
+                                        onCheckedChange = {newState ->
+                                            neo4jInput = neo4jInput.copy(isUpdated = newState)},
                                     )
+                                    Text(
+                                        text = "Is database updated? (no/yes) If no, results of algorithms from previous runs can be displayed",
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Switch(
+                                        checked = neo4jInput.isUndirected,
+                                        onCheckedChange = {newState ->
+                                            neo4jInput = neo4jInput.copy(isUndirected = newState)},
+                                    )
+                                    Text(
+                                        text = "Is graph undirected? (no/yes)",
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
                             }
 
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Switch(
-                                    checked = neo4jInput.isUndirected,
-                                    onCheckedChange = {newState ->
-                                        neo4jInput = neo4jInput.copy(isUndirected = newState)},
-                                )
-                                Text(
-                                    text = "Is graph undirected? (no/yes)",
-                                    modifier = Modifier.padding(16.dp)
-                                )
+                            if (selectedDatabase == "sqlite") {
+                                TODO()
                             }
                         }
+                    },
+                    //переместить эту кнопку внутрь конкретной дата базы
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                //isGraphLoaded = true
+                                showDBSelectionDialog = false
+                                loadGraph = true
+                            }
+                        ) {
+                            Text("Load")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { showDBSelectionDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
 
-                        if (selectedDatabase == "sqlite") {
-                            TODO()
-                        }
+            if (loadGraph) {
+                if (selectedDatabase == "neo4j") {
+                    message = drawGraph(viewModel, neo4jInput)
+                    //showSnackbar = message.isNotEmpty()
+                    if (message.isNotEmpty()) {
+                        showSnackbar = true
                     }
-                },
-                //переместить эту кнопку внутрь конкретной дата базы
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            isGraphLoaded = true
-                            showDialog = false
-                            loadGraph = true
-                        }
-                    ) {
-                        Text("Load")
-                    }
-                },
-                dismissButton = {
-                    Button(onClick = { showDialog = false }) {
-                        Text("Cancel")
+                    else {
+                        isGraphLoaded = true
+                        println("here")
                     }
                 }
-            )
+                else if (selectedDatabase == "sqlite") {
+                    TODO()
+                }
+                else {
+                    TODO()
+                }
+                scope.launch {
+                    if ((showSnackbar) && (message != "")) {
+                        snackbarHostState.showSnackbar(
+                            message,
+                            "Dismiss",
+                            duration = SnackbarDuration.Short
+                        )
+                        showSnackbar = false
+                        //message = ""
+                    }
+                }
+            }
         }
 
-        if (loadGraph) {
-            if (selectedDatabase == "neo4j") {
-                message = drawGraph(viewModel, neo4jInput)
-            }
-            else if (selectedDatabase == "sqlite") {
-                TODO()
-            }
-            else {
-                TODO()
-            }
-        }
 
-        scope.launch {
-            if (showSnackbar) {
-                snackbarHostState.showSnackbar(
-                    message,
-                    "Dismiss",
-                    duration = SnackbarDuration.Short
-                )
-                showSnackbar = false
-            }
-        }
+//        if (message.isNotEmpty()) {
+//            showSnackbar = true
+//        }
     }
 }
 
@@ -638,7 +668,9 @@ fun <V> drawGraph(viewModel: MainScreenViewModel<V>, input: Neo4jInput): String 
         return message
     }
     else if (graph != null){
-        ScreenFactory.createView(graph)
+        //println(graph.vertices)
+        //println(graph.edges)
+        ScreenFactory.createView(graph, input)
     }
     return ""
 }
