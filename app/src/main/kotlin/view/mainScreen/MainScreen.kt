@@ -21,6 +21,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
+import org.sqlite.core.DB
 import view.*
 import viewmodel.*
 import kotlin.math.exp
@@ -103,11 +104,11 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    val graphLoadingState = { mutableStateOf(isGraphLoaded) }
+                    //val graphLoadingState = { mutableStateOf(isGraphLoaded) }
                     Button(
                         onClick = {
-                            if (!graphLoadingState().value) {
-                                message = "No graph provided, please load your graph"
+                            if (!isGraphLoaded) {
+                                message = "No connection to database provided, please load your graph from database before saving algorithm results"
                                 showSnackbar = true
                             } else {
                                 message = viewModel.saveAlgoResults()
@@ -116,7 +117,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             showSnackbarMessage(message)
                         },
                         colors = ButtonDefaults.outlinedButtonColors(
-                            backgroundColor = if (!graphLoadingState().value) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
+                            backgroundColor = if (!isGraphLoaded) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
                         )
                     ) {
                         Text(
@@ -190,39 +191,51 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                 }
             }
             if (showDBSelectionDialogue) {
-                showDBSelectionDialog(
+                showDBSelectionDialogue(
                     showDBSelectionDialogue,
                     selectedDatabase,
                     dBInput,
                     { showDBSelectionDialogue = it },
                     { selectedDatabase = it },
                     { dBInput = it },
-                    { loadGraph = it }
+                    { loadGraph = it },
+                    { isGraphLoaded = it }
                 )
             }
+
             if (loadGraph) {
-                message = drawGraph(viewModel, dBInput)
-                if (message.isNotEmpty()) {
-                    showSnackbar = true
-                } else {
+                val newMessage = drawGraph(viewModel, dBInput)
+                if (newMessage.isNotEmpty()) {
+                    if (newMessage != message) {
+                        message = newMessage
+                        showSnackbar = true
+                        loadGraph = false
+                    }
+                }
+                else {
                     isGraphLoaded = true
                 }
-                showSnackbarMessage(message) // Вызываем локальную функцию
+            }
+            if (showSnackbar) {
+                showSnackbarMessage(message)
+                showSnackbar = false // Сбрасываем флаг после показа Snackbar
             }
         }
     }
 }
 
 @Composable
-fun showDBSelectionDialog(
+fun showDBSelectionDialogue(
     showDBSelectionDialogue: Boolean,
     selectedDatabase: String,
     dBInput: DBInput,
     showDBselection: (Boolean) -> Unit,
     selectedDB: (String) -> Unit,
     onDBInputChange: (DBInput) -> Unit,
-    onLoadGraphChange: (Boolean) -> Unit
+    onLoadGraphChange: (Boolean) -> Unit,
+    isLoaded: (Boolean) -> Unit
 ) {
+    var newState by remember { mutableStateOf(DBInput()) }
     if (showDBSelectionDialogue) {
         AlertDialog(
             onDismissRequest = { showDBselection(false) },
@@ -259,31 +272,31 @@ fun showDBSelectionDialog(
 
                     when (selectedDatabase) {
                         "neo4j" -> {
-                            onDBInputChange(dBInput.copy(dBType = "neo4j"))
+                            newState = newState.copy(dBType = "neo4j")
                             Spacer(modifier = Modifier.height(16.dp))
 
                             Text(text = "Enter Neo4j Details:")
                             Spacer(modifier = Modifier.height(8.dp))
 
                             OutlinedTextField(
-                                value = dBInput.uri,
-                                onValueChange = { onDBInputChange(dBInput.copy(uri = it)) },
+                                value = newState.uri,
+                                onValueChange = { newState = newState.copy(uri = it) },
                                 label = { Text("URI") }
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
 
                             OutlinedTextField(
-                                value = dBInput.login,
-                                onValueChange = { onDBInputChange(dBInput.copy(login = it)) },
+                                value = newState.login,
+                                onValueChange = { newState = newState.copy(login = it) },
                                 label = { Text("Login") }
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
 
                             OutlinedTextField(
-                                value = dBInput.password,
-                                onValueChange = { onDBInputChange(dBInput.copy(password = it)) },
+                                value = newState.password,
+                                onValueChange = { newState = newState.copy(password = it) },
                                 label = { Text("Password") }
                             )
 
@@ -291,8 +304,8 @@ fun showDBSelectionDialog(
 
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Switch(
-                                    checked = dBInput.isUpdatedNeo4j,
-                                    onCheckedChange = { onDBInputChange(dBInput.copy(isUpdatedNeo4j = it)) },
+                                    checked = newState.isUpdatedNeo4j,
+                                    onCheckedChange = { newState = newState.copy(isUpdatedNeo4j = it) },
                                 )
                                 Text(
                                     text = "Is database updated? (no/yes) If no, results of algorithms from previous runs can be displayed",
@@ -302,8 +315,8 @@ fun showDBSelectionDialog(
 
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Switch(
-                                    checked = dBInput.isUndirected,
-                                    onCheckedChange = { onDBInputChange(dBInput.copy(isUndirected = it)) },
+                                    checked = newState.isUndirected,
+                                    onCheckedChange = { newState = newState.copy(isUndirected = it) },
                                 )
                                 Text(
                                     text = "Is graph undirected? (no/yes)",
@@ -312,26 +325,26 @@ fun showDBSelectionDialog(
                             }
                         }
                         "sqlite" -> {
-                            onDBInputChange(dBInput.copy(dBType = "sqlite"))
+                            newState = newState.copy(dBType = "sqlite")
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(text = "Enter SQLite Details:")
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
-                                value = dBInput.pathToDb,
-                                onValueChange = { onDBInputChange(dBInput.copy(pathToDb = it)) },
+                                value = newState.pathToDb,
+                                onValueChange = { newState = newState.copy(pathToDb = it) },
                                 label = { Text("Path to database") }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
-                                value = dBInput.name,
-                                onValueChange = { onDBInputChange(dBInput.copy(name = it)) },
+                                value = newState.name,
+                                onValueChange = { newState = newState.copy(name = it) },
                                 label = { Text("Name") }
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(modifier = Modifier.fillMaxWidth()) {
                                 Switch(
-                                    checked = dBInput.isUpdatedSql,
-                                    onCheckedChange = { onDBInputChange(dBInput.copy(isUpdatedSql = it)) },
+                                    checked = newState.isUpdatedSql,
+                                    onCheckedChange = { newState = newState.copy(isUpdatedSql = it) },
                                 )
                                 Text(
                                     text = "Is database updated? (no/yes) If no, results of algorithms from previous runs can be displayed",
@@ -346,6 +359,17 @@ fun showDBSelectionDialog(
                 Button(
                     onClick = {
                         showDBselection(false)
+                        isLoaded(false)
+                        onDBInputChange(dBInput.copy(
+                            dBType = newState.dBType,
+                            isUpdatedSql = newState.isUpdatedSql,
+                            pathToDb = newState.pathToDb,
+                            name = newState.name,
+                            isUpdatedNeo4j = newState.isUpdatedNeo4j,
+                            uri = newState.uri,
+                            login = newState.login,
+                            password = newState.password,
+                            isUndirected = newState.isUndirected))
                         onLoadGraphChange(
                             when {
                                 dBInput.dBType == "sqlite" && (dBInput.name.isEmpty() || dBInput.pathToDb.isEmpty()) -> false
