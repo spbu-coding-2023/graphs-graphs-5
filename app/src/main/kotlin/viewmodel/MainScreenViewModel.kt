@@ -77,10 +77,10 @@ abstract class MainScreenViewModel<V>(
     }
 
     init {
-        representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
+        representationStrategy.place(650.0, 550.0, graphViewModel)
     }
     fun resetGraphView() {
-        representationStrategy.place(650.0, 550.0, graphViewModel.vertices)
+        representationStrategy.place(650.0, 550.0, graphViewModel)
         graphViewModel.vertices.forEach{ v ->
             v.color = BlackAndWhite60
             v.radius = 20.dp
