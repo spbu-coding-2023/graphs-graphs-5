@@ -1,8 +1,9 @@
-package view
+package view.mainScreen
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.ExperimentalComposeUiApi
+import view.Theme
 import viewmodel.UGScreenViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)

@@ -1,36 +1,20 @@
-package view
+package view.mainScreen
 
 import ScreenFactory
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
 //import androidx.compose.foundation.gestures.detectTapGestures
 //import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CheckboxDefaults
 import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.TextFieldDefaults
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.HeartBroken
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 //import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
@@ -40,7 +24,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
 import menu
-import model.GraphType
+import view.*
 import viewmodel.*
 import kotlin.math.exp
 import kotlin.math.sign
@@ -439,96 +423,96 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 //    return ""
 //}
 
-@Composable
-fun <V> drawGraph(viewModel: MainScreenViewModel<V>, input: DBInput): String {
-    println(input.pathToDb)
-    println(input.name)
-    println(input.dBType)
-    when (input.dBType) {
-        "neo4j" -> {
-            val (graph, message) = viewModel.configureNeo4jRepo(input)
-            if (message.isNotEmpty()) {
-                return message
-            }
-            else if (graph != null){
-                ScreenFactory.createView(graph, input)
-            }
-
-        }
-        "sqlite" -> {
-            val (graph, message) = viewModel.configureSQLiteRepo(input)
-            if (message.isNotEmpty()) {
-                return message
-            }
-            else if (graph != null){
-                ScreenFactory.createView(graph, input)
-            }
-        }
-        else -> {}
-    }
-    return ""
-}
-
-@Composable
-fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = viewModel.showVerticesLabels.value,
-            onCheckedChange = { viewModel.showVerticesLabels.value = it },
-            colors = CheckboxDefaults.colors(
-                checkmarkColor = MaterialTheme.colorScheme.onSecondary,
-                checkedColor = MaterialTheme.colorScheme.secondary,
-            )
-        )
-        Text(
-            text = "Show vertices' labels",
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
-    }
-}
-
-@Composable
-fun <V> showEdgesLabels(viewModel: MainScreenViewModel<V>) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Checkbox(
-            checked = viewModel.showEdgesLabels.value,
-            onCheckedChange = { viewModel.showEdgesLabels.value = it },
-            colors = CheckboxDefaults.colors(
-                checkmarkColor = MaterialTheme.colorScheme.onSecondary,
-                checkedColor = MaterialTheme.colorScheme.secondary,
-            )
-        )
-        Text(
-            text = "Show edges' weights",
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
-    }
-}
-
-@Composable
-fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
-    Button(
-        onClick = viewModel::resetGraphView,
-        enabled = true,
-        colors = ButtonDefaults.outlinedButtonColors(
-            backgroundColor = MaterialTheme.colorScheme.secondary
-        ),
-        modifier = Modifier.padding(horizontal = 4.dp)
-    ) {
-        Text(
-            text = "Reset default settings",
-            color = MaterialTheme.colorScheme.onSecondary
-        )
-    }
-}
+//@Composable
+//fun <V> drawGraph(viewModel: MainScreenViewModel<V>, input: DBInput): String {
+//    println(input.pathToDb)
+//    println(input.name)
+//    println(input.dBType)
+//    when (input.dBType) {
+//        "neo4j" -> {
+//            val (graph, message) = viewModel.configureNeo4jRepo(input)
+//            if (message.isNotEmpty()) {
+//                return message
+//            }
+//            else if (graph != null){
+//                ScreenFactory.createView(graph, input)
+//            }
+//
+//        }
+//        "sqlite" -> {
+//            val (graph, message) = viewModel.configureSQLiteRepo(input)
+//            if (message.isNotEmpty()) {
+//                return message
+//            }
+//            else if (graph != null){
+//                ScreenFactory.createView(graph, input)
+//            }
+//        }
+//        else -> {}
+//    }
+//    return ""
+//}
+//
+//@Composable
+//fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
+//    Row(
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        Checkbox(
+//            checked = viewModel.showVerticesLabels.value,
+//            onCheckedChange = { viewModel.showVerticesLabels.value = it },
+//            colors = CheckboxDefaults.colors(
+//                checkmarkColor = MaterialTheme.colorScheme.onSecondary,
+//                checkedColor = MaterialTheme.colorScheme.secondary,
+//            )
+//        )
+//        Text(
+//            text = "Show vertices' labels",
+//            fontSize = 16.sp,
+//            color = MaterialTheme.colorScheme.onSurface,
+//            modifier = Modifier.padding(horizontal = 4.dp)
+//        )
+//    }
+//}
+//
+//@Composable
+//fun <V> showEdgesLabels(viewModel: MainScreenViewModel<V>) {
+//    Row(
+//        verticalAlignment = Alignment.CenterVertically
+//    ) {
+//        Checkbox(
+//            checked = viewModel.showEdgesLabels.value,
+//            onCheckedChange = { viewModel.showEdgesLabels.value = it },
+//            colors = CheckboxDefaults.colors(
+//                checkmarkColor = MaterialTheme.colorScheme.onSecondary,
+//                checkedColor = MaterialTheme.colorScheme.secondary,
+//            )
+//        )
+//        Text(
+//            text = "Show edges' weights",
+//            fontSize = 16.sp,
+//            color = MaterialTheme.colorScheme.onSurface,
+//            modifier = Modifier.padding(horizontal = 4.dp)
+//        )
+//    }
+//}
+//
+//@Composable
+//fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
+//    Button(
+//        onClick = viewModel::resetGraphView,
+//        enabled = true,
+//        colors = ButtonDefaults.outlinedButtonColors(
+//            backgroundColor = MaterialTheme.colorScheme.secondary
+//        ),
+//        modifier = Modifier.padding(horizontal = 4.dp)
+//    ) {
+//        Text(
+//            text = "Reset default settings",
+//            color = MaterialTheme.colorScheme.onSecondary
+//        )
+//    }
+//}
 
 
 
