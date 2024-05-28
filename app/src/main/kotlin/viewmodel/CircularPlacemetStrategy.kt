@@ -1,7 +1,7 @@
 package viewmodel
 
 import androidx.compose.ui.unit.dp
-import view.BlackAndWhite60
+import view.Theme.BlackAndWhite60
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin

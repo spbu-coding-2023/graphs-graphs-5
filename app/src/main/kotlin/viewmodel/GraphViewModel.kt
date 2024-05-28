@@ -3,15 +3,8 @@ package viewmodel
 import androidx.compose.runtime.State
 import androidx.compose.ui.unit.dp
 import model.Graph
-import view.BlackAndWhite30
-import view.BlackAndWhite60
-import view.BlackAndWhite70
-
-
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import view.Theme.BlackAndWhite30
+import view.Theme.BlackAndWhite60
 
 
 class GraphViewModel<V>(

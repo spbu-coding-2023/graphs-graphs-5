@@ -3,14 +3,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import io.SqliteRepo
 import model.DirectedGraph
 import model.Graph
 import model.GraphType
 import model.UndirectedGraph
-import org.jetbrains.exposed.sql.transactions.transaction
-import view.*
+import view.Theme.Theme
+import view.inputs.DBInput
+import view.mainScreen.UGMainScreen
 import viewmodel.*
+import viewmodel.mainScreenVM.DGScreenViewModel
+import viewmodel.mainScreenVM.UGScreenViewModel
 import java.awt.Dimension
 
 
@@ -142,7 +144,7 @@ fun App() {
     //println(graph3.edges)
     //println(graph3.vertices)
     val input = DBInput()
-    ScreenFactory.createView(graph, input)
+    ScreenFactory.createView(graph2, input)
     /* временно */
 //    val repo = SqliteRepo<Any>("/Users/sofyakozyreva/dddiiieee/mamamiia.db")
 //    repo.connectToDatabase()
