@@ -1,4 +1,4 @@
-package view
+package view.graph
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
