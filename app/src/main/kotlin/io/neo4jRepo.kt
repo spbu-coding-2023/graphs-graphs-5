@@ -25,7 +25,6 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
                 graph.addEdge(edges[i].source, edges[i].destination)
             }
         }
-        println("edges are ${graph.edges}")
         return graph
     }
 
