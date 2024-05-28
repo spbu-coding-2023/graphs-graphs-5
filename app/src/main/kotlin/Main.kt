@@ -159,11 +159,11 @@ object ScreenFactory {
         when (graph.graphType) {
             GraphType.DIRECTED ->
                 DGMainScreen(
-                    DGScreenViewModel(graph, CircularPlacementStrategy(), input), theme
+                    DGScreenViewModel(graph, ForceAtlasPlacementStrategy(), input), theme
                 )
             else ->
                 UGMainScreen(
-                    UGScreenViewModel(graph, CircularPlacementStrategy(), input), theme
+                    UGScreenViewModel(graph, ForceAtlasPlacementStrategy(), input), theme
                 )
         }
     }
