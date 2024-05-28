@@ -9,6 +9,10 @@ package model.algorithms
 
 
 import androidx.compose.ui.geometry.Offset
+import model.Edge
+import model.Graph
+import model.GraphType
+import model.Vertex
 import org.gephi.graph.api.GraphController
 import org.gephi.graph.api.Node
 import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout
@@ -18,28 +22,28 @@ import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder
 import org.openide.util.Lookup
 import kotlin.math.pow
 
-data class Vertex<V>(val index: Int, val data: V)
+//data class Vertex<V>(val index: Int, val data: V)
+//
+//data class Edge<V>(
+//    val index: Int,
+//    val source: Vertex<V>,
+//    val destination: Vertex<V>,
+//    val weight: Double = 1.0
+//)
+//
+//interface Graph<V> {
+//    val vertices: Collection<Vertex<V>>
+//    val edges: Collection<Edge<V>>
+//    val isDirected: Boolean
+//
+//    fun addVertex(data: V): Vertex<V>
+//    fun addEdge(source: Vertex<V>, destination: Vertex<V>, weight: Double = 1.0)
+//    fun edges(source: Vertex<V>): ArrayList<Edge<V>>
+//    fun weight(source: Vertex<V>, destination: Vertex<V>): Double?
+//    fun getRankingList(): List<Pair<Vertex<V>, Double>>
+//}
 
-data class Edge<V>(
-    val index: Int,
-    val source: Vertex<V>,
-    val destination: Vertex<V>,
-    val weight: Double = 1.0
-)
-
-interface Graph<V> {
-    val vertices: Collection<Vertex<V>>
-    val edges: Collection<Edge<V>>
-    val isDirected: Boolean
-
-    fun addVertex(data: V): Vertex<V>
-    fun addEdge(source: Vertex<V>, destination: Vertex<V>, weight: Double = 1.0)
-    fun edges(source: Vertex<V>): ArrayList<Edge<V>>
-    fun weight(source: Vertex<V>, destination: Vertex<V>): Double?
-    fun getRankingList(): List<Pair<Vertex<V>, Double>>
-}
-
-open class DirectedGraph<V> : Graph<V> {
+open class DirectedGraph<V>(override val graphType: GraphType) : Graph<V> {
     private val _vertices = hashMapOf<Int, Vertex<V>>()
     private val _edges = hashMapOf<Int, Edge<V>>()
 
@@ -77,7 +81,7 @@ open class DirectedGraph<V> : Graph<V> {
         return edges(source).firstOrNull { it.destination == destination }?.weight
     }
 
-    override fun getRankingList(): List<Pair<Vertex<V>, Double>> {
+    fun getRankingList(): List<Pair<Vertex<V>, Double>> {
         val rankingList = mutableListOf<Pair<Vertex<V>, Double>>()
         val vertices = adjacencies.keys
         vertices.forEach {
@@ -150,7 +154,7 @@ open class DirectedGraph<V> : Graph<V> {
         return ehc
     }
 }
-class UndirectedGraph<V> : DirectedGraph<V>(), Graph<V> {
+class UndirectedGraph<V>(graphType: GraphType) : DirectedGraph<V>(graphType), Graph<V> {
     override fun addEdge(source: Vertex<V>, destination: Vertex<V>, weight: Double) {
         addDirectedEdge(source, destination, weight)
         addDirectedEdge(destination, source, weight)
