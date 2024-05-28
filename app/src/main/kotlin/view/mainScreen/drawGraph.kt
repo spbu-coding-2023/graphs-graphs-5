@@ -1,7 +1,7 @@
 //package view.mainScreen
 
 import androidx.compose.runtime.Composable
-import view.DBInput
+import view.inputs.DBInput
 import viewmodel.MainScreenViewModel
 
 @Composable

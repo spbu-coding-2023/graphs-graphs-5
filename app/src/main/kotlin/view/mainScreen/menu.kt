@@ -1,49 +1,23 @@
 //package view
 //
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 //import androidx.compose.foundation.gestures.detectTapGestures
 //import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.CheckboxDefaults
-import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 //import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onSizeChanged
 //import androidx.compose.ui.graphics.graphicsLayer
 //import androidx.compose.ui.input.pointer.pointerInput
 
 import androidx.compose.ui.unit.*
-import kotlinx.coroutines.launch
-import model.GraphType
-import view.MenuInput
-import viewmodel.*
-import kotlin.math.exp
-import kotlin.math.sign
+import view.inputs.MenuInput
 
 //
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
