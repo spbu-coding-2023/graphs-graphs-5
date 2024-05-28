@@ -1,4 +1,4 @@
-package view
+package view.Theme
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme

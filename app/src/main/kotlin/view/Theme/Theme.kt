@@ -1,11 +1,10 @@
-package view
+package view.Theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 
 @Composable
-fun Material3AppTheme(theme: Theme,  content: @Composable () -> Unit) {
+fun Material3AppTheme(theme: Theme, content: @Composable () -> Unit) {
     val colors = when(theme) {
         Theme.SPECIAL -> DarkColorPalette
         else -> LightColorPalette
