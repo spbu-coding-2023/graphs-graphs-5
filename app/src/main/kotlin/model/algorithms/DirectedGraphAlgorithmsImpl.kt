@@ -128,13 +128,16 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
             adjMap[edge.source.index]?.add(edge.destination.index)
         }
 
-        val cycles = mutableListOf<MutableList<Int>>()
+        var cycles = mutableListOf<MutableList<Int>>()
         val color = IntArray(graph.vertices.size) { 0 }
         val ancestorList = IntArray(graph.vertices.size) { -1 }
 
         detectCyclesViaDFS(source.index, -1, color, ancestorList, cycles, adjMap)
 
-        if (cycles.isNotEmpty()) { deleteOverlappingCycles(cycles) }
+        if (cycles.isEmpty()) {
+            return null
+        }
+        cycles = deleteOverlappingCycles(cycles)
         if (cycles[0].contains(source.index)) {
             return cycles
         }
