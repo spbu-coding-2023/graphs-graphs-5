@@ -307,15 +307,13 @@ class DGScreenViewModel<V>(
 
     private fun highlightCycles(source: Vertex<V>): String {
         clearChanges()
-        val cycles = algorithms.getCycles(graph, source)
+        val cycle = algorithms.getCycles(graph, source)
         var message = ""
-        if (cycles.isNullOrEmpty()) {
+        if (cycle.isNullOrEmpty()) {
             message = "No cycles for $source detected"
         }
         else {
             //проверить, что он один
-            val cycle = cycles[0]
-            println(cycle)
             graphViewModel.vertices.forEach{v ->
                 if (cycle.contains(v.vertex.index)) {
                     v.color = ComponentColorNavy
