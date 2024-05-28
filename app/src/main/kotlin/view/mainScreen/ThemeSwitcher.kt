@@ -1,4 +1,4 @@
-package view.mainScreen
+//package view.mainScreen
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState

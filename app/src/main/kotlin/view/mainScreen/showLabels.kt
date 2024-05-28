@@ -1,4 +1,4 @@
-package view.mainScreen
+//package view.mainScreen
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
