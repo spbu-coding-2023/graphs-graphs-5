@@ -6,9 +6,6 @@ import viewmodel.MainScreenViewModel
 
 @Composable
 fun <V> drawGraph(viewModel: MainScreenViewModel<V>, input: DBInput): String {
-    //println(input.pathToDb)
-    //println(input.name)
-    //println(input.dBType)
     when (input.dBType) {
         "neo4j" -> {
             val (graph, message) = viewModel.configureNeo4jRepo(input)
