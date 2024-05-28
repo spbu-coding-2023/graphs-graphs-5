@@ -1,3 +1,10 @@
+/*
+ * This file is part of our project Graphs-5.
+ *
+ * MyProject uses the Gephi Toolkit library, which is licensed under the GNU General Public License v3.0.
+ * See <https://www.gnu.org/licenses/> for more information.
+ */
+
 package model.algorithms
 
 
