@@ -126,7 +126,8 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             }
                             else {
                                 //implement other bases
-                                message = viewModel.saveAlgoResults(neo4jInput)
+                                println("here, ${dBInput.dBType}")
+                                message = viewModel.saveAlgoResults(dBInput)
                             }
 
                         },
@@ -162,7 +163,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                 when (menuInputState.text) {
                                     "Cycles" -> {
                                         if (menuInputState.inputValueOneVertex != "") {
-                                            message = viewModel.run(menuInputState, dBInput)
+                                            message = viewModel.run(menuInputState)
                                             showSnackbar = message.isNotEmpty()
                                         } else {
                                             showSnackbar = true
@@ -243,7 +244,6 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     }
                 }
             }
-<<<<<<< HEAD
             //мб сдвинуть вниз
             if (showDBSelectionDialog) {
                 AlertDialog(
@@ -280,6 +280,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             }
 
                             if (selectedDatabase == "neo4j") {
+                                dBInput.dBType = "neo4j"
                                 Spacer(modifier = Modifier.height(16.dp))
 
                                 Text(text = "Enter Neo4j Details:")
@@ -287,9 +288,9 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 
                                 // Text fields for URI, login, password
                                 OutlinedTextField(
-                                    value = neo4jInput.uri,
+                                    value = dBInput.uri,
                                     onValueChange = {newURI ->
-                                        neo4jInput = neo4jInput.copy(uri = newURI)
+                                        dBInput = dBInput.copy(uri = newURI)
                                     },
                                     label = { Text("URI") }
                                 )
@@ -297,18 +298,18 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 OutlinedTextField(
-                                    value = neo4jInput.login,
+                                    value = dBInput.login,
                                     onValueChange = {newLogin ->
-                                        neo4jInput = neo4jInput.copy(login = newLogin)   },
+                                        dBInput = dBInput.copy(login = newLogin)   },
                                     label = { Text("Login") }
                                 )
 
                                 Spacer(modifier = Modifier.height(8.dp))
 
                                 OutlinedTextField(
-                                    value = neo4jInput.password,
+                                    value = dBInput.password,
                                     onValueChange = {newPass ->
-                                        neo4jInput = neo4jInput.copy(password = newPass) },
+                                        dBInput = dBInput.copy(password = newPass) },
                                     label = { Text("Password") }
                                 )
 
@@ -317,9 +318,9 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                 // Switcher for "is database updated"
                                 Row(modifier = Modifier.fillMaxWidth()) {
                                     Switch(
-                                        checked = neo4jInput.isUpdated,
+                                        checked = dBInput.isUpdatedNeo4j,
                                         onCheckedChange = {newState ->
-                                            neo4jInput = neo4jInput.copy(isUpdated = newState)},
+                                            dBInput = dBInput.copy(isUpdatedNeo4j = newState)},
                                     )
                                     Text(
                                         text = "Is database updated? (no/yes) If no, results of algorithms from previous runs can be displayed",
@@ -329,9 +330,9 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 
                                 Row(modifier = Modifier.fillMaxWidth()) {
                                     Switch(
-                                        checked = neo4jInput.isUndirected,
+                                        checked = dBInput.isUndirected,
                                         onCheckedChange = {newState ->
-                                            neo4jInput = neo4jInput.copy(isUndirected = newState)},
+                                            dBInput = dBInput.copy(isUndirected = newState)},
                                     )
                                     Text(
                                         text = "Is graph undirected? (no/yes)",
@@ -339,7 +340,6 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                     )
                                 }
                             }
-
                             if (selectedDatabase == "sqlite") {
                                 dBInput.dBType = "sqlite"
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -382,7 +382,10 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                             onClick = {
                                 //isGraphLoaded = true
                                 showDBSelectionDialog = false
-                                loadGraph = true
+                                loadGraph = if (dBInput.dBType == "sqlite" && (dBInput.name.isEmpty() || dBInput.pathToDb.isEmpty())) false
+                                else true
+                                println(loadGraph)
+                                if (!loadGraph) message = "Error: no data input"
                             }
                         ) {
                             Text("Load")
@@ -397,23 +400,16 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
             }
 
             if (loadGraph) {
-                if (selectedDatabase == "neo4j") {
-                    message = drawGraph(viewModel, neo4jInput)
-                    //showSnackbar = message.isNotEmpty()
-                    if (message.isNotEmpty()) {
-                        showSnackbar = true
-                    }
-                    else {
-                        isGraphLoaded = true
-                        println("here")
-                    }
-                }
-                else if (selectedDatabase == "sqlite") {
-                    TODO()
+                message = drawGraph(viewModel, dBInput)
+                //showSnackbar = message.isNotEmpty()
+                if (message.isNotEmpty()) {
+                    showSnackbar = true
                 }
                 else {
-                    TODO()
+                    isGraphLoaded = true
+                    println("here")
                 }
+
                 scope.launch {
                     if ((showSnackbar) && (message != "")) {
                         snackbarHostState.showSnackbar(
@@ -536,7 +532,7 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 }
 
 
-//
+
 //@OptIn(ExperimentalMaterial3Api::class)
 //@Composable
 //fun menu(algoList: List<String>): MenuInput {

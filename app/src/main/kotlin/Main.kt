@@ -141,20 +141,20 @@ fun App() {
 //    graph3 = repo.getGraphFromNeo4j(graph3) as DirectedGraph<Any>
     //println(graph3.edges)
     //println(graph3.vertices)
-    val input = Neo4jInput()
+    val input = DBInput()
     ScreenFactory.createView(graph, input)
     /* временно */
-    val repo = SqliteRepo<Any>("/Users/sofyakozyreva/dddiiieee/mamamiia.db")
-    repo.connectToDatabase()
-    var graph3 : Graph<Any> = DirectedGraph()
-    transaction {
-        graph3 = repo.loadGraphFromDB("States") ?: return@transaction
-    }
+//    val repo = SqliteRepo<Any>("/Users/sofyakozyreva/dddiiieee/mamamiia.db")
+//    repo.connectToDatabase()
+//    var graph3 : Graph<Any> = DirectedGraph()
+//    transaction {
+//        graph3 = repo.loadGraphFromDB("States") ?: return@transaction
+//    }
 }
 
 object ScreenFactory {
     @Composable
-    fun <V> createView(graph: Graph<V>, input: Neo4jInput) {
+    fun <V> createView(graph: Graph<V>, input: DBInput) {
         val theme = mutableStateOf(Theme.CLASSIC)
         when (graph.graphType) {
             GraphType.DIRECTED ->
