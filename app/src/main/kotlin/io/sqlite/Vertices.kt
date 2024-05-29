@@ -9,4 +9,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 object Vertices : IntIdTable() {
     val data = varchar("data", 255)
     val graph = reference("graph", Graphs)
+    val keyVertexRank = double("keyVertexRank")
+    val clusterNum = integer("clusterNum")
 }

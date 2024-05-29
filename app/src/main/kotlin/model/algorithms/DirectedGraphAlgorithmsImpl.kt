@@ -117,7 +117,7 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         return path
     }
 
-    override fun getCycles(graph: Graph<V>, source: Vertex<V>): MutableList<MutableList<Int>>? {
+    override fun getCycles(graph: Graph<V>, source: Vertex<V>): MutableList<Int>? {
         val adjMap: MutableMap<Int, MutableList<Int>> = HashMap()
 
         // Construct the adjacency list from the graph edges
@@ -139,7 +139,8 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         }
         cycles = deleteOverlappingCycles(cycles)
         if (cycles[0].contains(source.index)) {
-            return cycles
+            val cycle = cycles[0].toSet()
+            return cycle.toMutableList()
         }
         else {
             return null

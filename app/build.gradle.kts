@@ -25,13 +25,8 @@ dependencies {
     implementation(compose.material3)
     implementation(compose.materialIconsExtended)
 
-
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 
-    //implementation("com.google.accompanist:accompanist-gestures:0.31.2-alpha")
-//    implementation(compose.ui)
-//    implementation(compose.foundation)
-    testImplementation("org.jetbrains.kotlin:kotlin-test")
 
 //    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
     implementation("org.neo4j.driver:neo4j-java-driver:4.3.3")
@@ -61,3 +56,7 @@ compose.desktop {
         }
     }
 }
+
+//tasks.build {
+//    dependsOn("downloadGephiToolkit")
+//}

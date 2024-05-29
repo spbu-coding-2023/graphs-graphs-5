@@ -9,4 +9,6 @@ class VertexEntity(id: EntityID<Int>) : IntEntity(id) {
 
     var data by Vertices.data
     var graph by GraphEntity referencedOn Vertices.graph
+    var keyVertexRank by Vertices.keyVertexRank
+    var clusterNum by Vertices.clusterNum
 }
