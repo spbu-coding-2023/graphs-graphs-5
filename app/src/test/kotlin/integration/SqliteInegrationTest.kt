@@ -2,7 +2,6 @@ package integration
 
 import io.SqliteRepo
 import model.DirectedGraph
-import model.Graph
 import model.Vertex
 import model.algorithms.DirectedGraphAlgorithmsImpl
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -29,7 +28,7 @@ import java.io.File
 * Expected Results: graph is successfully saved to database and later loaded from it.
 * Algorithm results are also stored in the database. SCCS algorithms returns correct results.
 * */
-class FirstIntegrationTest {
+class SqliteIntegrationTest {
 
     @Test
     fun `Integration test with VM, algorithms, and SQLIte`() {
