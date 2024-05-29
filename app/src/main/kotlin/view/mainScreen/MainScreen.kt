@@ -35,6 +35,7 @@ import kotlin.math.sign
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>) {
+    //println("here")
     Material3AppTheme(theme = theme.value) {
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
@@ -43,6 +44,9 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 
         var showSnackbar by remember { mutableStateOf(false) }
         var isGraphLoaded by remember { mutableStateOf(false) }
+        if (viewModel.DBinput.dBType != "") {
+            isGraphLoaded = true
+        }
         var showDBSelectionDialogue by remember { mutableStateOf(false) }
         var selectedDatabase by remember { mutableStateOf("") }
         var dBInput by remember { mutableStateOf(DBInput()) }
@@ -112,12 +116,15 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     //val graphLoadingState = { mutableStateOf(isGraphLoaded) }
                     Button(
                         onClick = {
+                            //val loadingState by remember {mutableStateOf(loadGraph)}
                             if (!isGraphLoaded) {
                                 message = "No connection to database provided, please load your graph from database before saving algorithm results"
 //                                showSnackbar = true
                             } else {
                                 message = viewModel.saveAlgoResults()
                                 showSnackbar = message.isNotEmpty()
+                                message = "Results saved!"
+                                //showSnackbar = true
                             }
                             showSnackbarMessage(message)
                         },
