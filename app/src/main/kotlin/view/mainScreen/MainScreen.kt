@@ -15,8 +15,8 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
-import view.theme.Material3AppTheme
-import view.theme.Theme
+import view.Material3AppTheme
+import view.Theme
 import view.graph.DirectedGraphView
 import view.inputs.DBInput
 import view.inputs.MenuInput

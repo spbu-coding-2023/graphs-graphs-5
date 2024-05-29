@@ -14,8 +14,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import view.theme.Material3AppTheme
-import view.theme.Theme
+import view.Material3AppTheme
+import view.Theme
 import view.graph.UndirectedGraphView
 import view.inputs.DBInput
 import view.inputs.MenuInput
@@ -34,6 +34,9 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
 
         var showSnackbar by remember { mutableStateOf(false) }
         var isGraphLoaded by remember { mutableStateOf(false) }
+        if (viewModel.dBInput.dBType != "") {
+            isGraphLoaded = true
+        }
         var showDBSelectionDialogue by remember { mutableStateOf(false) }
         var selectedDatabase by remember { mutableStateOf("") }
         var dBInput by remember { mutableStateOf(DBInput()) }
