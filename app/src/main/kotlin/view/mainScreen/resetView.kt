@@ -1,4 +1,4 @@
-//package view.mainScreen
+package view.mainScreen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button

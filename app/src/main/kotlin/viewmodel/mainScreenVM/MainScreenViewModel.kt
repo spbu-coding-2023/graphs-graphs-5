@@ -12,7 +12,7 @@ import io.SqliteRepo
 import model.DirectedGraph
 import model.UndirectedGraph
 import org.jetbrains.exposed.sql.transactions.transaction
-import view.Theme.*
+import view.theme.*
 import view.inputs.DBInput
 import viewmodel.AlgoResults
 import viewmodel.placementStrategy.RepresentationStrategy
@@ -21,12 +21,13 @@ import viewmodel.graph.GraphViewModel
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
     private val representationStrategy: RepresentationStrategy,
-    private val dBInput: DBInput
+    val dBInput: DBInput
 ) {
     val showVerticesLabels = mutableStateOf(false)
     val showEdgesLabels = mutableStateOf(false)
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
-    private var neo4jRepo: Neo4jRepo<Any>? = if (dBInput.uri != "") Neo4jRepo(dBInput.uri, dBInput.login, dBInput.password) else null
+    private var neo4jRepo: Neo4jRepo<Any>? =
+        if (dBInput.uri != "") Neo4jRepo(dBInput.uri, dBInput.login, dBInput.password) else null
     private val algoResults = AlgoResults()
     protected open val algorithms = CommonAlgorithmsImpl<V>()
 
@@ -59,7 +60,7 @@ abstract class MainScreenViewModel<V>(
     fun configureSQLiteRepo(input: DBInput): Pair<Graph<Any>?, String> {
         val sqliteRepo = SqliteRepo<Any>(input.pathToDb)
         sqliteRepo.connectToDatabase()
-        var graph : Graph<Any>? = DirectedGraph()
+        var graph: Graph<Any>? = DirectedGraph()
         transaction {
             graph = sqliteRepo.loadGraphFromDB(input.name)
         }
@@ -77,8 +78,7 @@ abstract class MainScreenViewModel<V>(
                 val repoState = neo4jRepo
                 if (repoState == null) {
                     message = "nowhere to save, enter repo first"
-                }
-                else {
+                } else {
                     algoResults.keyVerticesResult?.let { keyVertState ->
                         repoState.saveKeyVerticesResults(graph, keyVertState)
                     }
@@ -88,6 +88,7 @@ abstract class MainScreenViewModel<V>(
                 }
                 return message
             }
+
             "sqlite" -> {
                 val repoState = SqliteRepo<Any>(dBInput.pathToDb)
                 algoResults.keyVerticesResult?.let { keyVertState ->
@@ -97,6 +98,7 @@ abstract class MainScreenViewModel<V>(
                     repoState.saveClusterDetectionResults(graph, clusterState)
                 }
             }
+
             else -> {}
         }
         return message
@@ -111,7 +113,7 @@ abstract class MainScreenViewModel<V>(
 
     fun resetGraphView() {
         representationStrategy.place(650.0, 550.0, graphViewModel)
-        graphViewModel.vertices.forEach{ v ->
+        graphViewModel.vertices.forEach { v ->
             v.color = BlackAndWhite60
             v.radius = 20.dp
         }
@@ -121,7 +123,7 @@ abstract class MainScreenViewModel<V>(
     }
 
     fun clearChanges() {
-        graphViewModel.vertices.forEach{ v ->
+        graphViewModel.vertices.forEach { v ->
             v.color = BlackAndWhite60
             v.radius = 20.dp
         }
@@ -152,6 +154,7 @@ abstract class MainScreenViewModel<V>(
         when (dBInput.dBType) {
             "neo4j" -> {
             }
+
             "sqlite" -> {
                 if (!dBInput.isUpdatedSql) {
                     val repo = SqliteRepo<Any>(dBInput.pathToDb)
@@ -161,14 +164,13 @@ abstract class MainScreenViewModel<V>(
                     }
                     if (rankingList.max() == 0.0) {
                         rankingList = mutableListOf()
-                        algorithms.findKeyVertices(graph).forEach{ v ->
+                        algorithms.findKeyVertices(graph).forEach { v ->
                             val vertexRank = v.second
                             rankingList.add(vertexRank)
                         }
                     }
-                }
-                else {
-                    algorithms.findKeyVertices(graph).forEach{ v ->
+                } else {
+                    algorithms.findKeyVertices(graph).forEach { v ->
                         val vertexRank = v.second
                         rankingList.add(vertexRank)
                     }
@@ -185,8 +187,8 @@ abstract class MainScreenViewModel<V>(
         algoResults.keyVerticesResult = rankingList.toList()
         val maxRank = rankingList.max()
         var i = 0
-        graphViewModel.vertices.forEach{ v ->
-            val relativeRank = rankingList[i]/maxRank
+        graphViewModel.vertices.forEach { v ->
+            val relativeRank = rankingList[i] / maxRank
             val radius = when {
                 relativeRank > 0.8 -> 32
                 relativeRank > 0.6 -> 29
@@ -215,6 +217,7 @@ abstract class MainScreenViewModel<V>(
         when (dBInput.dBType) {
             "neo4j" -> {
             }
+
             "sqlite" -> {
                 if (!dBInput.isUpdatedSql) {
                     val repo = SqliteRepo<Any>(dBInput.pathToDb)
@@ -227,8 +230,7 @@ abstract class MainScreenViewModel<V>(
                         result = algorithms.getClusters(graph)
                         println("empty list")
                     }
-                }
-                else {
+                } else {
                     result = algorithms.getClusters(graph)
                     println("new")
                 }
@@ -241,7 +243,7 @@ abstract class MainScreenViewModel<V>(
         clearChanges()
         val result = loadClusterDetectionResults()
         algoResults.clusteringResult = result
-        graphViewModel.vertices.forEach {v ->
+        graphViewModel.vertices.forEach { v ->
             val vertClusterNum = result[v.vertex.index]
             val color = when {
                 vertClusterNum % 10 == 0 -> ComponentColorNavy
@@ -264,10 +266,9 @@ abstract class MainScreenViewModel<V>(
         val (algoMessage, pathInfo) = algorithms.findPathWithDijkstra(graph, source, sink)
         if (pathInfo.first == null) {
             return algoMessage
-        }
-        else {
+        } else {
             val path: ArrayDeque<Int> = pathInfo.first ?: throw IllegalArgumentException("should not be null")
-            graphViewModel.vertices.forEach{v ->
+            graphViewModel.vertices.forEach { v ->
                 if (path.contains(v.vertex.index)) {
                     v.color = ComponentColorNavy
                 }

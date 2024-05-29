@@ -44,6 +44,7 @@ class VertexViewModel<V>(
         get() = vertex.dBIndex.toString()
     val labelVisible
         get() = _labelVisible.value
+
     fun onDrag(offset: Offset) {
         _x.value += offset.x.dp
         _y.value += offset.y.dp

@@ -1,14 +1,14 @@
 package viewmodel.placementStrategy
 
 import androidx.compose.ui.unit.dp
-import view.Theme.BlackAndWhite60
+import view.theme.BlackAndWhite60
 import viewmodel.graph.GraphViewModel
 import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
 class CircularPlacementStrategy : RepresentationStrategy {
-    override fun <V> place(width: Double, height: Double,  graphViewModel: GraphViewModel<V>) {
+    override fun <V> place(width: Double, height: Double, graphViewModel: GraphViewModel<V>) {
         val vertices = graphViewModel.vertices
         if (vertices.isEmpty()) {
             println("CircularPlacementStrategy.place: there is nothing to place 👐🏻")
@@ -30,6 +30,7 @@ class CircularPlacementStrategy : RepresentationStrategy {
                 it.y = point.second.dp
             }
     }
+
     private fun Pair<Double, Double>.rotate(pivot: Pair<Double, Double>, angle: Double): Pair<Double, Double> {
         val sin = sin(angle)
         val cos = cos(angle)

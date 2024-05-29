@@ -71,7 +71,6 @@ fun <V> UndirectedEdgeView(
     modifier: Modifier = Modifier,
 ) {
     Canvas(modifier = modifier.fillMaxSize()) {
-
         drawLine(
             start = Offset(
                 viewModel.u.x.toPx() + viewModel.u.radius.toPx(),
@@ -84,7 +83,6 @@ fun <V> UndirectedEdgeView(
             color = viewModel.color,
             strokeWidth = 1.3.dp.toPx()
         )
-
     }
     if (viewModel.labelVisible) {
         Text(

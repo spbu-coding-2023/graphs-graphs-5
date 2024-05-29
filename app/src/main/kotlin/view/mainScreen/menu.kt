@@ -1,8 +1,6 @@
-//package view
-//
+package view.mainScreen
+
 import androidx.compose.foundation.background
-//import androidx.compose.foundation.gestures.detectTapGestures
-//import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults
@@ -12,24 +10,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.Modifier
-//import androidx.compose.ui.geometry.Offset
-//import androidx.compose.ui.graphics.graphicsLayer
-//import androidx.compose.ui.input.pointer.pointerInput
-
 import androidx.compose.ui.unit.*
 import view.inputs.MenuInput
 
-//
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun menu(algoList: List<String>): MenuInput {
 
     var showOneVertexSelection by remember { mutableStateOf(false) }
     var showTwoVertexSelection by remember { mutableStateOf(false) }
-
     var showNoInputError by remember { mutableStateOf(false) }
     var showIncorrectInputError by remember { mutableStateOf(false) }
-
     var menuInputState by remember { mutableStateOf(MenuInput()) }
 
     /* by remember : if the variable changes, the parts of code where it's used change view accordingly */
@@ -76,7 +67,6 @@ fun menu(algoList: List<String>): MenuInput {
                             )
                         },
                         onClick = {
-//                            menuInputState.algoNum = index
                             menuInputState.text = algoList[index]
                             showOneVertexSelection = menuInputState.text == "Cycles"
                             showTwoVertexSelection = menuInputState.text == "Min path (Dijkstra)" ||
@@ -87,7 +77,7 @@ fun menu(algoList: List<String>): MenuInput {
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
                     )
                 }
-                androidx.compose.material.Divider(
+                Divider(
                     color = androidx.compose.material3.MaterialTheme.colorScheme.outline
                 )
                 Text(
@@ -153,12 +143,10 @@ fun menu(algoList: List<String>): MenuInput {
                             Button(
                                 onClick = {
                                     if (menuInputState.inputValueOneVertex.all { it.isDigit() } && menuInputState.inputValueOneVertex.isNotEmpty()) {
-                                        // Действие при нажатии на кнопку подтверждения
                                         showOneVertexSelection = false
                                     } else if (menuInputState.inputValueOneVertex.isEmpty()) {
-                                        showNoInputError = true // Показать сообщение об ошибке
-                                    }
-                                    else {
+                                        showNoInputError = true
+                                    } else {
                                         showIncorrectInputError = true
                                     }
                                 },
@@ -203,14 +191,16 @@ fun menu(algoList: List<String>): MenuInput {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(text = "Insert start and end vertex indices",
-                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary)
+                        Text(
+                            text = "Insert start and end vertex indices",
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                        )
                         Spacer(modifier = Modifier.height(8.dp))
                         TextField(
                             value = menuInputState.inputStartTwoVer,
                             onValueChange = { newValue ->
                                 menuInputState = menuInputState.copy(inputStartTwoVer = newValue)
-                                showNoInputError = false // Скрыть сообщение об ошибке при изменении текста
+                                showNoInputError = false
                             },
                             label = {
                                 Text(
@@ -230,7 +220,7 @@ fun menu(algoList: List<String>): MenuInput {
                             value = menuInputState.inputEndTwoVer,
                             onValueChange = { newValue ->
                                 menuInputState = menuInputState.copy(inputEndTwoVer = newValue)
-                                showNoInputError = false // Скрыть сообщение об ошибке при изменении текста
+                                showNoInputError = false
                                 showIncorrectInputError = false
                             },
                             label = {
@@ -268,11 +258,11 @@ fun menu(algoList: List<String>): MenuInput {
                                         && menuInputState.inputEndTwoVer.all { it.isDigit() }
                                         && menuInputState.inputStartTwoVer.isNotEmpty()
                                         && menuInputState.inputEndTwoVer.isNotEmpty()) {
-                                        // Действие при нажатии на кнопку подтверждения
                                         showTwoVertexSelection = false
                                     } else if (menuInputState.inputStartTwoVer.isEmpty()
-                                        || menuInputState.inputEndTwoVer.isEmpty()){
-                                        showNoInputError = true // Показать сообщение об ошибке
+                                        || menuInputState.inputEndTwoVer.isEmpty()
+                                    ) {
+                                        showNoInputError = true
                                     } else {
                                         showIncorrectInputError = true
                                     }

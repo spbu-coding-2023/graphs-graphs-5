@@ -24,7 +24,6 @@ fun <V> VertexView(
     Box(modifier = modifier
         .size(viewModel.radius * 2, viewModel.radius * 2)
         .offset(viewModel.x, viewModel.y)
-//        .animateContentSize(animationSpec = tween(durationMillis = 500))
         .border(
             width = 5.dp,
             color = viewModel.color,

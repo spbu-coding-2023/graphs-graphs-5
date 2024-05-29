@@ -1,32 +1,13 @@
 package integration
 
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import io.SqliteRepo
-import menu
 import model.DirectedGraph
 import model.Graph
-import model.UndirectedGraph
 import model.Vertex
-import model.algorithms.CommonAlgorithmsImpl
-import model.algorithms.DirectedGraphAlgorithms
 import model.algorithms.DirectedGraphAlgorithmsImpl
-import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.junit.Rule
-import org.junit.jupiter.api.Assertions
-import view.DBInput
-import view.DGMainScreen
-import view.Theme
-import view.ThemeSwitcher
-import viewmodel.DGScreenViewModel
-import viewmodel.ForceAtlasPlacementStrategy
-import viewmodel.MainScreenViewModel
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
-import kotlin.test.assertNotNull
 import java.io.File
 
 class FirstIntegrationTest {
