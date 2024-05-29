@@ -4,16 +4,17 @@ import androidx.compose.ui.unit.dp
 import model.Graph
 import model.Vertex
 import model.algorithms.DirectedGraphAlgorithmsImpl
-import view.Theme.*
+import view.theme.*
 import view.inputs.DBInput
 import view.inputs.MenuInput
 import viewmodel.placementStrategy.RepresentationStrategy
 import viewmodel.graph.VertexViewModel
+
 class DGScreenViewModel<V>(
     graph: Graph<V>,
     representationStrategy: RepresentationStrategy,
-    DBinput: DBInput
-) : MainScreenViewModel<V>(graph, representationStrategy, DBinput) {
+    dBInput: DBInput
+) : MainScreenViewModel<V>(graph, representationStrategy, dBInput) {
     override val algorithms = DirectedGraphAlgorithmsImpl<V>()
     private val graph2 = graph
     override fun run(input: MenuInput): String {
@@ -25,11 +26,11 @@ class DGScreenViewModel<V>(
                 val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
                 if (vertex != null) {
                     message = highlightCycles(vertex)
-                }
-                else {
+                } else {
                     message = "Error: vertex with this index doesn't exist"
                 }
             }
+
             input.text == "Strong components" -> findStrongComponents()
             input.text == "Min path (Dijkstra)" -> {
                 //negative weights check
@@ -41,37 +42,41 @@ class DGScreenViewModel<V>(
                 }
                 val source = getVertexByIndex(input.inputStartTwoVer.toInt())
                 val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
-                if(source == null || destination == null) message = "Error: vertex with this index doesn't exist"
+                if (source == null || destination == null) message = "Error: vertex with this index doesn't exist"
                 else {
                     message = highlightPathDijkstra(source, destination)
                 }
             }
+
             input.text == "Min path (Ford-Bellman)" -> {
                 val source = getVertexByIndex(input.inputStartTwoVer.toInt())
                 val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
-                if(source == null || destination == null) message = "Error: vertex with this index doesn't exist"
+                if (source == null || destination == null) message = "Error: vertex with this index doesn't exist"
                 else message = findSPwFB(source, destination)
             }
+
             else -> {
                 resetGraphView()
             }
         }
         return message
     }
+
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph clustering", "Key vertices", "Cycles", "Strong components",
-            "Min path (Dijkstra)", "Min path (Ford-Bellman)")
+        return listOf(
+            "Graph clustering", "Key vertices", "Cycles", "Strong components",
+            "Min path (Dijkstra)", "Min path (Ford-Bellman)"
+        )
     }
+
     private fun highlightCycles(source: Vertex<V>): String {
         clearChanges()
         val cycle = algorithms.getCycles(graph, source)
         var message = ""
         if (cycle.isNullOrEmpty()) {
             message = "No cycles for $source detected"
-        }
-        else {
-            //проверить, что он один
-            graphViewModel.vertices.forEach{v ->
+        } else {
+            graphViewModel.vertices.forEach { v ->
                 if (cycle.contains(v.vertex.index)) {
                     v.color = ComponentColorNavy
                 }
@@ -80,13 +85,11 @@ class DGScreenViewModel<V>(
                 if (cycle.contains(e.u.vertex.index) && cycle.contains(e.v.vertex.index)) {
                     e.color = ComponentColorNavy
                 }
-//                if (cycle.indexOf(e.u.vertex.index) == 1 && cycle.indexOf(e.v.vertex.index) == cycle.size) {
-//                    e.color = ComponentColorNavy
-//                }
             }
         }
         return message
     }
+
     private fun findStrongComponents() {
         clearChanges()
         val componentsList = algorithms.findStrongComponents(graph2)
@@ -94,9 +97,9 @@ class DGScreenViewModel<V>(
         componentsList.forEach {
             componentNumList.add(it.second)
         }
-        val vertexVMMap= hashMapOf<VertexViewModel<V>, Int>()
+        val vertexVMMap = hashMapOf<VertexViewModel<V>, Int>()
         var i = 0
-        graphViewModel.vertices.forEach{ v ->
+        graphViewModel.vertices.forEach { v ->
             vertexVMMap[v] = componentNumList[i]
             val radius = 18 + componentNumList[i] % 10
             v.radius = radius.dp
@@ -116,16 +119,17 @@ class DGScreenViewModel<V>(
             i++
         }
         graphViewModel.edges.forEach { e ->
-            if(vertexVMMap[e.v] == vertexVMMap[e.u]) {
+            if (vertexVMMap[e.v] == vertexVMMap[e.u]) {
                 e.color = e.v.color
             }
         }
     }
+
     private fun findSPwFB(source: Vertex<V>, destination: Vertex<V>): String {
         clearChanges()
         var message = ""
         val list = algorithms.findPathWithFordBellman(source, destination, graph2)
-            ?: return  "Vertex ${destination.dBIndex} is unattainable from vertex ${source.dBIndex}"
+            ?: return "Vertex ${destination.dBIndex} is unattainable from vertex ${source.dBIndex}"
         if (list[0] == list[list.size - 1]) message = "Negative-weight cycle detected"
         val vertexMap = hashMapOf<Vertex<V>, Int>()
         var i = 0
@@ -134,15 +138,16 @@ class DGScreenViewModel<V>(
             i++
         }
         val path = hashMapOf<VertexViewModel<V>, Int?>()
-        graphViewModel.vertices.forEach {v ->
-            if(vertexMap.contains(v.vertex)) {
+        graphViewModel.vertices.forEach { v ->
+            if (vertexMap.contains(v.vertex)) {
                 v.color = ComponentColorNavy
                 path[v] = vertexMap[v.vertex]
             }
         }
         graphViewModel.edges.forEach { e ->
             if (path.contains(e.u) && path.contains(e.v) &&
-                (path[e.u]?.let { path[e.v]?.minus(it) }) == 1 || (path[e.u]?.let { path[e.v]?.minus(it) }) == -1) {
+                (path[e.u]?.let { path[e.v]?.minus(it) }) == 1 || (path[e.u]?.let { path[e.v]?.minus(it) }) == -1
+            ) {
                 e.color = ComponentColorNavy
             }
             if (path[e.u] == 1 && path[e.v] == path.size) {

@@ -7,32 +7,22 @@
 
 package model.algorithms
 
-
 import androidx.compose.ui.geometry.Offset
-
-import model.*
-import model.Edge
 import model.Graph
-import model.GraphType
 import model.Vertex
 import org.gephi.graph.api.GraphController
 import org.gephi.graph.api.Node
 import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout
 import org.gephi.project.api.*
-import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2
-import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder
 import org.openide.util.Lookup
-import kotlin.math.pow
 
 data class VertexPosition<V>(val vertex: Vertex<V>, val x: Float, val y: Float)
 data class VertexOffset<V>(val vertex: Vertex<V>, val offset: Offset)
 
 fun normalizeEdgeWeight(value: Double, min: Double, max: Double): Double {
     require(min <= max) { "min must be less than or equal to max" }
-
     // If all values are the same, normalization would be undefined
     if (min == max) return 0.5
-
     return (value - min) / (max - min)
 }
 
@@ -41,50 +31,41 @@ fun <V> applyForceAtlas2(graph: Graph<V>): MutableList<VertexOffset<V>> {
     projectController.newProject()
     val workspace = projectController.currentWorkspace
     val graphModel = Lookup.getDefault().lookup(GraphController::class.java).graphModel
-
     val gephiGraph = graphModel.directedGraph
     val vertexMap = mutableMapOf<Vertex<V>, Node>()
-
     for (vertex in graph.vertices) {
         val node = graphModel.factory().newNode(vertex.index.toString())
         node.label = vertex.data.toString()
         gephiGraph.addNode(node)
         vertexMap[vertex] = node
     }
-
     val edgeWeightList = mutableListOf<Double>()
-    for (edge in graph.edges){
+    for (edge in graph.edges) {
         edgeWeightList.add(edge.weight)
     }
     val minWeight = edgeWeightList.min()
     val maxWeight = edgeWeightList.max()
-
     for (edge in graph.edges) {
         val weight = normalizeEdgeWeight(edge.weight, minWeight, maxWeight)
-        val sourceNode = vertexMap[edge.source] ?: throw  IllegalStateException("Node cannot be null")
-        val destNode = vertexMap[edge.destination] ?: throw  IllegalStateException("Node cannot be null")
+        val sourceNode = vertexMap[edge.source] ?: throw IllegalStateException("Node cannot be null")
+        val destNode = vertexMap[edge.destination] ?: throw IllegalStateException("Node cannot be null")
         val gephiEdge = graphModel.factory().newEdge(sourceNode, destNode, weight.toInt(), true)
         gephiGraph.addEdge(gephiEdge)
     }
-
     val layout = ForceAtlasLayout(null)
     layout.setGraphModel(graphModel)
-
     layout.resetPropertiesValues()
-
     layout.initAlgo()
-
     for (i in 0 until 1000) {
         if (layout.canAlgo()) layout.goAlgo()
         else break
     }
     layout.endAlgo()
-
     val positions = mutableListOf<VertexPosition<V>>()
     val finalPositions = mutableMapOf<Vertex<V>, Offset>()
     val finalPositions2 = mutableListOf<VertexOffset<V>>()
     for (vertex in graph.vertices) {
-        val node = vertexMap[vertex] ?: throw  IllegalStateException("Node cannot be null")
+        val node = vertexMap[vertex] ?: throw IllegalStateException("Node cannot be null")
         positions.add(VertexPosition(vertex, node.x(), node.y()))
     }
     if (positions.size > 0) {

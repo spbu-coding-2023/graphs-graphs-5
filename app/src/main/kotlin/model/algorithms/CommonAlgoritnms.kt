@@ -10,5 +10,9 @@ interface CommonAlgorithms<V> {
 
     fun findKeyVertices(graph: Graph<V>): List<Pair<Vertex<V>, Double>>
 
-    fun findPathWithDijkstra(graph: Graph<V>, source: Vertex<V>, sink: Vertex<V>): Pair<String, Pair<ArrayDeque<Int>?, Double?>>
+    fun findPathWithDijkstra(
+        graph: Graph<V>,
+        source: Vertex<V>,
+        sink: Vertex<V>
+    ): Pair<String, Pair<ArrayDeque<Int>?, Double?>>
 }

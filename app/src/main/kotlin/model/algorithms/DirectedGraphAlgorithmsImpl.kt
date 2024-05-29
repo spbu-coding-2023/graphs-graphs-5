@@ -34,7 +34,7 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
             assigned[v.index] = true
             componentsList.add(Pair(v, componentNum))
             graph.edges(v).forEach {
-                assignComponentNum(it.destination, componentNum, componentsList, assigned,  graph)
+                assignComponentNum(it.destination, componentNum, componentsList, assigned, graph)
             }
         }
     }
@@ -42,7 +42,7 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
     private fun <V> dfs(v: Vertex<V>, listOfOrder: MutableList<Vertex<V>>, visited: BooleanArray, graph: Graph<V>) {
         if (!visited[v.index]) {
             visited[v.index] = true
-            graph.edges(v).forEach {e ->
+            graph.edges(v).forEach { e ->
                 dfs(e.destination, listOfOrder, visited, graph)
             }
             listOfOrder.add(0, v)
@@ -60,8 +60,12 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         }
         return transposeGraph
     }
-    
-    override fun findPathWithFordBellman(source: Vertex<V>, destination: Vertex<V>, graph: Graph<V>): MutableList<Vertex<V>>? {
+
+    override fun findPathWithFordBellman(
+        source: Vertex<V>,
+        destination: Vertex<V>,
+        graph: Graph<V>
+    ): MutableList<Vertex<V>>? {
         val distance = DoubleArray(graph.vertices.size)
         /* whose predecessor and who is predecessor */
         val predecessor = mutableListOf<Vertex<V>>()
@@ -141,8 +145,7 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         if (cycles[0].contains(source.index)) {
             val cycle = cycles[0].toSet()
             return cycle.toMutableList()
-        }
-        else {
+        } else {
             return null
         }
     }
@@ -178,7 +181,6 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
                 }
             }
         }
-
         color[curVertex] = 2
     }
 

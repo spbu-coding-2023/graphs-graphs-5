@@ -141,7 +141,6 @@ class SqliteRepo<V>(pathToDatabase: String) {
         ).firstOrNull()?.let { entity ->
             val graph = loadGraphFromDB(name) ?: return null
             val rankingList = MutableList(graph.vertices.size) { 0.0 }
-//            val rankingList = mutableListOf<Double>()
             transaction {
                 VertexEntity.all().forEach { vertexEntity ->
                     if (vertexEntity.graph == entity) {

@@ -11,7 +11,6 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
-//    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
 }
 
@@ -24,21 +23,12 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
     implementation(compose.materialIconsExtended)
-
     testImplementation("org.jetbrains.kotlin:kotlin-test")
-
-
-//    implementation("org.junit.jupiter:junit-jupiter:5.8.1")
     implementation("org.neo4j.driver:neo4j-java-driver:4.3.3")
     implementation("org.jetbrains.exposed:exposed-core:0.35.1")
     implementation("org.jetbrains.exposed:exposed-dao:0.35.1")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.35.1")
     implementation("org.xerial:sqlite-jdbc:3.41.2.2")
-    //implementation("io.github.microutils", "kotlin-logging-jvm", "2.0.6")
-//    implementation("io.coil-kt:coil-compose:2.2.2")
-//    implementation("com.google.accompanist:accompanist-flowlayout:0.24.8-beta")
-//    implementation("io.coil-kt:coil")
-
 }
 
 tasks.test {
@@ -56,7 +46,3 @@ compose.desktop {
         }
     }
 }
-
-//tasks.build {
-//    dependsOn("downloadGephiToolkit")
-//}

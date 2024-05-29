@@ -1,4 +1,4 @@
-//package view.mainScreen
+package view.mainScreen
 
 import androidx.compose.runtime.Composable
 import view.inputs.DBInput
