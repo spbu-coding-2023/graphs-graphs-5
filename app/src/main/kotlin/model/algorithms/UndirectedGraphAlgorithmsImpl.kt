@@ -5,6 +5,34 @@ import model.Graph
 import model.UndirectedGraph
 import model.Vertex
 
+class UnionFind(size: Int) {
+    private val parent = IntArray(size) { it }
+    private val rank = IntArray(size) { 1 }
+
+    fun find(x: Int): Int {
+        if (parent[x] != x) {
+            parent[x] = find(parent[x])
+        }
+        return parent[x]
+    }
+
+    fun union(x: Int, y: Int) {
+        val rootX = find(x)
+        val rootY = find(y)
+
+        if (rootX != rootY) {
+            if (rank[rootX] > rank[rootY]) {
+                parent[rootY] = rootX
+            } else if (rank[rootX] < rank[rootY]) {
+                parent[rootX] = rootY
+            } else {
+                parent[rootY] = rootX
+                rank[rootX] += 1
+            }
+        }
+    }
+}
+
 class UndirectedGraphAlgorithmsImpl<V>: UndirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
     override fun findBridges(graph: Graph<V>): MutableList<Edge<V>> {
         val bridges = mutableListOf<Edge<V>>()
@@ -50,8 +78,22 @@ class UndirectedGraphAlgorithmsImpl<V>: UndirectedGraphAlgorithms<V>, CommonAlgo
         return bridges
     }
 
+    override fun findCore(graph: Graph<V>): Set<Vertex<V>> {
+        val edges = graph.edges.sortedBy { it.weight }
+        val unionFind = UnionFind(graph.vertices.size)
+        val mstVertices = mutableSetOf<Vertex<V>>()
 
-    override fun findCore(graph: Graph<V>) {
-        TODO("Not yet implemented")
+        for (edge in edges) {
+            val root1 = unionFind.find(edge.source.index)
+            val root2 = unionFind.find(edge.destination.index)
+
+            if (root1 != root2) {
+                mstVertices.add(edge.source)
+                mstVertices.add(edge.destination)
+                unionFind.union(root1, root2)
+            }
+        }
+
+        return mstVertices
     }
 }
