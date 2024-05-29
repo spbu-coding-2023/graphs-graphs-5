@@ -60,7 +60,6 @@ class SqliteRepo<V>(pathToDatabase: String) {
         GraphEntity.find(
             Graphs.name eq name
         ).firstOrNull()?.let { entity ->
-//            println(entity.metadata)
             val graph: Graph<Any> = if (entity.metadata == "DIRECTED") DirectedGraph() else UndirectedGraph()
             val vertexIdMap = mutableMapOf<Int, Int>()
             transaction {
@@ -84,18 +83,30 @@ class SqliteRepo<V>(pathToDatabase: String) {
             }
             return graph
         }
-//    println("Graph not found in database")
         return null
     }
 
     private fun getAllGraphsNames(): List<String> {
         val graphsNamesList = mutableListOf<String>()
         transaction {
-            GraphEntity.all().forEach{ entity ->
+            GraphEntity.all().forEach { entity ->
                 graphsNamesList.add(entity.name)
             }
         }
         return graphsNamesList
+    }
+
+    fun <V> cleanOutdatedAlgoResults(graph: Graph<V>) {
+        val vertices = graph.vertices.toList()
+        transaction {
+            for (i in vertices.indices) {
+                val vertex = vertices[i]
+                Vertices.update({ Vertices.id eq vertex.dBIndex }) {
+                    it[clusterNum] = 0
+                    it[keyVertexRank] = 0.0
+                }
+            }
+        }
     }
 
     fun <V> saveKeyVerticesResults(graph: Graph<V>, rankingList: List<Double>) {
@@ -124,10 +135,10 @@ class SqliteRepo<V>(pathToDatabase: String) {
         }
     }
 
-    fun loadKeyVerticesResults(name: String) : MutableList<Double>? {
+    fun loadKeyVerticesResults(name: String): MutableList<Double>? {
         GraphEntity.find(
             Graphs.name eq name
-        ).firstOrNull()?.let {entity ->
+        ).firstOrNull()?.let { entity ->
             val graph = loadGraphFromDB(name) ?: return null
             val rankingList = MutableList(graph.vertices.size) { 0.0 }
 //            val rankingList = mutableListOf<Double>()
@@ -150,7 +161,7 @@ class SqliteRepo<V>(pathToDatabase: String) {
     fun loadClusteringResults(name: String): List<Int>? {
         GraphEntity.find(
             Graphs.name eq name
-        ).firstOrNull()?.let {entity ->
+        ).firstOrNull()?.let { entity ->
             val graph = loadGraphFromDB(name) ?: return null
             val clusterNumList = MutableList(graph.vertices.size) { 0 }
             transaction {
@@ -167,76 +178,5 @@ class SqliteRepo<V>(pathToDatabase: String) {
             return newList
         }
         return null
-    }
-}
-
-
-fun main() {
-    val repo = SqliteRepo<Any>("/Users/sofyakozyreva/dddiiieee/new.db")
-    repo.connectToDatabase()
-    transaction {
-        val graph = DirectedGraph<Int>()
-
-    val  Alabama = graph.addVertex(1)
-    val  Arizona = graph.addVertex(2)
-    val  California = graph.addVertex(3)
-    val  Connecticut = graph.addVertex(4)
-    val  Florida = graph.addVertex(5)
-    val  Hawaii = graph.addVertex(6)
-    val  Illinois = graph.addVertex(7)
-    val  Iowa = graph.addVertex(8)
-    val  Kentucky = graph.addVertex(9)
-    val  Maine = graph.addVertex(10)
-    val  Massachusetts = graph.addVertex(11)
-    val  Minnesota = graph.addVertex(12)
-    val  Missouri = graph.addVertex(13)
-    val  Montana = graph.addVertex(14)
-    val  Nevada = graph.addVertex(15)
-    val  NewJersey = graph.addVertex(16)
-    val  NewYork = graph.addVertex(17)
-
-    graph.addEdge(Alabama, Illinois)
-    graph.addEdge(Alabama, Connecticut, -5.0)
-    graph.addEdge(Alabama, Florida)
-    graph.addEdge(Alabama, Hawaii)
-    graph.addEdge(Alabama, Kentucky)
-    graph.addEdge(Kentucky, Iowa)
-    graph.addEdge(Iowa, Alabama)
-    graph.addEdge(Kentucky, Montana)
-    graph.addEdge(Kentucky, California)
-    graph.addEdge(Kentucky, Maine)
-    graph.addEdge(Kentucky, NewJersey)
-    graph.addEdge(Missouri, Montana)
-    graph.addEdge(Montana, NewJersey)
-    graph.addEdge(California, Massachusetts)
-    graph.addEdge(California, Minnesota)
-    graph.addEdge(California, Maine)
-    graph.addEdge(California, Montana)
-    graph.addEdge(Iowa, Arizona)
-    graph.addEdge(Iowa, Montana)
-    graph.addEdge(Iowa, NewJersey)
-    graph.addEdge(Arizona, Montana)
-    graph.addEdge(Arizona, Nevada)
-    graph.addEdge(Arizona, NewJersey)
-    graph.addEdge(Arizona, NewYork)
-    graph.addEdge(Montana, Nevada)
-        repo.saveGraphToDB(graph, "pipi")
-    }
-    transaction {
-        val graph3 = repo.loadGraphFromDB("pipi") ?: return@transaction
-        graph3.vertices.forEach {
-            println(it)
-        }
-        graph3.edges.forEach {
-            println(it)
-        }
-    }
-    transaction {
-        val list = repo.loadKeyVerticesResults("pipi")?.forEach {
-            println(it)
-        }
-        repo.loadClusteringResults("pipi")?.forEach {
-            println(it)
-        }
     }
 }
