@@ -38,7 +38,6 @@ dependencies {
 //    implementation("io.coil-kt:coil-compose:2.2.2")
 //    implementation("com.google.accompanist:accompanist-flowlayout:0.24.8-beta")
 //    implementation("io.coil-kt:coil")
-    //implementation(androidx.compose.material3:material3:1.0.0-alpha02)
 
 }
 

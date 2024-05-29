@@ -9,7 +9,12 @@ package model.algorithms
 
 
 import androidx.compose.ui.geometry.Offset
+
 import model.*
+import model.Edge
+import model.Graph
+import model.GraphType
+import model.Vertex
 import org.gephi.graph.api.GraphController
 import org.gephi.graph.api.Node
 import org.gephi.layout.plugin.forceAtlas.ForceAtlasLayout
@@ -17,14 +22,17 @@ import org.gephi.project.api.*
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2
 import org.gephi.layout.plugin.forceAtlas2.ForceAtlas2Builder
 import org.openide.util.Lookup
+import kotlin.math.pow
 
 data class VertexPosition<V>(val vertex: Vertex<V>, val x: Float, val y: Float)
 data class VertexOffset<V>(val vertex: Vertex<V>, val offset: Offset)
 
 fun normalizeEdgeWeight(value: Double, min: Double, max: Double): Double {
     require(min <= max) { "min must be less than or equal to max" }
+
     // If all values are the same, normalization would be undefined
     if (min == max) return 0.5
+
     return (value - min) / (max - min)
 }
 
@@ -33,6 +41,7 @@ fun <V> applyForceAtlas2(graph: Graph<V>): MutableList<VertexOffset<V>> {
     projectController.newProject()
     val workspace = projectController.currentWorkspace
     val graphModel = Lookup.getDefault().lookup(GraphController::class.java).graphModel
+
     val gephiGraph = graphModel.directedGraph
     val vertexMap = mutableMapOf<Vertex<V>, Node>()
 
@@ -96,25 +105,4 @@ fun <V> applyForceAtlas2(graph: Graph<V>): MutableList<VertexOffset<V>> {
         }
     }
     return finalPositions2
-}
-
-fun main() {
-    val graph = DirectedGraph<Int>()
-    val zero = graph.addVertex(0,)
-    val one = graph.addVertex(1,)
-    val two = graph.addVertex(2,)
-    val three = graph.addVertex(3,)
-    val four = graph.addVertex(4,)
-    val five = graph.addVertex(5,)
-
-    graph.addEdge(zero, one)
-    graph.addEdge(zero, two, -9.0)
-    graph.addEdge(zero, three)
-    graph.addEdge(zero, four)
-
-    val positions = applyForceAtlas2(graph)
-    positions.forEach {
-        println("${it.vertex}, ${it.offset}")
-    }
-    println()
 }
