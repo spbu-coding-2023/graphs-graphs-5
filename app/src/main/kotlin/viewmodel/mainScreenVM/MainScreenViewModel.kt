@@ -12,7 +12,7 @@ import io.SqliteRepo
 import model.DirectedGraph
 import model.UndirectedGraph
 import org.jetbrains.exposed.sql.transactions.transaction
-import view.theme.*
+import view.*
 import view.inputs.DBInput
 import viewmodel.AlgoResults
 import viewmodel.placementStrategy.RepresentationStrategy
@@ -149,7 +149,7 @@ abstract class MainScreenViewModel<V>(
 
     abstract fun run(input: MenuInput): String
 
-    private fun loadKeyVerticesResults(): List<Double> {
+    fun loadKeyVerticesResults(): List<Double> {
         var rankingList = mutableListOf<Double>()
         when (dBInput.dBType) {
             "neo4j" -> {

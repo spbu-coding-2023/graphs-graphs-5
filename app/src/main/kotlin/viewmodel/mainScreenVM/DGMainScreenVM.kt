@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 import model.Graph
 import model.Vertex
 import model.algorithms.DirectedGraphAlgorithmsImpl
-import view.theme.*
+import view.*
 import view.inputs.DBInput
 import view.inputs.MenuInput
 import viewmodel.placementStrategy.RepresentationStrategy

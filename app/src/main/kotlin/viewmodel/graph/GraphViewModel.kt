@@ -3,8 +3,8 @@ package viewmodel.graph
 import androidx.compose.runtime.State
 import androidx.compose.ui.unit.dp
 import model.Graph
-import view.theme.BlackAndWhite30
-import view.theme.BlackAndWhite60
+import view.BlackAndWhite30
+import view.BlackAndWhite60
 
 class GraphViewModel<V>(
     val graph: Graph<V>,

@@ -2,6 +2,8 @@ package view.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import view.DarkColorPalette
+import view.LightColorPalette
 
 @Composable
 fun Material3AppTheme(theme: Theme, content: @Composable () -> Unit) {
