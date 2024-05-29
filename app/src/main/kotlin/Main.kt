@@ -3,11 +3,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
-import model.DirectedGraph
 import model.Graph
 import model.GraphType
 import model.UndirectedGraph
-import view.theme.Theme
+import view.Theme
 import view.inputs.DBInput
 import view.mainScreen.DGMainScreen
 import view.mainScreen.UGMainScreen
@@ -19,7 +18,7 @@ import java.awt.Dimension
 @Composable
 @Preview
 fun App() {
-    val emptyGraph = DirectedGraph<Int>()
+    val emptyGraph = UndirectedGraph<Int>()
     val input = DBInput()
     ScreenFactory.createView(emptyGraph, input)
 }

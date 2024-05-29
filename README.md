@@ -67,8 +67,8 @@ For undirected graph you can use:
 * Applying theme (Classic Vintage or Barbie Coded)  
 * Running algorithms
 <p float'"left>  
-  <img width="450" src=app/src/main/resources/Clustering.png align="center">
-  <img width="450" src=app/src/main/resources/KeyVerticesAlgo.png align="center">
+  <img width="600" src=app/src/main/resources/Clustering.png align="center">
+  <img width="600" src=app/src/main/resources/KeyVerticesAlgo.png align="center">
 </p>
 
 
