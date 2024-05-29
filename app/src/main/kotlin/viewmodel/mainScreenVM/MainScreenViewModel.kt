@@ -21,14 +21,15 @@ import viewmodel.graph.GraphViewModel
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
     private val representationStrategy: RepresentationStrategy,
-    val DBinput: DBInput
+    private val dBInput: DBInput
 ) {
     val showVerticesLabels = mutableStateOf(false)
     val showEdgesLabels = mutableStateOf(false)
     val graphViewModel = GraphViewModel(graph, showVerticesLabels, showEdgesLabels)
-    var neo4jRepo: Neo4jRepo<Any>? = if (DBinput.uri != "") Neo4jRepo(DBinput.uri, DBinput.login, DBinput.password) else null
+    private var neo4jRepo: Neo4jRepo<Any>? = if (dBInput.uri != "") Neo4jRepo(dBInput.uri, dBInput.login, dBInput.password) else null
     private val algoResults = AlgoResults()
     protected open val algorithms = CommonAlgorithmsImpl<V>()
+
     fun configureNeo4jRepo(input: DBInput): Pair<DirectedGraph<Any>?, String> {
         return try {
             val neoRepo = Neo4jRepo<Any>(input.uri, input.login, input.password)
@@ -51,10 +52,10 @@ abstract class MainScreenViewModel<V>(
                 e.message?.contains("Authentication failed") == true -> "${e.message} error occurred. Please check login and password"
                 else -> "An unexpected error occurred: ${e.message}"
             }
-            //println(errorMessage)
             Pair(null, errorMessage)
         }
     }
+
     fun configureSQLiteRepo(input: DBInput): Pair<Graph<Any>?, String> {
         val sqliteRepo = SqliteRepo<Any>(input.pathToDb)
         sqliteRepo.connectToDatabase()
@@ -63,11 +64,15 @@ abstract class MainScreenViewModel<V>(
             graph = sqliteRepo.loadGraphFromDB(input.name)
         }
         if (graph == null) return Pair(null, "Graph with such name doesn't exist in this directory")
+        if (input.isUpdatedSql) {
+            transaction { sqliteRepo.cleanOutdatedAlgoResults(graph!!) }
+        }
         return Pair(graph, "")
     }
+
     fun saveAlgoResults(): String {
         var message = ""
-        when (DBinput.dBType) {
+        when (dBInput.dBType) {
             "neo4j" -> {
                 val repoState = neo4jRepo
                 if (repoState == null) {
@@ -84,7 +89,7 @@ abstract class MainScreenViewModel<V>(
                 return message
             }
             "sqlite" -> {
-                val repoState = SqliteRepo<Any>(DBinput.pathToDb)
+                val repoState = SqliteRepo<Any>(dBInput.pathToDb)
                 algoResults.keyVerticesResult?.let { keyVertState ->
                     repoState.saveKeyVerticesResults(graph, keyVertState)
                 }
@@ -96,11 +101,14 @@ abstract class MainScreenViewModel<V>(
         }
         return message
     }
+
     var scale = mutableStateOf(1f)
     var offset = mutableStateOf(DpOffset.Zero)
+
     init {
         representationStrategy.place(650.0, 550.0, graphViewModel)
     }
+
     fun resetGraphView() {
         representationStrategy.place(650.0, 550.0, graphViewModel)
         graphViewModel.vertices.forEach{ v ->
@@ -111,6 +119,7 @@ abstract class MainScreenViewModel<V>(
             e.color = BlackAndWhite30
         }
     }
+
     fun clearChanges() {
         graphViewModel.vertices.forEach{ v ->
             v.color = BlackAndWhite60
@@ -120,9 +129,11 @@ abstract class MainScreenViewModel<V>(
             e.color = BlackAndWhite30
         }
     }
+
     open fun getListOfAlgorithms(): List<String> {
         return listOf("Graph clustering", "Key vertices", "Cycles", "Min path (Dijkstra)")
     }
+
     open fun getVertexByIndex(index: Int): Vertex<V>? {
         val vertList = graph.vertices.toList()
         var result: Vertex<V>? = null
@@ -133,17 +144,44 @@ abstract class MainScreenViewModel<V>(
         }
         return result
     }
+
     abstract fun run(input: MenuInput): String
+
+    private fun loadKeyVerticesResults(): List<Double> {
+        var rankingList = mutableListOf<Double>()
+        when (dBInput.dBType) {
+            "neo4j" -> {
+            }
+            "sqlite" -> {
+                if (!dBInput.isUpdatedSql) {
+                    val repo = SqliteRepo<Any>(dBInput.pathToDb)
+                    transaction {
+                        rankingList = repo.loadKeyVerticesResults(dBInput.name)
+                            ?: return@transaction "Graph should exist in database"
+                    }
+                    if (rankingList.max() == 0.0) {
+                        rankingList = mutableListOf()
+                        algorithms.findKeyVertices(graph).forEach{ v ->
+                            val vertexRank = v.second
+                            rankingList.add(vertexRank)
+                        }
+                    }
+                }
+                else {
+                    algorithms.findKeyVertices(graph).forEach{ v ->
+                        val vertexRank = v.second
+                        rankingList.add(vertexRank)
+                    }
+                    println("new")
+                }
+            }
+        }
+        return rankingList
+    }
+
     protected fun highlightKeyVertices() {
         clearChanges()
-        //println(neoRepo.getKeyVerticesResults())
-        val rankingList = mutableListOf<Double>()
-        algorithms.findKeyVertices(graph).forEach{ v ->
-            val vertexRank = v.second
-            rankingList.add(vertexRank)
-//            println(vertexRank)
-        }
-        //neoRepo.saveKeyVerticesResults(graph, rankingList)
+        val rankingList = loadKeyVerticesResults()
         algoResults.keyVerticesResult = rankingList.toList()
         val maxRank = rankingList.max()
         var i = 0
@@ -171,12 +209,38 @@ abstract class MainScreenViewModel<V>(
             }
         }
     }
+
+    private fun loadClusterDetectionResults(): IntArray {
+        var result = IntArray(graph.vertices.size)
+        when (dBInput.dBType) {
+            "neo4j" -> {
+            }
+            "sqlite" -> {
+                if (!dBInput.isUpdatedSql) {
+                    val repo = SqliteRepo<Any>(dBInput.pathToDb)
+                    transaction {
+                        result = repo.loadClusteringResults(dBInput.name)?.toIntArray()
+                            ?: return@transaction "Graph should exist in database"
+                    }
+                    println("load")
+                    if (result.max() == 0) {
+                        result = algorithms.getClusters(graph)
+                        println("empty list")
+                    }
+                }
+                else {
+                    result = algorithms.getClusters(graph)
+                    println("new")
+                }
+            }
+        }
+        return result
+    }
+
     fun divideIntoClusters() {
         clearChanges()
-        //println(neoRepo.getClusteringResults())
-        val result = algorithms.getClusters(graph)
+        val result = loadClusterDetectionResults()
         algoResults.clusteringResult = result
-        //neoRepo.saveClusterDetectionResults(graph, result)
         graphViewModel.vertices.forEach {v ->
             val vertClusterNum = result[v.vertex.index]
             val color = when {
@@ -194,9 +258,9 @@ abstract class MainScreenViewModel<V>(
             v.color = color
         }
     }
+
     fun highlightPathDijkstra(source: Vertex<V>, sink: Vertex<V>): String {
         clearChanges()
-        //val path = algorithms.findPathWithDijkstra(graph, source, sink)
         val (algoMessage, pathInfo) = algorithms.findPathWithDijkstra(graph, source, sink)
         if (pathInfo.first == null) {
             return algoMessage
