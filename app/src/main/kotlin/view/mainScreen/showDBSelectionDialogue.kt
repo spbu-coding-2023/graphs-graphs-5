@@ -95,7 +95,12 @@ fun showDBSelectionDialogue(
                                         text = "URI",
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
                                     )
-                                }
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -108,7 +113,12 @@ fun showDBSelectionDialogue(
                                         text = "Login",
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
                                     )
-                                }
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -122,6 +132,11 @@ fun showDBSelectionDialogue(
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
                                     )
                                 },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                                 visualTransformation = PasswordVisualTransformation()
                             )
 
@@ -170,7 +185,12 @@ fun showDBSelectionDialogue(
                                         text = "Path to database",
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
                                     )
-                                }
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
@@ -181,7 +201,12 @@ fun showDBSelectionDialogue(
                                         text = "Name",
                                         color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
                                     )
-                                }
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(modifier = Modifier.fillMaxWidth()) {
