@@ -191,7 +191,6 @@ abstract class MainScreenViewModel<V>(
                         val vertexRank = v.second
                         rankingList.add(vertexRank)
                     }
-                    println("new")
                 }
             }
         }
@@ -252,14 +251,11 @@ abstract class MainScreenViewModel<V>(
                         result = repo.loadClusteringResults(dBInput.name)?.toIntArray()
                             ?: return@transaction "Graph should exist in database"
                     }
-                    println("load")
                     if (result.max() == 0) {
                         result = algorithms.getClusters(graph)
-                        println("empty list")
                     }
                 } else {
                     result = algorithms.getClusters(graph)
-                    println("new")
                 }
             }
         }
