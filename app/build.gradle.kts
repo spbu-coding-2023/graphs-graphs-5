@@ -10,11 +10,13 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
 //    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     google()
 }
 
 dependencies {
+    implementation(files("libs/gephi-toolkit-0.10.0-all.jar"))
     // Note, if you develop a library, you should use compose.desktop.common.
     // compose.desktop.currentOs should be used in launcher-sourceSet
     // (in a separate module for demo project and in testMain).
@@ -22,6 +24,10 @@ dependencies {
     implementation(compose.desktop.currentOs)
     implementation(compose.material3)
     implementation(compose.materialIconsExtended)
+
+
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
+
     //implementation("com.google.accompanist:accompanist-gestures:0.31.2-alpha")
 //    implementation(compose.ui)
 //    implementation(compose.foundation)
@@ -37,7 +43,7 @@ dependencies {
 //    implementation("io.coil-kt:coil-compose:2.2.2")
 //    implementation("com.google.accompanist:accompanist-flowlayout:0.24.8-beta")
 //    implementation("io.coil-kt:coil")
-    //implementation(androidx.compose.material3:material3:1.0.0-alpha02)
+
 }
 
 tasks.test {
