@@ -153,8 +153,25 @@ abstract class MainScreenViewModel<V>(
         var rankingList = mutableListOf<Double>()
         when (dBInput.dBType) {
             "neo4j" -> {
-            }
+                if (!dBInput.isUpdatedNeo4j) {
+                    val repo = Neo4jRepo<Any>(dBInput.uri, dBInput.login, dBInput.password)
+                    val list = repo.getKeyVerticesResults()
+                    if (list == null) {
+                        rankingList = mutableListOf()
+                        algorithms.findKeyVertices(graph).forEach { v ->
+                            val vertexRank = v.second
+                            rankingList.add(vertexRank)
+                        }
+                    }
+                    else { rankingList = list.toMutableList() }
 
+                } else {
+                    algorithms.findKeyVertices(graph).forEach { v ->
+                        val vertexRank = v.second
+                        rankingList.add(vertexRank)
+                    }
+                }
+            }
             "sqlite" -> {
                 if (!dBInput.isUpdatedSql) {
                     val repo = SqliteRepo<Any>(dBInput.pathToDb)
@@ -216,6 +233,16 @@ abstract class MainScreenViewModel<V>(
         var result = IntArray(graph.vertices.size)
         when (dBInput.dBType) {
             "neo4j" -> {
+                if (!dBInput.isUpdatedNeo4j) {
+                    val repo = Neo4jRepo<Any>(dBInput.uri, dBInput.login, dBInput.password)
+                    val partition = repo.getClusteringResults()
+                    if (partition == null) {
+                        result = algorithms.getClusters(graph)
+                    }
+                    else { result = partition.toIntArray() }
+                } else {
+                    result = algorithms.getClusters(graph)
+                }
             }
 
             "sqlite" -> {

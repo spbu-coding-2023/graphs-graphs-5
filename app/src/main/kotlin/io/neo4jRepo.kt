@@ -167,7 +167,19 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
         ORDER BY n.programIndex
         """
         val result = session.run(query)
-        return result.list { record -> record["clusterNumber"].asInt() }
+        val resultList = result.list { record ->
+            val value = record.get("clusterNumber")
+            if (value != null && !value.isNull) {
+                value.asInt()
+            } else {
+                null
+            }
+        }
+        return if (resultList.any { it == null }) {
+            null
+        } else {
+            resultList.mapNotNull { it }
+        }
     }
 
     fun getKeyVerticesResults(): List<Double>? {
@@ -177,7 +189,19 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
         ORDER BY n.programIndex
         """
         val result = session.run(query)
-        return result.list { record -> record["keyVertexRank"].asDouble() }
+        val resultList = result.list { record ->
+            val value = record.get("keyVertexRank")
+            if (value != null && !value.isNull) {
+                value.asDouble()
+            } else {
+                null
+            }
+        }
+        return if (resultList.any { it == null }) {
+            null
+        } else {
+            resultList.mapNotNull { it }
+        }
     }
 
     override fun close() {
