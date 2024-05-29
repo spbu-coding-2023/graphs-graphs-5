@@ -3,9 +3,8 @@ package viewmodel.graph
 import androidx.compose.runtime.State
 import androidx.compose.ui.unit.dp
 import model.Graph
-import view.Theme.BlackAndWhite30
-import view.Theme.BlackAndWhite60
-
+import view.BlackAndWhite30
+import view.BlackAndWhite60
 
 class GraphViewModel<V>(
     val graph: Graph<V>,
@@ -26,14 +25,4 @@ class GraphViewModel<V>(
         get() = _vertices.values
     val edges: Collection<EdgeViewModel<V>>
         get() = _edges.values
-
-//    var scale by mutableStateOf(1f)
-//    var offsetX by mutableStateOf(0f)
-//    var offsetY by mutableStateOf(0f)
-//
-//    fun handleTransformGestures(pan: Offset, zoom: Float) {
-//        offsetX += pan.x / scale
-//        offsetY += pan.y / scale
-//        scale *= zoom
-//    }
 }

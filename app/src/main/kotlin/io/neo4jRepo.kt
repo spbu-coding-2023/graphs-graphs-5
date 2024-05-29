@@ -2,11 +2,7 @@ package io
 
 import model.*
 import org.neo4j.driver.*
-//import mu.KotlinLogging
-
 import java.io.Closeable
-
-//private val logger = KotlinLogging.logger { }
 
 class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
 
@@ -74,12 +70,14 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
                 vertexList.add(source)
                 vertexList.add(destination)
 
-                edgeList.add(Edge(
-                    currentIndex,
-                    source,
-                    destination,
-                    rec["weight"].asDouble()
-                ))
+                edgeList.add(
+                    Edge(
+                        currentIndex,
+                        source,
+                        destination,
+                        rec["weight"].asDouble()
+                    )
+                )
             }
 
             //for disconnected vertices
@@ -187,13 +185,3 @@ class Neo4jRepo<V>(uri: String, user: String, password: String) : Closeable {
         driver.close()
     }
 }
-
-//fun main() {
-//    val repo = Neo4jRepo<Any>("bolt://localhost:7687","neo4j", "my my, i think we have a spy ;)")
-////    val list = repo.getAllVertices()
-////    println(list)
-//    val list2 = repo.readGraph()
-////    println(list2.first)
-////    println(list2.second)
-//    //repo.saveClusterDetectionResults(2, "newLabel")
-//}

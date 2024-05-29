@@ -9,8 +9,8 @@ import viewmodel.placementStrategy.RepresentationStrategy
 class UGScreenViewModel<V>(
     graph: Graph<V>,
     representationStrategy: RepresentationStrategy,
-    DBinput: DBInput
-) : MainScreenViewModel<V>(graph, representationStrategy, DBinput) {
+    dBInput: DBInput
+) : MainScreenViewModel<V>(graph, representationStrategy, dBInput) {
     override val algorithms = UndirectedGraphAlgorithmsImpl<V>()
     override fun run(input: MenuInput): String {
         var message = ""
@@ -27,21 +27,26 @@ class UGScreenViewModel<V>(
                 }
                 val source = getVertexByIndex(input.inputStartTwoVer.toInt())
                 val destination = getVertexByIndex(input.inputEndTwoVer.toInt())
-                if(source == null || destination == null) message = "Error: vertex with this index doesn't exist"
+                if (source == null || destination == null) message = "Error: vertex with this index doesn't exist"
                 else {
                     message = highlightPathDijkstra(source, destination)
                 }
             }
+
             else -> {
                 resetGraphView()
             }
         }
         return message
     }
+
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph clustering", "Key vertices", "Min tree", "Bridges",
-            "Min path (Dijkstra)")
+        return listOf(
+            "Graph clustering", "Key vertices", "Min tree", "Bridges",
+            "Min path (Dijkstra)"
+        )
     }
+
     private fun findBridges() {
         TODO()
     }

@@ -1,8 +1,6 @@
-//package view.mainScreen
+package view.mainScreen
 
 import androidx.compose.foundation.gestures.detectDragGestures
-//import androidx.compose.foundation.gestures.detectTapGestures
-//import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.ButtonDefaults
@@ -12,22 +10,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-//import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
-//import androidx.compose.ui.graphics.graphicsLayer
-//import androidx.compose.ui.input.pointer.pointerInput
-
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
-import view.Theme.Material3AppTheme
-import view.Theme.Theme
+import view.theme.Material3AppTheme
+import view.theme.Theme
 import view.graph.DirectedGraphView
 import view.inputs.DBInput
 import view.inputs.MenuInput
-import view.mainScreen.showDBSelectionDialogue
-import viewmodel.*
 import viewmodel.mainScreenVM.DGScreenViewModel
 import kotlin.math.exp
 import kotlin.math.sign
@@ -35,7 +27,6 @@ import kotlin.math.sign
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>) {
-    //println("here")
     Material3AppTheme(theme = theme.value) {
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
@@ -44,7 +35,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
 
         var showSnackbar by remember { mutableStateOf(false) }
         var isGraphLoaded by remember { mutableStateOf(false) }
-        if (viewModel.DBinput.dBType != "") {
+        if (viewModel.dBInput.dBType != "") {
             isGraphLoaded = true
         }
         var showDBSelectionDialogue by remember { mutableStateOf(false) }
@@ -80,7 +71,6 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     } else {
                         MaterialTheme.colorScheme.onSurface
                     }
-
                     Snackbar(
                         snackbarData = snackbarData,
                         backgroundColor = snackbarBackgroundColor,
@@ -113,18 +103,15 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    //val graphLoadingState = { mutableStateOf(isGraphLoaded) }
                     Button(
                         onClick = {
-                            //val loadingState by remember {mutableStateOf(loadGraph)}
                             if (!isGraphLoaded) {
-                                message = "No connection to database provided, please load your graph from database before saving algorithm results"
-//                                showSnackbar = true
+                                message =
+                                    "No connection to database provided, please load your graph from database before saving algorithm results"
                             } else {
                                 message = viewModel.saveAlgoResults()
                                 showSnackbar = message.isNotEmpty()
                                 message = "Results saved!"
-                                //showSnackbar = true
                             }
                             showSnackbarMessage(message)
                         },
@@ -214,9 +201,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     { isGraphLoaded = it }
                 )
             }
-
             if (loadGraph) {
-//                println(isGraphLoaded)
                 val newMessage = drawGraph(viewModel, dBInput)
                 if (newMessage.isNotEmpty()) {
                     if (newMessage != message) {
@@ -224,14 +209,13 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                         showSnackbar = true
                         loadGraph = false
                     }
-                }
-                else {
+                } else {
                     isGraphLoaded = true
                 }
             }
             if (showSnackbar) {
                 showSnackbarMessage(message)
-                showSnackbar = false // Сбрасываем флаг после показа Snackbar
+                showSnackbar = false
             }
         }
     }
@@ -250,6 +234,7 @@ fun handleAlgorithmExecution(viewModel: DGScreenViewModel<*>, menuInputState: Me
                 "Error: no required parameter for chosen algo was passed. Please enter parameter"
             }
         }
+
         "Min path (Dijkstra)", "Min path (Ford-Bellman)" -> {
             if (menuInputState.inputStartTwoVer.isNotEmpty() && menuInputState.inputEndTwoVer.isNotEmpty()) {
                 viewModel.run(menuInputState)
@@ -257,6 +242,7 @@ fun handleAlgorithmExecution(viewModel: DGScreenViewModel<*>, menuInputState: Me
                 "Error: no required parameter for chosen algo was passed. Please enter parameter"
             }
         }
+
         else -> viewModel.run(menuInputState)
     }
 }

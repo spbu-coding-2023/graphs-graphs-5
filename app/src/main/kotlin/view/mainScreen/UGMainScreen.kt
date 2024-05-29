@@ -1,7 +1,5 @@
 package view.mainScreen
 
-import ThemeSwitcher
-import adjustScale
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -15,14 +13,9 @@ import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import drawGraph
 import kotlinx.coroutines.launch
-import menu
-import resetGraphView
-import showEdgesLabels
-import showVerticesLabels
-import view.Theme.Material3AppTheme
-import view.Theme.Theme
+import view.theme.Material3AppTheme
+import view.theme.Theme
 import view.graph.UndirectedGraphView
 import view.inputs.DBInput
 import view.inputs.MenuInput
@@ -57,7 +50,6 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                 }
             }
         }
-
         Scaffold(
             backgroundColor = MaterialTheme.colorScheme.surface,
             snackbarHost = {
@@ -107,15 +99,15 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    //val graphLoadingState = { mutableStateOf(isGraphLoaded) }
                     Button(
                         onClick = {
                             if (!isGraphLoaded) {
-                                message = "No connection to database provided, please load your graph from database before saving algorithm results"
-//                                showSnackbar = true
+                                message =
+                                    "No connection to database provided, please load your graph from database before saving algorithm results"
                             } else {
                                 message = viewModel.saveAlgoResults()
                                 showSnackbar = message.isNotEmpty()
+                                message = "Results saved!"
                             }
                             showSnackbarMessage(message)
                         },
@@ -145,14 +137,17 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                         Button(
                             onClick = {
                                 when (menuInputState.text) {
-                                    "Min path (Dijkstra)", -> {
+                                    "Min path (Dijkstra)" -> {
                                         if (menuInputState.inputStartTwoVer.isNotEmpty() && menuInputState.inputEndTwoVer.isNotEmpty()) {
                                             message = viewModel.run(menuInputState)
                                             showSnackbar = message.isNotEmpty()
                                         } else {
                                             showSnackbar = true
-                                            message = "Error: no required parameter for chosen algo was passed. Please enter parameter"                                        }
+                                            message =
+                                                "Error: no required parameter for chosen algo was passed. Please enter parameter"
+                                        }
                                     }
+
                                     else -> message = viewModel.run(menuInputState)
                                 }
                                 if (message.isNotEmpty()) {
@@ -217,7 +212,6 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                 )
             }
             if (loadGraph) {
-//                println(isGraphLoaded)
                 val newMessage = drawGraph(viewModel, dBInput)
                 if (newMessage.isNotEmpty()) {
                     if (newMessage != message) {
@@ -225,14 +219,13 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                         showSnackbar = true
                         loadGraph = false
                     }
-                }
-                else {
+                } else {
                     isGraphLoaded = true
                 }
             }
             if (showSnackbar) {
                 showSnackbarMessage(message)
-                showSnackbar = false // Сбрасываем флаг после показа Snackbar
+                showSnackbar = false
             }
         }
     }

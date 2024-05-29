@@ -9,13 +9,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import view.inputs.DBInput
 
-
 @Composable
 fun showDBSelectionDialogue(
     showDBSelectionDialogue: Boolean,
     selectedDatabase: String,
     dBInput: DBInput,
-    showDBselection: (Boolean) -> Unit,
+    showDBSelection: (Boolean) -> Unit,
     selectedDB: (String) -> Unit,
     onDBInputChange: (DBInput) -> Unit,
     onLoadGraphChange: (Boolean) -> Unit,
@@ -24,14 +23,19 @@ fun showDBSelectionDialogue(
     var newState by remember { mutableStateOf(DBInput()) }
     if (showDBSelectionDialogue) {
         AlertDialog(
-            onDismissRequest = { showDBselection(false) },
-            title = { Text(
-                text = "Load Graph",
-                color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary) },
+            onDismissRequest = { showDBSelection(false) },
+            title = {
+                Text(
+                    text = "Load Graph",
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                )
+            },
             text = {
                 Column {
-                    Text(text = "Select Database:",
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary)
+                    Text(
+                        text = "Select Database:",
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                    )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -42,8 +46,10 @@ fun showDBSelectionDialogue(
                             colors = RadioButtonDefaults.colors(androidx.compose.material3.MaterialTheme.colorScheme.secondary)
 
                         )
-                        Text(text = "neo4j",
-                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary)
+                        Text(
+                            text = "neo4j",
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                        )
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -52,8 +58,10 @@ fun showDBSelectionDialogue(
                             onClick = { selectedDB("sqlite") },
                             colors = RadioButtonDefaults.colors(androidx.compose.material3.MaterialTheme.colorScheme.secondary)
                         )
-                        Text(text = "sqlite",
-                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary)
+                        Text(
+                            text = "sqlite",
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                        )
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -62,8 +70,10 @@ fun showDBSelectionDialogue(
                             onClick = { selectedDB(".json") },
                             colors = RadioButtonDefaults.colors(androidx.compose.material3.MaterialTheme.colorScheme.secondary)
                         )
-                        Text(text = ".json file",
-                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary)
+                        Text(
+                            text = ".json file",
+                            color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                        )
                     }
 
                     when (selectedDatabase) {
@@ -71,15 +81,26 @@ fun showDBSelectionDialogue(
                             newState = newState.copy(dBType = "neo4j")
                             Spacer(modifier = Modifier.height(16.dp))
 
-                            Text(text = "Enter Neo4j Details:",
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary)
+                            Text(
+                                text = "Enter Neo4j Details:",
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
 
                             OutlinedTextField(
                                 value = newState.uri,
                                 onValueChange = { newState = newState.copy(uri = it) },
-                                label = { Text(text ="URI",
-                                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary) }
+                                label = {
+                                    Text(
+                                        text = "URI",
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                                    )
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -87,8 +108,17 @@ fun showDBSelectionDialogue(
                             OutlinedTextField(
                                 value = newState.login,
                                 onValueChange = { newState = newState.copy(login = it) },
-                                label = { Text(text = "Login",
-                                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary) }
+                                label = {
+                                    Text(
+                                        text = "Login",
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                                    )
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                             )
 
                             Spacer(modifier = Modifier.height(8.dp))
@@ -96,8 +126,17 @@ fun showDBSelectionDialogue(
                             OutlinedTextField(
                                 value = newState.password,
                                 onValueChange = { newState = newState.copy(password = it) },
-                                label = { Text(text = "Password",
-                                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary) },
+                                label = {
+                                    Text(
+                                        text = "Password",
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                                    )
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                                 visualTransformation = PasswordVisualTransformation()
                             )
 
@@ -129,24 +168,45 @@ fun showDBSelectionDialogue(
                                 )
                             }
                         }
+
                         "sqlite" -> {
                             newState = newState.copy(dBType = "sqlite")
                             Spacer(modifier = Modifier.height(16.dp))
-                            Text(text = "Enter SQLite Details:",
-                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary)
+                            Text(
+                                text = "Enter SQLite Details:",
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                            )
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
                                 value = newState.pathToDb,
                                 onValueChange = { newState = newState.copy(pathToDb = it) },
-                                label = { Text(text = "Path to database",
-                                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary) }
+                                label = {
+                                    Text(
+                                        text = "Path to database",
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                                    )
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             OutlinedTextField(
                                 value = newState.name,
                                 onValueChange = { newState = newState.copy(name = it) },
-                                label = { Text(text = "Name",
-                                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary) }
+                                label = {
+                                    Text(
+                                        text = "Name",
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                                    )
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
                             )
                             Spacer(modifier = Modifier.height(8.dp))
                             Row(modifier = Modifier.fillMaxWidth()) {
@@ -168,18 +228,21 @@ fun showDBSelectionDialogue(
             confirmButton = {
                 Button(
                     onClick = {
-                        showDBselection(false)
+                        showDBSelection(false)
                         isLoaded(false)
-                        onDBInputChange(dBInput.copy(
-                            dBType = newState.dBType,
-                            isUpdatedSql = newState.isUpdatedSql,
-                            pathToDb = newState.pathToDb,
-                            name = newState.name,
-                            isUpdatedNeo4j = newState.isUpdatedNeo4j,
-                            uri = newState.uri,
-                            login = newState.login,
-                            password = newState.password,
-                            isUndirected = newState.isUndirected))
+                        onDBInputChange(
+                            dBInput.copy(
+                                dBType = newState.dBType,
+                                isUpdatedSql = newState.isUpdatedSql,
+                                pathToDb = newState.pathToDb,
+                                name = newState.name,
+                                isUpdatedNeo4j = newState.isUpdatedNeo4j,
+                                uri = newState.uri,
+                                login = newState.login,
+                                password = newState.password,
+                                isUndirected = newState.isUndirected
+                            )
+                        )
                         onLoadGraphChange(
                             when {
                                 dBInput.dBType == "sqlite" && (dBInput.name.isEmpty() || dBInput.pathToDb.isEmpty()) -> false
@@ -191,13 +254,15 @@ fun showDBSelectionDialogue(
                         backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.secondary
                     )
                 ) {
-                    Text(text = "Load",
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary)
+                    Text(
+                        text = "Load",
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                    )
                 }
             },
             dismissButton = {
                 Button(
-                    onClick = { showDBselection(false) },
+                    onClick = { showDBSelection(false) },
                     colors = ButtonDefaults.outlinedButtonColors(
                         backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.secondary
                     )

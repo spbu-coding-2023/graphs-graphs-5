@@ -2,10 +2,9 @@ package model.algorithms
 
 import model.Edge
 import model.Graph
-import model.UndirectedGraph
 import model.Vertex
 
-class UndirectedGraphAlgorithmsImpl<V>: UndirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
+class UndirectedGraphAlgorithmsImpl<V> : UndirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
     override fun findBridges(graph: Graph<V>): MutableList<Edge<V>> {
         val bridges = mutableListOf<Edge<V>>()
         val disc = mutableMapOf<Vertex<V>, Int>()
@@ -40,16 +39,13 @@ class UndirectedGraphAlgorithmsImpl<V>: UndirectedGraphAlgorithms<V>, CommonAlgo
                 }
             }
         }
-
         graph.vertices.forEach { vertex ->
             if (disc[vertex] == -1) {
                 dfsBridge(vertex)
             }
         }
-
         return bridges
     }
-
 
     override fun findCore(graph: Graph<V>) {
         TODO("Not yet implemented")
