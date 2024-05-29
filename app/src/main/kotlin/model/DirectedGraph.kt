@@ -13,13 +13,10 @@ open class DirectedGraph<V> : Graph<V> {
     override val edges: Collection<Edge<V>>
         get() = _edges.values
 
-    override val isDirected: Boolean
-        get() = true
-
     private val adjacencies: HashMap<Vertex<V>, ArrayList<Edge<V>>> = HashMap()
 
-    override fun addVertex(data: V): Vertex<V> {
-        val vertex = Vertex(adjacencies.count(), data)
+    override fun addVertex(data: V, dBIndex: Int): Vertex<V> {
+        val vertex = Vertex(adjacencies.count(), data, dBIndex)
         _vertices[adjacencies.count()] = vertex
         adjacencies[vertex] = ArrayList()
         return vertex

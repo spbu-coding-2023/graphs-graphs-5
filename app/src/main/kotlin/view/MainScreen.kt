@@ -1,5 +1,7 @@
 package view
 
+import App
+import ScreenFactory
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
@@ -7,6 +9,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+//import androidx.compose.foundation.gestures.detectTapGestures
+//import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
@@ -24,7 +28,11 @@ import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+//import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shape
+//import androidx.compose.ui.graphics.graphicsLayer
+//import androidx.compose.ui.input.pointer.pointerInput
+
 import androidx.compose.ui.unit.*
 import kotlinx.coroutines.launch
 import viewmodel.DGScreenViewModel
@@ -37,62 +45,106 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
         var menuInputState by remember { mutableStateOf(MenuInput()) }
+        //var neo4jInputState by remember { mutableStateOf(Neo4jInput())}
+        var message by remember { mutableStateOf("") }
+
+        var showSnackbar by remember { mutableStateOf(false) }
+
+        var isGraphLoaded by remember { mutableStateOf(false) }
+        var showDBSelectionDialog by remember { mutableStateOf(false) }
+        var selectedDatabase by remember { mutableStateOf("") }
+        var neo4jInput by remember { mutableStateOf(Neo4jInput()) }
+        var loadGraph by remember { mutableStateOf(false)}
+
         Scaffold(
             backgroundColor = MaterialTheme.colorScheme.surface,
             snackbarHost = {
                 SnackbarHost(
                     hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
-        ) { snackbarData ->
-            val snackbarBackgroundColor = if (message.contains("No cycles")) {
-                MaterialTheme.colorScheme.background }
-            else {
-                MaterialTheme.colorScheme.error
+                ) { snackbarData ->
+                    val snackbarBackgroundColor = if (message.contains("Error")) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.background
+                    }
+                    val snackbarContentColor = if (message.contains("Error")) {
+                        MaterialTheme.colorScheme.onError
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
+
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        backgroundColor = snackbarBackgroundColor,
+                        contentColor = snackbarContentColor,
+                        actionColor = snackbarContentColor
+                    )
+                }
             }
-
-            val snackbarContentColor = if (message.contains("No cycles")) {
-                MaterialTheme.colorScheme.onSurface }
-            else {
-                MaterialTheme.colorScheme.onError
-            }
-
-            Snackbar(
-                snackbarData = snackbarData,
-                backgroundColor = snackbarBackgroundColor, // Conditional background color of the Snackbar
-                contentColor = snackbarContentColor, // Conditional text color of the Snackbar
-                actionColor = snackbarContentColor // Conditional action (button) text color
-            )
-        }
-        }
-
         ) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(16.dp)
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().height(50.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "",
-                        modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { showDBSelectionDialog = true },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text(
+                            text = "Load graph",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    val graphLoadingState = { mutableStateOf(isGraphLoaded) }
+                    Button(
+                        onClick = {
+                            //println(isGraphLoaded)
+                            if (graphLoadingState.equals(false)) {
+                                message = "no graph provided, please load your graph"
+                                showSnackbar = true
+
+                            }
+                            else {
+                                //implement other bases
+                                message = viewModel.saveAlgoResults(neo4jInput)
+                            }
+                        },
+                        //enabled = isGraphLoaded,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = if (graphLoadingState.equals(false)) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
+                        )
+                    ) {
+                        Text(
+                            text = "Save",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
                     ThemeSwitcher(
                         theme,
                         size = 45.dp,
                         padding = 5.dp
                     )
                 }
+
                 Row {
                     Column(modifier = Modifier.width(300.dp)) {
                         Spacer(modifier = Modifier.padding(8.dp))
                         showVerticesLabels(viewModel)
                         showEdgesLabels(viewModel)
                         resetGraphView(viewModel)
-                        var showSnackbar by remember { mutableStateOf(false) }
-                        var message by remember { mutableStateOf("") }
                         Button(
                             onClick = {
                                 //message = viewModel.run(menuInputState.algoNum)
@@ -103,7 +155,7 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                             showSnackbar = message.isNotEmpty()
                                         } else {
                                             showSnackbar = true
-                                            message = "No required parameter for chosen algo was passed. Please enter parameter"
+                                            message = "Error: no required parameter for chosen algo was passed. Please enter parameter"
                                         }
                                     }
                                     "Min path (Dijkstra)", "Min path (Ford-Bellman)" -> {
@@ -112,16 +164,16 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                                             showSnackbar = message.isNotEmpty()
                                         } else {
                                             showSnackbar = true
-                                            message = "No required parameter for chosen algo was passed. Please enter parameter"
+                                            message = "Error: no required parameter for chosen algo was passed. Please enter parameter"
                                         }
                                     }
                                     else -> message = viewModel.run(menuInputState)
                                 }
-                                if (message != "") {
+                                if (message.isNotEmpty()) {
                                     showSnackbar = true
                                 }
                                 scope.launch {
-                                    if (showSnackbar) {
+                                    if (showSnackbar && (message != "")) {
                                         snackbarHostState.showSnackbar(
                                             message,
                                             "Dismiss",
@@ -143,13 +195,13 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                         }
                         val newState = menu(viewModel.getListOfAlgorithms())
                         menuInputState = menuInputState.copy(
-//                            algoNum = newState.algoNum,
                             text = newState.text,
                             inputValueOneVertex = newState.inputValueOneVertex,
                             inputStartTwoVer = newState.inputStartTwoVer,
                             inputEndTwoVer = newState.inputEndTwoVer
                         )
                     }
+                    //сюда вставить zoomable
                     Surface(
                         modifier = Modifier.weight(1f)
                     ) {
@@ -157,63 +209,252 @@ fun <V> DGMainScreen(viewModel: DGScreenViewModel<V>, theme: MutableState<Theme>
                     }
                 }
             }
+            //мб сдвинуть вниз
+            if (showDBSelectionDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDBSelectionDialog = false },
+                    title = { Text(text = "Load Graph") },
+                    text = {
+                        Column {
+                            Text(text = "Select Database:")
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedDatabase == "neo4j",
+                                    onClick = { selectedDatabase = "neo4j" }
+                                )
+                                Text(text = "neo4j")
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedDatabase == "sqlite",
+                                    onClick = { selectedDatabase = "sqlite" }
+                                )
+                                Text(text = "sqlite")
+                            }
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(
+                                    selected = selectedDatabase == ".csv",
+                                    onClick = { selectedDatabase = ".csv" }
+                                )
+                                Text(text = ".csv file")
+                            }
+
+                            if (selectedDatabase == "neo4j") {
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Text(text = "Enter Neo4j Details:")
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // Text fields for URI, login, password
+                                OutlinedTextField(
+                                    value = neo4jInput.uri,
+                                    onValueChange = {newURI ->
+                                        neo4jInput = neo4jInput.copy(uri = newURI)
+                                    },
+                                    label = { Text("URI") }
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                OutlinedTextField(
+                                    value = neo4jInput.login,
+                                    onValueChange = {newLogin ->
+                                        neo4jInput = neo4jInput.copy(login = newLogin)   },
+                                    label = { Text("Login") }
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                OutlinedTextField(
+                                    value = neo4jInput.password,
+                                    onValueChange = {newPass ->
+                                        neo4jInput = neo4jInput.copy(password = newPass) },
+                                    label = { Text("Password") }
+                                )
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // Switcher for "is database updated"
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Switch(
+                                        checked = neo4jInput.isUpdated,
+                                        onCheckedChange = {newState ->
+                                            neo4jInput = neo4jInput.copy(isUpdated = newState)},
+                                    )
+                                    Text(
+                                        text = "Is database updated? (no/yes) If no, results of algorithms from previous runs can be displayed",
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    Switch(
+                                        checked = neo4jInput.isUndirected,
+                                        onCheckedChange = {newState ->
+                                            neo4jInput = neo4jInput.copy(isUndirected = newState)},
+                                    )
+                                    Text(
+                                        text = "Is graph undirected? (no/yes)",
+                                        modifier = Modifier.padding(16.dp)
+                                    )
+                                }
+                            }
+
+                            if (selectedDatabase == "sqlite") {
+                                TODO()
+                            }
+                        }
+                    },
+                    //переместить эту кнопку внутрь конкретной дата базы
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                //isGraphLoaded = true
+                                showDBSelectionDialog = false
+                                loadGraph = true
+                            }
+                        ) {
+                            Text("Load")
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { showDBSelectionDialog = false }) {
+                            Text("Cancel")
+                        }
+                    }
+                )
+            }
+
+            if (loadGraph) {
+                if (selectedDatabase == "neo4j") {
+                    message = drawGraph(viewModel, neo4jInput)
+                    //showSnackbar = message.isNotEmpty()
+                    if (message.isNotEmpty()) {
+                        showSnackbar = true
+                    }
+                    else {
+                        isGraphLoaded = true
+                        println("here")
+                    }
+                }
+                else if (selectedDatabase == "sqlite") {
+                    TODO()
+                }
+                else {
+                    TODO()
+                }
+                scope.launch {
+                    if ((showSnackbar) && (message != "")) {
+                        snackbarHostState.showSnackbar(
+                            message,
+                            "Dismiss",
+                            duration = SnackbarDuration.Short
+                        )
+                        showSnackbar = false
+                        //message = ""
+                    }
+                }
+            }
         }
+
+
+//        if (message.isNotEmpty()) {
+//            showSnackbar = true
+//        }
     }
 }
 
 @Composable
-
 fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>) {
     Material3AppTheme(theme = theme.value) {
         val snackbarHostState = remember { SnackbarHostState() }
         val scope = rememberCoroutineScope()
         var menuInputState by remember { mutableStateOf(MenuInput()) }
+        var message by remember { mutableStateOf("") }
+
+        var isGraphLoaded by remember { mutableStateOf(false) }
+        var showDialog by remember { mutableStateOf(false) }
+
+        var showSnackbar by remember { mutableStateOf(false) }
+
         Scaffold(
             backgroundColor = MaterialTheme.colorScheme.surface,
             snackbarHost = {
                 SnackbarHost(
                     hostState = snackbarHostState,
 //            modifier = Modifier.padding(16.dp)
-        ) { snackbarData ->
-            val snackbarBackgroundColor = if (message.contains("No cycles")) {
-                MaterialTheme.colorScheme.background }
-            else {
-                MaterialTheme.colorScheme.error
+                ) { snackbarData ->
+                    val snackbarBackgroundColor = if (message.contains("Error")) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.background
+                    }
+                    val snackbarContentColor = if (message.contains("Error")) {
+                        MaterialTheme.colorScheme.onError
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
+                    Snackbar(
+                        snackbarData = snackbarData,
+                        backgroundColor = snackbarBackgroundColor,
+                        contentColor = snackbarContentColor,
+                        actionColor = snackbarContentColor
+                    )
+                }
             }
-
-            val snackbarContentColor = if (message.contains("No cycles")) {
-                MaterialTheme.colorScheme.onSurface }
-            else {
-                MaterialTheme.colorScheme.onError
-            }
-
-            Snackbar(
-                snackbarData = snackbarData,
-                backgroundColor = snackbarBackgroundColor, // Conditional background color of the Snackbar
-                contentColor = snackbarContentColor, // Conditional text color of the Snackbar
-                actionColor = snackbarContentColor // Conditional action (button) text color
-            )
-        }
-        }
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(16.dp)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().height(50.dp)
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp)
             ) {
-                Text(
-                    text = "",
-                    modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.bodyLarge
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                ThemeSwitcher(
-                    theme,
-                    size = 45.dp,
-                    padding = 5.dp
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = { showDialog = true },
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = MaterialTheme.colorScheme.secondary
+                        )
+                    ) {
+                        Text(
+                            text = "Load graph",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Button(
+                        onClick = {
+                            if (!isGraphLoaded) {
+                                message = "no graph provided, please load your graph"
+
+                            }
+                        },
+                        //enabled = isGraphLoaded,
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            backgroundColor = if (isGraphLoaded) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.background
+                        )
+                    ) {
+                        Text(
+                            text = "Save",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    Spacer(modifier = Modifier.weight(1f))
+                    ThemeSwitcher(
+                        theme,
+                        size = 45.dp,
+                        padding = 5.dp
+                    )
                 }
                 Row(
                 ) {
@@ -222,10 +463,6 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                         showVerticesLabels(viewModel)
                         showEdgesLabels(viewModel)
                         resetGraphView(viewModel)
-
-
-                        var showSnackbar by remember { mutableStateOf(false) }
-                        var message by remember { mutableStateOf("") }
                         Button(
                             onClick = {
                                 when (menuInputState.text) {
@@ -235,30 +472,17 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                                             showSnackbar = message.isNotEmpty()
                                         } else {
                                             showSnackbar = true
-                                            message = "No required parameter for chosen algo was passed. Please enter parameter"
+                                            message =
+                                                "Error: no required parameter for chosen algo was passed. Please enter parameter"
                                         }
                                     }
                                     //add another types
                                     else -> message = viewModel.run(menuInputState)
 
-                    
-                            }
-                            if (message != "") {
-                                showSnackbar = true
-                            }
-                          
 
                                 }
-                                scope.launch {
-                                    if (showSnackbar) {
-                                        snackbarHostState.showSnackbar(
-                                            message,
-                                            "Dismiss",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                        showSnackbar = false
-                                    }
-
+                                if (message.isNotEmpty()) {
+                                    showSnackbar = true
                                 }
                             },
                             enabled = true,
@@ -280,19 +504,177 @@ fun <V> UGMainScreen(viewModel: UGScreenViewModel<V>, theme: MutableState<Theme>
                             inputEndTwoVer = newState.inputEndTwoVer
                         )
                     }
-
                     Surface(
                         modifier = Modifier.weight(1f),
                     ) {
                         UndirectedGraphView(viewModel.graphViewModel)
                     }
-
                 }
+            }
+        }
+        var selectedDatabase by remember { mutableStateOf("") }
+        var neo4jInput by remember { mutableStateOf(Neo4jInput()) }
+        var loadGraph by remember { mutableStateOf(false)}
 
+        if (showDialog) {
+            AlertDialog(
+                onDismissRequest = { showDialog = false },
+                title = { Text(text = "Load Graph") },
+                text = {
+                    Column {
+                        Text(text = "Select Database:")
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = selectedDatabase == "neo4j",
+                                onClick = { selectedDatabase = "neo4j" }
+                            )
+                            Text(text = "neo4j")
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = selectedDatabase == "sqlite",
+                                onClick = { selectedDatabase = "sqlite" }
+                            )
+                            Text(text = "sqlite")
+                        }
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(
+                                selected = selectedDatabase == ".csv",
+                                onClick = { selectedDatabase = ".csv" }
+                            )
+                            Text(text = ".csv file")
+                        }
+
+                        if (selectedDatabase == "neo4j") {
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Text(text = "Enter Neo4j Details:")
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Text fields for URI, login, password
+                            OutlinedTextField(
+                                value = neo4jInput.uri,
+                                onValueChange = {newURI ->
+                                    neo4jInput = neo4jInput.copy(uri = newURI)
+                                },
+                                label = { Text("URI") }
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            OutlinedTextField(
+                                value = neo4jInput.login,
+                                onValueChange = {newLogin ->
+                                    neo4jInput = neo4jInput.copy(login = newLogin)   },
+                                label = { Text("Login") }
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            OutlinedTextField(
+                                value = neo4jInput.password,
+                                onValueChange = {newPass ->
+                                    neo4jInput = neo4jInput.copy(password = newPass) },
+                                label = { Text("Password") }
+                            )
+
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Switcher for "is database updated"
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Switch(
+                                    checked = neo4jInput.isUpdated,
+                                    onCheckedChange = {newState ->
+                                        neo4jInput = neo4jInput.copy(isUpdated = newState)},
+                                )
+                                Text(
+                                    text = "Is database updated? (no/yes) If no, results of algorithms from previous runs can be displayed",
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+
+                            Row(modifier = Modifier.fillMaxWidth()) {
+                                Switch(
+                                    checked = neo4jInput.isUndirected,
+                                    onCheckedChange = {newState ->
+                                        neo4jInput = neo4jInput.copy(isUndirected = newState)},
+                                )
+                                Text(
+                                    text = "Is graph undirected? (no/yes)",
+                                    modifier = Modifier.padding(16.dp)
+                                )
+                            }
+                        }
+
+                        if (selectedDatabase == "sqlite") {
+                            TODO()
+                        }
+                    }
+                },
+                //переместить эту кнопку внутрь конкретной дата базы
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            isGraphLoaded = true
+                            showDialog = false
+                            loadGraph = true
+                        }
+                    ) {
+                        Text("Load")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showDialog = false }) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
+
+        if (loadGraph) {
+            if (selectedDatabase == "neo4j") {
+                message = drawGraph(viewModel, neo4jInput)
+            }
+            else if (selectedDatabase == "sqlite") {
+                TODO()
+            }
+            else {
+                TODO()
+            }
+        }
+
+        scope.launch {
+            if (showSnackbar) {
+                snackbarHostState.showSnackbar(
+                    message,
+                    "Dismiss",
+                    duration = SnackbarDuration.Short
+                )
+                showSnackbar = false
             }
         }
     }
 }
+
+@Composable
+fun <V> drawGraph(viewModel: MainScreenViewModel<V>, input: Neo4jInput): String {
+    val (graph, message) = viewModel.configureNeo4jRepo(input)
+    if (message != "") {
+        return message
+    }
+    else if (graph != null){
+        //println(graph.vertices)
+        //println(graph.edges)
+        ScreenFactory.createView(graph, input)
+    }
+    return ""
+}
+
 @Composable
 fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
     Row(
@@ -308,7 +690,7 @@ fun <V> showVerticesLabels(viewModel: MainScreenViewModel<V>) {
         )
         Text(
             text = "Show vertices' labels",
-            fontSize = 20.sp,
+            fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 4.dp)
         )
@@ -330,7 +712,7 @@ fun <V> showEdgesLabels(viewModel: MainScreenViewModel<V>) {
         )
         Text(
             text = "Show edges' weights",
-            fontSize = 20.sp,
+            fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(horizontal = 4.dp)
         )
@@ -357,8 +739,7 @@ fun <V> resetGraphView(viewModel: MainScreenViewModel<V>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-
-fun menu(algoList: List<String>): menuInput {
+fun menu(algoList: List<String>): MenuInput {
 
     var showOneVertexSelection by remember { mutableStateOf(false) }
     var showTwoVertexSelection by remember { mutableStateOf(false) }
@@ -412,14 +793,12 @@ fun menu(algoList: List<String>): menuInput {
                             )
                         },
                         onClick = {
-
 //                            menuInputState.algoNum = index
                             menuInputState.text = algoList[index]
                             showOneVertexSelection = menuInputState.text == "Cycles"
-//                            showOneVertexSelection = menuInputState.algoNum == 2
-//                            showTwoVertexSelection = menuInputState.algoNum == 6 || menuInputState.algoNum == 5
-                            showTwoVertexSelection = menuInputState.text == "Min path (Dijkstra)" || menuInputState.text == "Min path (Ford-Bellman)"
-                            selectedText = list[index]
+                            showTwoVertexSelection = menuInputState.text == "Min path (Dijkstra)" ||
+                                    menuInputState.text == "Min path (Ford-Bellman)"
+                            selectedText = algoList[index]
                             isExpanded = false
                         },
                         contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
@@ -459,17 +838,29 @@ fun menu(algoList: List<String>): menuInput {
                                 showNoInputError = false
                                 showIncorrectInputError = false
                             },
-                            label = { Text("index") },
-                            isError = showNoInputError || showIncorrectInputError
+                            label = {
+                                Text(
+                                    text = "Index",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            },
+                            isError = showNoInputError || showIncorrectInputError,
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = MaterialTheme.colorScheme.surface,
+                                cursorColor = MaterialTheme.colorScheme.onSecondary,
+                                focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary
+                            )
                         )
                         if (showNoInputError) {
                             Text(
-                                text = "No input passed. Please check that input values are integer",
+                                text = "Error: no input passed. Please check that input values are integer",
+                                color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         if (showIncorrectInputError) {
                             Text(
-                                text = "Invalid input passed. Please check that input values are integer",
+                                text = "Error: invalid input passed. Please check that input values are integer",
+                                color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
@@ -529,7 +920,8 @@ fun menu(algoList: List<String>): menuInput {
                     Column(
                         modifier = Modifier.padding(16.dp)
                     ) {
-                        Text(text = "Insert start and end vertex indices")
+                        Text(text = "Insert start and end vertex indices",
+                            color = MaterialTheme.colorScheme.onSecondary)
                         Spacer(modifier = Modifier.height(8.dp))
                         TextField(
                             value = menuInputState.inputStartTwoVer,
@@ -537,8 +929,18 @@ fun menu(algoList: List<String>): menuInput {
                                 menuInputState = menuInputState.copy(inputStartTwoVer = newValue)
                                 showNoInputError = false // Скрыть сообщение об ошибке при изменении текста
                             },
-                            label = { Text("Start index") },
-                            isError = showNoInputError
+                            label = {
+                                Text(
+                                    text = "Start index",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            },
+                            isError = showNoInputError,
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = MaterialTheme.colorScheme.surface,
+                                cursorColor = MaterialTheme.colorScheme.onSecondary,
+                                focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary
+                            )
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         TextField(
@@ -548,17 +950,29 @@ fun menu(algoList: List<String>): menuInput {
                                 showNoInputError = false // Скрыть сообщение об ошибке при изменении текста
                                 showIncorrectInputError = false
                             },
-                            label = { Text("End index") },
-                            isError = showNoInputError || showIncorrectInputError
+                            label = {
+                                Text(
+                                    text = "End index",
+                                    color = MaterialTheme.colorScheme.onSecondary
+                                )
+                            },
+                            isError = showNoInputError || showIncorrectInputError,
+                            colors = TextFieldDefaults.textFieldColors(
+                                backgroundColor = MaterialTheme.colorScheme.surface,
+                                cursorColor = MaterialTheme.colorScheme.onSecondary,
+                                focusedIndicatorColor = MaterialTheme.colorScheme.onSecondary
+                            )
                         )
                         if (showNoInputError) {
                             Text(
-                                text = "No input passed. Please check that input values are integer",
+                                text = "Error: no input passed. Please check that input values are integer",
+                                color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         if (showIncorrectInputError) {
                             Text(
-                                text = "Invalid input passed. Please check that input values are integer",
+                                text = "Error: invalid input passed. Please check that input values are integer",
+                                color = MaterialTheme.colorScheme.errorContainer
                             )
                         }
                         Spacer(modifier = Modifier.height(16.dp))

@@ -14,7 +14,10 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
         var componentNum = 0
         val componentsList = mutableListOf<Pair<Vertex<V>, Int>>()
         listOfOrder.forEach { v ->
-            assignComponentNum(v, componentNum++, componentsList, assigned, transposeGraph)
+            if (!assigned[v.index]) {
+                assignComponentNum(v, componentNum, componentsList, assigned, transposeGraph)
+                componentNum++
+            }
         }
         val resultList = componentsList.sortedBy { it.first.index }
         return resultList
@@ -48,10 +51,9 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
 
     /* transpose graph is built from the graph by changing direction of every edge */
     private fun <V> buildTransposeGraph(graph: Graph<V>): Graph<V> {
-        if (!graph.isDirected) return graph
         val transposeGraph = DirectedGraph<V>()
         graph.vertices.forEach { v ->
-            transposeGraph.addVertex(v.data)
+            transposeGraph.addVertex(v.data, v.dBIndex)
         }
         graph.edges.forEach { e ->
             transposeGraph.addEdge(e.destination, e.source)
@@ -60,7 +62,6 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
     }
     
     override fun findPathWithFordBellman(source: Vertex<V>, destination: Vertex<V>, graph: Graph<V>): MutableList<Vertex<V>>? {
-
         val distance = DoubleArray(graph.vertices.size)
         /* whose predecessor and who is predecessor */
         val predecessor = mutableListOf<Vertex<V>>()
@@ -114,5 +115,88 @@ class DirectedGraphAlgorithmsImpl<V> : DirectedGraphAlgorithms<V>, CommonAlgorit
             if (vertexOnPath == source) return path
         }
         return path
+    }
+
+    override fun getCycles(graph: Graph<V>, source: Vertex<V>): MutableList<MutableList<Int>>? {
+        val adjMap: MutableMap<Int, MutableList<Int>> = HashMap()
+
+        // Construct the adjacency list from the graph edges
+        for (edge in graph.edges) {
+            if (adjMap[edge.source.index] == null) {
+                adjMap[edge.source.index] = mutableListOf()
+            }
+            adjMap[edge.source.index]?.add(edge.destination.index)
+        }
+
+        var cycles = mutableListOf<MutableList<Int>>()
+        val color = IntArray(graph.vertices.size) { 0 }
+        val ancestorList = IntArray(graph.vertices.size) { -1 }
+
+        detectCyclesViaDFS(source.index, -1, color, ancestorList, cycles, adjMap)
+
+        if (cycles.isEmpty()) {
+            return null
+        }
+        cycles = deleteOverlappingCycles(cycles)
+        if (cycles[0].contains(source.index)) {
+            return cycles
+        }
+        else {
+            return null
+        }
+    }
+
+    private fun detectCyclesViaDFS(
+        curVertex: Int,
+        curParent: Int,
+        color: IntArray,
+        ancestorList: IntArray,
+        cycles: MutableList<MutableList<Int>>,
+        adjMap: MutableMap<Int, MutableList<Int>>
+    ) {
+        color[curVertex] = 1
+
+        val neighborList = adjMap[curVertex]
+        if (neighborList != null) {
+            for (nextVer in neighborList) {
+                if (color[nextVer] == 0) {
+                    ancestorList[nextVer] = curVertex
+                    detectCyclesViaDFS(nextVer, curVertex, color, ancestorList, cycles, adjMap)
+                } else if (color[nextVer] == 1 && nextVer != curParent) {
+                    // Found a cycle
+                    val detectedCycle = mutableListOf<Int>()
+                    var vertexToAdd = curVertex
+                    detectedCycle.add(vertexToAdd)
+
+                    while (vertexToAdd != nextVer) {
+                        vertexToAdd = ancestorList[vertexToAdd]
+                        detectedCycle.add(vertexToAdd)
+                    }
+                    detectedCycle.add(nextVer)
+                    cycles.add(detectedCycle)
+                }
+            }
+        }
+
+        color[curVertex] = 2
+    }
+
+    private fun deleteOverlappingCycles(result: MutableList<MutableList<Int>>): MutableList<MutableList<Int>> {
+        val size = result.size
+        val cyclesToRemove = mutableListOf<Int>()
+        for (i in 0 until size) {
+            for (j in 0 until size) {
+                if (i != j) {
+                    if (result[i].containsAll(result[j])) {
+                        cyclesToRemove.add(j)
+                    }
+                }
+            }
+        }
+        cyclesToRemove.sortDescending()
+        for (index in cyclesToRemove) {
+            result.removeAt(index)
+        }
+        return result
     }
 }

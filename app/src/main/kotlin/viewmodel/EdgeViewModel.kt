@@ -10,7 +10,6 @@ class EdgeViewModel<V>(
     val v: VertexViewModel<V>,
     private val edge: Edge<V>,
     private val _labelVisible: State<Boolean>,
-    private val _isDirected: Boolean,
     color: Color
 ) {
     val label
@@ -18,9 +17,6 @@ class EdgeViewModel<V>(
 
     val labelVisible
         get() = _labelVisible.value
-
-    val isDirected
-        get() = _isDirected
 
     private var _color = mutableStateOf(color)
     var color: Color
