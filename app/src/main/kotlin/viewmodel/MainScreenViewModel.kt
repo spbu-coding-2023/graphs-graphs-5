@@ -15,6 +15,7 @@ import view.MenuInput
 import io.Neo4jRepo
 import model.DirectedGraph
 import model.UndirectedGraph
+import model.algorithms.UndirectedGraphAlgorithms
 
 
 abstract class MainScreenViewModel<V>(
@@ -113,28 +114,7 @@ abstract class MainScreenViewModel<V>(
     }
 
     protected open val algorithms = CommonAlgorithmsImpl<V>()
-
-//    fun run(input: MenuInput): String {
-//        //println("num is $num")
-//        var message = ""
-//        when {
-//            input.algoNum == 1 -> highlightKeyVertices()
-//            input.algoNum == 2 -> {
-//                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
-//                if (vertex != null) {
-//                    resetGraphView()
-//                    message = highlightCycles(vertex)
-//                }
-//                else {
-//                    message = "Vertex with that index does not exist"
-//                }
-//            }
-//            else -> {
-//                resetGraphView()
-//            }
-//        }
-//        return message
-//    }
+    protected open val udAlgorithms = UndirectedGraphAlgorithmsImpl<V>()
 
     protected fun highlightKeyVertices() {
         clearChanges()
@@ -226,6 +206,8 @@ abstract class MainScreenViewModel<V>(
         }
         return ""
     }
+
+
 }
 
 class DGScreenViewModel<V>(
@@ -237,7 +219,6 @@ class DGScreenViewModel<V>(
     private val graph2 = graph
     override fun run(input: MenuInput): String {
         var message = ""
-//        println(input.text)
         when {
             input.text == "Graph clustering" -> divideIntoClusters()
             input.text == "Key vertices" -> highlightKeyVertices()
@@ -300,9 +281,6 @@ class DGScreenViewModel<V>(
                 if (cycle.contains(e.u.vertex.index) && cycle.contains(e.v.vertex.index)) {
                     e.color = ComponentColorNavy
                 }
-//                if (cycle.indexOf(e.u.vertex.index) == 1 && cycle.indexOf(e.v.vertex.index) == cycle.size) {
-//                    e.color = ComponentColorNavy
-//                }
             }
         }
         return message
@@ -388,16 +366,8 @@ class UGScreenViewModel<V>(
         var message = ""
         when {
             input.text == "Key vertices" -> highlightKeyVertices()
-//            input.text == "Cycles" -> {
-//                val vertex = getVertexByIndex(input.inputValueOneVertex.toInt())
-//                if (vertex != null) {
-//                    resetGraphView()
-//                    message = highlightCycles(vertex)
-//                }
-//                else {
-//                    message = "Index out of bounds, maximum value is ${graph.vertices.size - 1}"
-//                }
-//            }
+            input.text == "Bridges" -> highlightBridges()
+            input.text == "Minimum spanning tree" -> highlightCore()
             else -> {
                 resetGraphView()
             }
@@ -406,14 +376,31 @@ class UGScreenViewModel<V>(
     }
 
     override fun getListOfAlgorithms(): List<String> {
-        return listOf("Graph clustering", "Key vertices", "Min tree", "Bridges",
+        return listOf("Graph clustering", "Key vertices", "Minimum spanning tree", "Bridges",
             "Min path (Dijkstra)")
     }
-    private fun findBridges() {
-        TODO()
+
+    fun highlightBridges() {
+        clearChanges()
+
+        val bridges = udAlgorithms.findBridges(graph)
+
+        graphViewModel.edges.forEach { e ->
+            if (bridges.any { bridge -> bridge == e }) {
+                e.color = ComponentColorPink
+            }
+        }
+    }
+    private fun highlightCore() {
+        clearChanges()
+
+        val coreVertices = udAlgorithms.findCore(graph)
+
+        graphViewModel.vertices.forEach { vertexViewModel ->
+            if (coreVertices.contains(vertexViewModel.vertex)) {
+                vertexViewModel.color = ComponentColorPink
+            }
+        }
     }
 
-    private fun findCore() {
-        TODO()
-    }
 }
