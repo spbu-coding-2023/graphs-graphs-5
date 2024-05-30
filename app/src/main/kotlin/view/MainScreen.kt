@@ -797,7 +797,9 @@ fun menu(algoList: List<String>): MenuInput {
                             menuInputState.text = algoList[index]
                             showOneVertexSelection = menuInputState.text == "Cycles"
                             showTwoVertexSelection = menuInputState.text == "Min path (Dijkstra)" ||
-                                    menuInputState.text == "Min path (Ford-Bellman)"
+                                    menuInputState.text == "Min path (Ford-Bellman)" ||
+                                    menuInputState.text == "Bridges" ||
+                                    menuInputState.text == "Minimum spanning tree"
                             selectedText = algoList[index]
                             isExpanded = false
                         },
