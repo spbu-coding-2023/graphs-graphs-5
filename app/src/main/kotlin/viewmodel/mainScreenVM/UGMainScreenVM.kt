@@ -1,5 +1,6 @@
 package viewmodel.mainScreenVM
 
+import androidx.compose.ui.graphics.Color
 import model.Graph
 import model.algorithms.UndirectedGraphAlgorithmsImpl
 import view.inputs.DBInput
@@ -12,9 +13,12 @@ class UGScreenViewModel<V>(
     dBInput: DBInput
 ) : MainScreenViewModel<V>(graph, representationStrategy, dBInput) {
     override val algorithms = UndirectedGraphAlgorithmsImpl<V>()
+    protected open val udAlgorithms = UndirectedGraphAlgorithmsImpl<V>()
     override fun run(input: MenuInput): String {
         var message = ""
         when {
+            input.text == "Bridges" -> highlightBridges()
+            input.text == "Min Tree" -> highlightCore()
             input.text == "Graph clustering" -> divideIntoClusters()
             input.text == "Key vertices" -> highlightKeyVertices()
             input.text == "Min path (Dijkstra)" -> {
@@ -47,11 +51,32 @@ class UGScreenViewModel<V>(
         )
     }
 
-    private fun findBridges() {
-        TODO()
+    private fun highlightBridges() {
+        clearChanges()
+
+        val bridges = udAlgorithms.findBridges(graph)
+        for (bridge in bridges) {
+
+            for (edge in graphViewModel.edges) {
+                if (bridge == edge.edge) {
+                    edge.color = Color.Green
+                }
+            }
+        }
     }
 
-    private fun findCore() {
-        TODO()
+    private fun highlightCore() {
+        clearChanges()
+
+        val coreVertices = udAlgorithms.findCore(graph)
+
+        for (core in coreVertices) {
+
+            for (edge in graphViewModel.edges) {
+                if (core == edge.edge) {
+                    edge.color = Color.Green
+                }
+            }
+        }
     }
 }
