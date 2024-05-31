@@ -8,7 +8,7 @@ import model.Edge
 class EdgeViewModel<V>(
     val u: VertexViewModel<V>,
     val v: VertexViewModel<V>,
-    private val edge: Edge<V>,
+    internal val edge: Edge<V>,
     private val _labelVisible: State<Boolean>,
     color: Color
 ) {
