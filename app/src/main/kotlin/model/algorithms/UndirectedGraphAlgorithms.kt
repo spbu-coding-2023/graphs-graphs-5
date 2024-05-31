@@ -8,5 +8,5 @@ import model.Vertex
 interface UndirectedGraphAlgorithms<V> {
     fun findBridges(graph: Graph<V>): Collection<Edge<V>>
 
-    fun findCore(graph: Graph<V>): Set<Vertex<V>>
+     fun findCore(graph: Graph<V>): List<Edge<V>>
 }

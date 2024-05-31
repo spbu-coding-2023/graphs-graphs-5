@@ -4,35 +4,6 @@ import model.Edge
 import model.Graph
 import model.UndirectedGraph
 import model.Vertex
-
-class UnionFind(size: Int) {
-    private val parent = IntArray(size) { it }
-    private val rank = IntArray(size) { 1 }
-
-    fun find(x: Int): Int {
-        if (parent[x] != x) {
-            parent[x] = find(parent[x])
-        }
-        return parent[x]
-    }
-
-    fun union(x: Int, y: Int) {
-        val rootX = find(x)
-        val rootY = find(y)
-
-        if (rootX != rootY) {
-            if (rank[rootX] > rank[rootY]) {
-                parent[rootY] = rootX
-            } else if (rank[rootX] < rank[rootY]) {
-                parent[rootX] = rootY
-            } else {
-                parent[rootY] = rootX
-                rank[rootX] += 1
-            }
-        }
-    }
-}
-
 class UndirectedGraphAlgorithmsImpl<V>: UndirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
     override fun findBridges(graph: Graph<V>): MutableList<Edge<V>> {
         val bridges = mutableListOf<Edge<V>>()
@@ -78,22 +49,37 @@ class UndirectedGraphAlgorithmsImpl<V>: UndirectedGraphAlgorithms<V>, CommonAlgo
         return bridges
     }
 
-    override fun findCore(graph: Graph<V>): Set<Vertex<V>> {
-        val edges = graph.edges.sortedBy { it.weight }
-        val unionFind = UnionFind(graph.vertices.size)
-        val mstVertices = mutableSetOf<Vertex<V>>()
+    override fun findCore(graph: Graph<V>): List<Edge<V>> {
+        val edgesInCore = mutableListOf<Edge<V>>()
+        val verticesInCore = mutableSetOf<Vertex<V>>()
 
-        for (edge in edges) {
-            val root1 = unionFind.find(edge.source.index)
-            val root2 = unionFind.find(edge.destination.index)
+        verticesInCore.add(graph.vertices.first()) // Start from the first vertex of the graph
 
-            if (root1 != root2) {
-                mstVertices.add(edge.source)
-                mstVertices.add(edge.destination)
-                unionFind.union(root1, root2)
+        while (verticesInCore.size < graph.vertices.size) {
+            var minWeightEdge: Edge<V>? = null
+
+            for (vertex in verticesInCore) {
+                val incidentEdges = graph.edges(vertex)
+                for (edge in incidentEdges) {
+                    if ((edge.source in verticesInCore && edge.destination !in verticesInCore) ||
+                        (edge.destination in verticesInCore && edge.source !in verticesInCore)) {
+                        if (minWeightEdge == null || edge.weight < minWeightEdge.weight) {
+                            minWeightEdge = edge
+                        }
+                    }
+                }
+            }
+
+            if (minWeightEdge != null) {
+                edgesInCore.add(minWeightEdge)
+                if (minWeightEdge.source !in verticesInCore) {
+                    verticesInCore.add(minWeightEdge.source)
+                } else {
+                    verticesInCore.add(minWeightEdge.destination)
+                }
             }
         }
 
-        return mstVertices
+        return edgesInCore
     }
 }
