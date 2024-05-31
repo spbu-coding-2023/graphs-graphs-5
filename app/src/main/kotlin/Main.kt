@@ -143,7 +143,7 @@ fun App() {
     //println(graph3.edges)
     //println(graph3.vertices)
     val input = Neo4jInput()
-    ScreenFactory.createView(graph, input)
+    ScreenFactory.createView(graph2, input)
 }
 
 object ScreenFactory {
