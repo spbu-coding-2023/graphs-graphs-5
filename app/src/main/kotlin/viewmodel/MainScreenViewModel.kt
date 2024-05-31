@@ -2,6 +2,7 @@ package viewmodel
 
 //import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 //import androidx.compose.runtime.setValue
 //import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.dp
@@ -197,7 +198,7 @@ abstract class MainScreenViewModel<V>(
             graphViewModel.edges.forEach { e ->
                 if (path.contains(e.u.vertex.index) && path.contains(e.v.vertex.index) &&
                     (path.indexOf(e.u.vertex.index).let { path.indexOf(e.v.vertex.index).minus(it) }) == 1 || (path.indexOf(e.u.vertex.index).let { path.indexOf(e.v.vertex.index).minus(it) }) == -1) {
-                        e.color = ComponentColorNavy
+                    e.color = ComponentColorNavy
                 }
                 if (path.indexOf(e.u.vertex.index) == 1 && path.indexOf(e.v.vertex.index) == path.size) {
                     e.color = ComponentColorNavy
@@ -384,23 +385,30 @@ class UGScreenViewModel<V>(
         clearChanges()
 
         val bridges = udAlgorithms.findBridges(graph)
+        for (bridge in bridges) {
 
-        graphViewModel.edges.forEach { e ->
-            if (bridges.any { bridge -> bridge == e }) {
-                e.color = ComponentColorPink
+            for (edge in graphViewModel.edges) {
+                if (bridge == edge.edge) {
+                    edge.color = Color.Green
+                }
             }
         }
     }
-    private fun highlightCore() {
+
+    fun highlightCore() {
         clearChanges()
 
         val coreVertices = udAlgorithms.findCore(graph)
 
-        graphViewModel.vertices.forEach { vertexViewModel ->
-            if (coreVertices.contains(vertexViewModel.vertex)) {
-                vertexViewModel.color = ComponentColorPink
+        for (core in coreVertices) {
+
+            for (edge in graphViewModel.edges) {
+                if (core == edge.edge) {
+                    edge.color = Color.Green
+                }
             }
         }
+
     }
 
 }
