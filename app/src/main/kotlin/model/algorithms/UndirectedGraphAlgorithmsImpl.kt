@@ -2,9 +2,9 @@ package model.algorithms
 
 import model.Edge
 import model.Graph
+import model.UndirectedGraph
 import model.Vertex
-
-class UndirectedGraphAlgorithmsImpl<V> : UndirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
+class UndirectedGraphAlgorithmsImpl<V>: UndirectedGraphAlgorithms<V>, CommonAlgorithmsImpl<V>() {
     override fun findBridges(graph: Graph<V>): MutableList<Edge<V>> {
         val bridges = mutableListOf<Edge<V>>()
         val disc = mutableMapOf<Vertex<V>, Int>()
@@ -39,15 +39,47 @@ class UndirectedGraphAlgorithmsImpl<V> : UndirectedGraphAlgorithms<V>, CommonAlg
                 }
             }
         }
+
         graph.vertices.forEach { vertex ->
             if (disc[vertex] == -1) {
                 dfsBridge(vertex)
             }
         }
+
         return bridges
     }
 
-    override fun findCore(graph: Graph<V>) {
-        TODO("Not yet implemented")
+    override fun findCore(graph: Graph<V>): List<Edge<V>> {
+        val edgesInCore = mutableListOf<Edge<V>>()
+        val verticesInCore = mutableSetOf<Vertex<V>>()
+
+        verticesInCore.add(graph.vertices.first()) // Start from the first vertex of the graph
+
+        while (verticesInCore.size < graph.vertices.size) {
+            var minWeightEdge: Edge<V>? = null
+
+            for (vertex in verticesInCore) {
+                val incidentEdges = graph.edges(vertex)
+                for (edge in incidentEdges) {
+                    if ((edge.source in verticesInCore && edge.destination !in verticesInCore) ||
+                        (edge.destination in verticesInCore && edge.source !in verticesInCore)) {
+                        if (minWeightEdge == null || edge.weight < minWeightEdge.weight) {
+                            minWeightEdge = edge
+                        }
+                    }
+                }
+            }
+
+            if (minWeightEdge != null) {
+                edgesInCore.add(minWeightEdge)
+                if (minWeightEdge.source !in verticesInCore) {
+                    verticesInCore.add(minWeightEdge.source)
+                } else {
+                    verticesInCore.add(minWeightEdge.destination)
+                }
+            }
+        }
+
+        return edgesInCore
     }
 }
