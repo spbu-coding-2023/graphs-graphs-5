@@ -1,0 +1,19 @@
+{
+  "vertices": [
+    {"index": 0, "data": 1, "dBIndex": 1},
+    {"index": 1, "data": 2, "dBIndex": 2},
+    {"index": 2, "data": 3, "dBIndex": 3},
+    {"index": 3, "data": 4, "dBIndex": 4},
+    {"index": 4, "data": 5, "dBIndex": 5},
+    {"index": 5, "data": 6, "dBIndex": 6}
+  ],
+  "edges": [
+    {"index": 0, "source": 0, "destination": 1, "weight": 0.0},
+    {"index": 1, "source": 1, "destination": 2, "weight": 0.0},
+    {"index": 2, "source": 2, "destination": 3, "weight": 0.0},
+    {"index": 3, "source": 3, "destination": 4, "weight": 0.0},
+    {"index": 4, "source": 4, "destination": 5, "weight": 0.0},
+    {"index": 5, "source": 5, "destination": 0, "weight": 0.0}
+  ],
+  "graphType": "UNDIRECTED"
+}
