@@ -9,6 +9,9 @@ import model.algorithms.CommonAlgorithmsImpl
 import view.inputs.MenuInput
 import io.Neo4jRepo
 import io.SqliteRepo
+import io.json.SerializableGraph
+import io.json.saveToJsonFile
+import io.json.SerializableVertex
 import model.DirectedGraph
 import model.UndirectedGraph
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -17,6 +20,11 @@ import view.inputs.DBInput
 import viewmodel.AlgoResults
 import viewmodel.placementStrategy.RepresentationStrategy
 import viewmodel.graph.GraphViewModel
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import model.*
+import java.io.File
+
 
 abstract class MainScreenViewModel<V>(
     val graph: Graph<V>,
@@ -69,6 +77,53 @@ abstract class MainScreenViewModel<V>(
             transaction { sqliteRepo.cleanOutdatedAlgoResults(graph!!) }
         }
         return Pair(graph, "")
+    }
+
+    fun saveGraphToJson(filePath: String): Pair<Boolean, String> {
+        return try {
+            graph.saveToJsonFile(filePath)
+            Pair(true, "Graph saved successfully to $filePath")
+        } catch (e: Exception) {
+            Pair(false, "Failed to save graph: ${e.message}")
+        }
+    }
+
+    fun loadGraphFromJson(
+        filePath: String,
+        createVertex: (SerializableVertex<V>) -> Vertex<V>
+    ): Pair<Graph<V>?, String> {
+        return try {
+            val jsonString = File(filePath).readText()
+            val json = Json { prettyPrint = true }
+            val serializableGraph = json.decodeFromString<SerializableGraph<V>>(jsonString)
+
+            val graph: Graph<V> = when (serializableGraph.graphType) {
+                GraphType.DIRECTED -> DirectedGraph()
+                GraphType.UNDIRECTED -> UndirectedGraph()
+            }
+
+            val vertexMap = mutableMapOf<Int, Vertex<V>>()
+
+            // вершины
+            for (vertex in serializableGraph.vertices) {
+                val newVertex = createVertex(vertex)
+                graph.addVertex(newVertex.data, newVertex.dBIndex)
+                vertexMap[vertex.index] = newVertex
+            }
+
+            // рёбра
+            for (edge in serializableGraph.edges) {
+                val sourceVertex = vertexMap[edge.source]
+                val destinationVertex = vertexMap[edge.destination]
+                if (sourceVertex != null && destinationVertex != null) {
+                    graph.addEdge(sourceVertex, destinationVertex, edge.weight)
+                }
+            }
+
+            Pair(graph, "Graph was successfully loaded from $filePath")
+        } catch (e: Exception){
+            Pair(null, "Unable to load graph: ${e.message}")
+        }
     }
 
     fun saveAlgoResults(): String {
