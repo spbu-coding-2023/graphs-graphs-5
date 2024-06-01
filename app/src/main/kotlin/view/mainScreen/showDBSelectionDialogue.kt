@@ -222,6 +222,47 @@ fun showDBSelectionDialogue(
                                 )
                             }
                         }
+                        ".json" -> {
+                            newState = newState.copy(dBType = ".json")
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "Enter .json Details:",
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = newState.pathToDb,
+                                onValueChange = { newState = newState.copy(pathToDb = it) },
+                                label = {
+                                    Text(
+                                        text = "Path to file",
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                                    )
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            OutlinedTextField(
+                                value = newState.name,
+                                onValueChange = { newState = newState.copy(name = it) },
+                                label = {
+                                    Text(
+                                        text = "Name",
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSecondary
+                                    )
+                                },
+                                colors = TextFieldDefaults.outlinedTextFieldColors(
+                                    cursorColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    focusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline,
+                                    unfocusedBorderColor = androidx.compose.material3.MaterialTheme.colorScheme.outline
+                                ),
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
                 }
             },
