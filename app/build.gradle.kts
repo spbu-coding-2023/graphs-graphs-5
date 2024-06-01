@@ -15,6 +15,8 @@ repositories {
 }
 
 dependencies {
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
     implementation(files("libs/gephi-toolkit-0.10.0-all.jar"))
     // Note, if you develop a library, you should use compose.desktop.common.
     // compose.desktop.currentOs should be used in launcher-sourceSet
